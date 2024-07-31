@@ -1,0 +1,14 @@
+# app/views/landlords/revenue_dashboard.html.erb
+<h1>Tableau de bord des revenus</h1>
+
+<h2>Revenus totaux : <%= number_to_currency(@total_revenue) %></h2>
+
+<h3>Réservations à venir</h3>
+<ul>
+  <% @upcoming_bookings.each do |booking| %>
+    <li><%= booking.room.name %> - <%= booking.start_date %> au <%= booking.end_date %></li>
+  <% end %>
+</ul>
+
+<h3>Revenus mensuels</h3>
+<%= line_chart @monthly_revenue %>

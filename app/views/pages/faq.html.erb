@@ -1,0 +1,11 @@
+# app/views/pages/faq.html.erb
+<h1>Foire aux questions</h1>
+
+<div class="faq-list">
+  <% @faqs.each do |faq| %>
+    <details>
+      <summary><%= faq.question %></summary>
+      <p><%= faq.answer %></p>
+    </details>
+  <% end %>
+</div>

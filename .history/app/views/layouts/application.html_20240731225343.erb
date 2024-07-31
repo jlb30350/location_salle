@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= content_for?(:meta_title) ? yield(:meta_title) : "Location de salles" %></title>
+  <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "Trouvez la salle parfaite pour votre événement" %>">
+  <%= yield(:canonical_link) if content_for?(:canonical_link) %>
+  <%= yield(:og_tags) if content_for?(:og_tags) %>
+  <meta name="robots" content="index, follow">
+  
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+  <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+  
+  <style>
+    #map { height: 400px; width: 100%; }
+  </style>
+</head>
+
+<body>
+  <%= render 'layouts/navigation' %>
+  <p class="notice"><%= notice %></p>
+  <p class="alert"><%= alert %></p>
+
+  <div>
+    <input id="address" type="textbox" value="Paris, France">
+    <input id="submit" type="button" value="Rechercher">
+  </div>
+  <div id="map"></div>
+
+  <%= yield %>
+
+  <script>
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 8,
+        center: {lat: 48.8566, lng: 2.3522}
+      });
+      var geocoder = new google.maps.Geocoder();
+
+      document.getElementById('submit').addEventListener('click', function() {
+        geocodeAddress(geocoder, map);
+      });
+    }
+
+    function geocodeAddress(geocoder, resultsMap) {
+      var address = document.getElementById('address').value;
+      geocoder.geocode({'address': address}, function(results, status) {
+        if (status === 'OK') {
+          resultsMap.setCenter(results[0].geometry.location);
+          var marker = new google.maps.Marker({
+            map: resultsMap,
+            position: results[0].geometry.location
+          });
+        } else {
+          alert('Geocode was not successful for the following reason: ' + status);
+        }
+      });
+    }
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap">
+  </script>
+</body>
+</html>

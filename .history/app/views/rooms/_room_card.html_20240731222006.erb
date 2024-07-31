@@ -1,0 +1,9 @@
+# app/views/rooms/_room_card.html.erb
+<div class="room-card">
+  <%= image_tag room.photo.url if room.photo.attached? %>
+  <h3><%= room.name %></h3>
+  <p><%= room.description.truncate(100) %></p>
+  <p>Capacité : <%= room.capacity %> personnes</p>
+  <p>Prix : <%= number_to_currency(room.price) %></p>
+  <%= link_to "Voir les détails", room_path(room), class: "btn btn-secondary" %>
+</div>

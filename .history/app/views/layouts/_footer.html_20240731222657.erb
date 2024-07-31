@@ -1,0 +1,15 @@
+# app/views/layouts/_footer.html.erb
+<footer>
+  <div class="footer-links">
+    <%= link_to "À propos", about_path %>
+    <%= link_to "FAQ", faq_path %>
+    <%= link_to "Conditions d'utilisation", terms_path %>
+    <%= link_to "Politique de confidentialité", privacy_path %>
+  </div>
+  <div class="social-links">
+    <%= link_to "Facebook", "https://facebook.com" %>
+    <%= link_to "Twitter", "https://twitter.com" %>
+    <%= link_to "Instagram", "https://instagram.com" %>
+  </div>
+  <p>&copy; <%= Date.current.year %> VotreSite. Tous droits réservés.</p>
+</footer>

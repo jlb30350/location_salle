@@ -1,0 +1,35 @@
+# app/views/pages/home.html.erb
+<header class="hero">
+  <h1>Trouvez la salle parfaite pour votre événement</h1>
+  <p>Que ce soit pour un mariage, une conférence ou une réunion, nous avons la salle qu'il vous faut.</p>
+</header>
+
+<section class="search-section">
+  <h2>Recherchez une salle</h2>
+  <%= form_with url: search_path, method: :get, local: true do |f| %>
+    <%= f.text_field :query, placeholder: "Ville, type d'événement..." %>
+    <%= f.date_field :date %>
+    <%= f.number_field :guests, placeholder: "Nombre d'invités" %>
+    <%= f.submit "Rechercher" %>
+  <% end %>
+</section>
+
+<section class="featured-rooms">
+  <h2>Salles en vedette</h2>
+  <div class="room-grid">
+    <% @featured_rooms.each do |room| %>
+      <%= render 'rooms/room_card', room: room %>
+    <% end %>
+  </div>
+</section>
+
+<section class="for-owners">
+  <h2>Vous êtes propriétaire d'une salle ?</h2>
+  <p>Rejoignez notre plateforme et commencez à louer votre espace dès aujourd'hui !</p>
+  <ul>
+    <li>Augmentez vos revenus</li>
+    <li>Gérez facilement vos réservations</li>
+    <li>Profitez de notre large base de clients</li>
+  </ul>
+  <%= link_to "S'inscrire en tant que propriétaire", new_user_registration_path, class: "btn btn-primary" %>
+</section>

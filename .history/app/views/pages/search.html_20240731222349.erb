@@ -1,0 +1,36 @@
+# app/views/pages/search.html.erb
+<h1>Recherche avancée</h1>
+
+<div id="map" style="height: 400px;"></div>
+
+<script>
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 10,
+    center: {lat: <%= @rooms.first.latitude %>, lng: <%= @rooms.first.longitude %>}
+  });
+
+  <% @rooms.each do |room| %>
+    new google.maps.Marker({
+      position: {lat: <%= room.latitude %>, lng: <%= room.longitude %>},
+      map: map,
+      title: '<%= room.name %>'
+    });
+  <% end %>
+}
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+
+
+
+<%= form_with url: search_path, method: :get, local: true do |f| %>
+  <%= f.text_field :query, placeholder: "Ville, nom de salle..." %>
+  <%= f.number_field :max_price, placeholder: "Prix maximum" %>
+  <%= f.select :event_type, Room.event_types.keys, prompt: "Type d'événement" %>
+  <%= f.collection_check_boxes :amenities, Amenity.all, :name, :name %>
+  <%= f.submit "Rechercher" %>
+<% end %>
+
+<div class="search-results">
+  <%= render @rooms %>
+</div>

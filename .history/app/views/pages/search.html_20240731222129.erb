@@ -1,0 +1,14 @@
+# app/views/pages/search.html.erb
+<h1>Recherche avancée</h1>
+
+<%= form_with url: search_path, method: :get, local: true do |f| %>
+  <%= f.text_field :query, placeholder: "Ville, nom de salle..." %>
+  <%= f.number_field :max_price, placeholder: "Prix maximum" %>
+  <%= f.select :event_type, Room.event_types.keys, prompt: "Type d'événement" %>
+  <%= f.collection_check_boxes :amenities, Amenity.all, :name, :name %>
+  <%= f.submit "Rechercher" %>
+<% end %>
+
+<div class="search-results">
+  <%= render @rooms %>
+</div>

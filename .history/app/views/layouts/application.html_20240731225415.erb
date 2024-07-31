@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= content_for?(:meta_title) ? yield(:meta_title) : "Location de salles" %></title>
+  <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "Trouvez la salle parfaite pour votre événement" %>">
+  <%= yield(:canonical_link) if content_for?(:canonical_link) %>
+  <%= yield(:og_tags) if content_for?(:og_tags) %>
+  <meta name="robots" content="index, follow">
+  
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+  <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+  
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap&libraries=maps,marker&v=beta">
+  </script>
+  <style>
+    gmp-map {
+      height: 400px;
+      width: 100%;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #search-container {
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <%= render 'layouts/navigation' %>
+  <p class="notice"><%= notice %></p>
+  <p class="alert"><%= alert %></p>
+
+  <div id="search-container">
+    <input id="address" type="textbox" value="Paris, France">
+    <button id="search">Rechercher</button>
+  </div>
+
+  <gmp-map center="46.603354,1.888334" zoom="6" map-id="DEMO_MAP_ID">
+    <gmp-advanced-marker position="46.603354,1.888334" title="France"></gmp-advanced-marker>
+  </gmp-map>
+
+  <%= yield %>
+
+  <script>
+    function initMap() {
+      const map = document.querySelector('gmp-map');
+      const marker = document.querySelector('gmp-advanced-marker');
+      const input = document.getElementById('address');
+      const searchButton = document.getElementById('search');
+
+      searchButton.addEventListener('click', () => {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: input.value }, (results, status) => {
+          if (status === 'OK') {
+            const position = results[0].geometry.location;
+            map.center = `${position.lat()},${position.lng()}`;
+            marker.position = `${position.lat()},${position.lng()}`;
+            marker.title = input.value;
+            map.zoom = 13;
+          } else {
+            alert('La géolocalisation a échoué pour la raison suivante : ' + status);
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
