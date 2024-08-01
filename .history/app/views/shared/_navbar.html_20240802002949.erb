@@ -1,0 +1,16 @@
+# app/views/shared/_navbar.html.erb
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- ... autres éléments de la navbar ... -->
+  <% if user_signed_in? %>
+    <% if current_user.bailleur? %>
+      <%= link_to "Ajouter une salle", new_room_path, class: "nav-link" %>
+    <% end %>
+    <span class="navbar-text mr-3">
+      <%= current_user.email %> (<%= current_user.role.titleize %>)
+    </span>
+    <%= link_to "Log out", destroy_user_session_path, method: :delete, class: "nav-link" %>
+  <% else %>
+    <%= link_to "Log in", new_user_session_path, class: "nav-link" %>
+    <%= link_to "Sign up", new_user_registration_path, class: "nav-link" %>
+  <% end %>
+</nav>

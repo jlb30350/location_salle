@@ -1,8 +1,6 @@
 # app/models/user.rb
 class User < ApplicationRecord
 
-
-
   enum role: { client: 0, bailleur: 1}
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
@@ -10,7 +8,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
  
 
-    has_many :rooms, dependent: :destroy
+    has_many :rooms
     has_many :bookings
     has_many :reviews
 

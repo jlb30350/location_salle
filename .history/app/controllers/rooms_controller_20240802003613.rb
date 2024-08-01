@@ -8,13 +8,6 @@ class RoomsController < ApplicationController
     @rooms = Room.paginate(page: params[:page], per_page: 10)
   end
 
-  def ensure_owner
-    unless @room.user == current_user
-      redirect_to root_path, alert: "Vous n'êtes pas autorisé à effectuer cette action."
-    end
-  end
-
-
   def show
   end
 

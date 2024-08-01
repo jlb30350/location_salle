@@ -5,15 +5,8 @@ class RoomsController < ApplicationController
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo]
 
   def index
-    @rooms = Room.paginate(page: params[:page], per_page: 10)
+    @rooms = Room.all
   end
-
-  def ensure_owner
-    unless @room.user == current_user
-      redirect_to root_path, alert: "Vous n'êtes pas autorisé à effectuer cette action."
-    end
-  end
-
 
   def show
   end
