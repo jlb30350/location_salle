@@ -1,0 +1,19 @@
+<h1>Confirmation de paiement</h1>
+
+<% if @payment_success %>
+  <div class="alert alert-success">
+    <p>Votre paiement a été traité avec succès.</p>
+  </div>
+  
+  <h2>Détails de la réservation :</h2>
+  <p><strong>Espace :</strong> <%= @booking.space.title %></p>
+  <p><strong>Date de début :</strong> <%= @booking.start_date %></p>
+  <p><strong>Durée :</strong> <%= @booking.duration %></p>
+  <p><strong>Montant total :</strong> <%= number_to_currency(@booking.total_amount) %></p>
+<% else %>
+  <div class="alert alert-danger">
+    <p>Il y a eu un problème avec votre paiement. Veuillez réessayer.</p>
+  </div>
+<% end %>
+
+<%= link_to "Retour à l'accueil", root_path, class: "btn btn-primary" %>
