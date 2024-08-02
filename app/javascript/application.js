@@ -1,5 +1,6 @@
 // app/javascript/application.js
 import { Turbo } from "@hotwired/turbo-rails"
+Turbo.session.drive = false
 
 document.addEventListener("turbo:load", () => {
   const logoutLinks = document.querySelectorAll("a[data-turbo-method='delete']")
