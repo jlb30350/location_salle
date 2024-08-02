@@ -38,4 +38,4 @@
 .env*
 
 # But don't ignore .env.example
-!.env.example
+GOOGLE_MAPS_API_KEY=your_api_key_here
