@@ -1,8 +1,6 @@
 # app/controllers/pages_controller.rb
 class PagesController < ApplicationController
 
-    before_action :authenticate_user!, only: [:dashboard]
-
     def dashboard
         @user_rooms = current_user.rooms if current_user
     end

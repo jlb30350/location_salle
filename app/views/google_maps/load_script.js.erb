@@ -1,0 +1,8 @@
+# app/views/google_maps/load_script.js.erb
+(function() {
+  var script = document.createElement('script');
+  script.src = 'https://maps.googleapis.com/maps/api/js?key=<%= @api_key %>&libraries=places&callback=initMap';
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+})();

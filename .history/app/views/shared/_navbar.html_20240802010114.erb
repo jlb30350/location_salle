@@ -8,7 +8,6 @@
     <span class="navbar-text mr-3">
       <%= current_user.email %> (<%= current_user.role.titleize %>)
     </span>
-    <%= link_to "Profil", edit_user_registration_path, class: "nav-link" %>
     <%= link_to "Log out", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link" %>
   <% else %>
     <%= link_to "Log in", new_user_session_path, class: "nav-link" %>

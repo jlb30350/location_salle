@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   get 'terms', to: 'pages#terms'
   get 'privacy', to: 'pages#privacy'
   get 'dashboard', to: 'pages#dashboard'
-  get 'load_google_maps', to: 'google_maps#load_script'
+   get 'load_google_maps', to: 'google_maps#load_script'
 
   # Routes pour les espaces (spaces)
   resources :spaces do
