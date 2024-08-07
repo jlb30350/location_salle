@@ -1,13 +1,40 @@
-# app/views/layouts/_navigation.html.erb
-<nav>
-  <%= link_to "Accueil", root_path %>
-  <%= link_to "Salles", rooms_path %>
-  <% if user_signed_in? %>
-    <%= link_to "Tableau de bord", dashboard_path %>
-    <%= link_to "Ajouter une salle", new_room_path %>
-    <%= link_to "Se déconnecter", destroy_user_session_path, method: :delete %>
-  <% else %>
-    <%= link_to "Se connecter", new_user_session_path %>
-    <%= link_to "S'inscrire", new_user_registration_path %>
-  <% end %>
+<!-- app/views/layouts/_navigation.html.erb -->
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <%= link_to "Accueil", root_path, class: 'nav-link' %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "Salles", rooms_path, class: 'nav-link' %>
+        </li>
+        <% if user_signed_in? %>
+          <li class="nav-item">
+            <%= link_to "Tableau de bord", dashboard_path, class: 'nav-link' %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Ajouter une salle", new_room_path, class: 'nav-link' %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Se déconnecter", destroy_user_session_path, method: :delete, class: 'nav-link' %>
+          </li>
+          <li class="nav-item">
+            <%= link_to 'Supprimer mon compte', delete_user_account_path, method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer votre compte ?' }, class: 'nav-link btn btn-danger' %>
+          </li>
+        <% else %>
+          <li class="nav-item">
+            <%= link_to "Se connecter", new_user_session_path, class: 'nav-link' %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "S'inscrire", new_user_registration_path, class: 'nav-link' %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
 </nav>

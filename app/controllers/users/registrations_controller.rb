@@ -1,5 +1,8 @@
 # app/controllers/users/registrations_controller.rb
 class Users::RegistrationsController < Devise::RegistrationsController
+  before_action :authenticate_user!, only: [:destroy]
+
+
     def destroy
       if resource.bailleur?
         resource.rooms.destroy_all

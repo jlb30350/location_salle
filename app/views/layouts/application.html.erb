@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr"> <!-- Ajout de l'attribut lang -->
+<html lang="fr">
 <head>
-  <meta charset="UTF-8"> <!-- Ajout de l'encodage -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ajout de la meta viewport pour le responsive -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= content_for?(:meta_title) ? yield(:meta_title) : "Location de salles" %></title>
   <meta name="description" content="<%= content_for?(:meta_description) ? yield(:meta_description) : "Trouvez la salle parfaite pour votre événement" %>">
   <%= yield(:canonical_link) if content_for?(:canonical_link) %>
@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
   <style>
-    #map { height: 400px; width: 100%; margin-top: 40px; } /* Ajusté pour une meilleure visibilité */
+    #map { height: 400px; width: 100%; margin-top: 40px; }
     #search-container { margin: 30px 0; }
     #results-container { margin-top: 30px; }
   </style>
@@ -29,7 +29,7 @@
   <%= render 'layouts/navigation' %>
 
   <div class="container mt-3">
-    <%= render 'shared/flash_messages' %> <!-- Extrait les messages flash dans un partial -->
+    <%= render 'shared/flash_messages' %>
 
     <div id="search-container">
       <input type="text" id="search-input" class="form-control" placeholder="Entrez un département, une ville ou un code postal">
@@ -39,7 +39,7 @@
     <div id="map"></div>
     <div id="results-container"></div>
     
-    <%= render 'shared/user_actions' %> <!-- Extrait les actions utilisateur dans un partial -->
+    <%= render 'shared/user_actions' %>
 
     <%= yield %>
   </div>
@@ -62,6 +62,6 @@
       }
     }
   </script>
- <%= javascript_import_module_tag "load_google_maps" %>
+  <%= javascript_include_tag 'load_google_maps' %>
 </body>
 </html>
