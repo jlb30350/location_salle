@@ -1,5 +1,4 @@
 <!-- app/views/layouts/_navigation.html.erb -->
-
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +23,7 @@
             <%= link_to "Se déconnecter", destroy_user_session_path, method: :delete, class: 'nav-link' %>
           </li>
           <li class="nav-item">
-            <%= link_to 'Supprimer mon compte', delete_user_account_path, method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer votre compte ?' }, class: 'nav-link btn btn-danger' %>
+            <%= link_to 'Supprimer mon compte', delete_user_account_path, method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer votre compte ?' }, class: 'nav-link text-danger' %>
           </li>
         <% else %>
           <li class="nav-item">

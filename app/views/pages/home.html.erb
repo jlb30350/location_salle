@@ -1,56 +1,34 @@
-<!-- app/views/pages/home.html.erb -->
-<h1>Bienvenue sur notre site de location de salles et trouvez la salle parfaite pour votre événement
-que ce soit pour un mariage, une conférence ou une réunion, nous avons la salle qu'il vous faut.</h1>
-<h2>Vous êtes propriétaire d'une salle, Inscrivez vous et mettez votre bien en ligne ou bien si vous êtes client devenez bailleur en cliquant sur le bouton "Devenir bailleur".</h2>
-<p>Rejoignez notre plateforme et commencez à louer votre espace dès aujourd'hui !</p>
-<ul>
-  <li>Augmentez vos revenus</li>
-  <li>Gérez facilement vos réservations</li>
-  <li>Profitez de notre large base de clients</li>
-</ul>
+<h1>Bienvenue sur notre site de location de salles</h1>
+<p>Positionnez votre ville afin de la situer.</p>
 
-<section class="search-section">
-  <h2>Recherchez une salle par département ou ville</h2>
- <%= form_with url: search_rooms_path, method: :get, local: true do |f| %>
-    <div class="form-group">
-      <%= f.label :query, "Entrez un code postal à 5 chiffres ou un nom de ville" %>
-      <%= f.text_field :query, value: params[:query], class: "form-control", placeholder: "Ex: 75001 ou Paris" %>
-    </div>
-    <%= f.submit "Rechercher votre future salle à louer", class: "btn btn-primary" %>
-  <% end %>
-</section>
+<div id="search-container">
+  <input type="text" id="search-input" placeholder="Entrez un département, une ville ou un code postal">
+  <button id="search-button">Rechercher</button>
+</div>
 
-<section class="featured-spaces">
-  <h2>Salles en vedette</h2>
-  <div class="space-grid">
-    <% if @featured_spaces.present? %>
-      <% @featured_spaces.each do |space| %>
-        <%= render 'spaces/space_card', space: space %>
-      <% end %>
-    <% else %>
-      <p>Aucune salle en vedette pour le moment.</p>
-    <% end %>
-  </div>
-</section>
+<div id="map" style="height: 400px; width: 100%;"></div>
+<div id="results-container"></div>
 
-<section class="for-owners">
-  <h2>Vous êtes propriétaire d'une salle ?</h2>
-  <p>Rejoignez notre plateforme et commencez à louer votre espace dès aujourd'hui !</p>
-  <ul>
-    <li>Augmentez vos revenus</li>
-    <li>Gérez facilement vos réservations</li>
-    <li>Profitez de notre large base de clients</li>
-  </ul>
-</section>
+<h2>Vos salles</h2>
 
-<section class="testimonials">
-  <h2>Ce que disent nos clients</h2>
-  <div class="testimonial-carousel">
-    <% Testimonial.order(created_at: :desc).limit(3).each do |testimonial| %>
-      <div class="testimonial">
-        <p><%= testimonial.content %></p>
-        <%= testimonial.author %>
+<% if @rooms&.any? %>
+  <% @rooms.each do |room| %>
+    <div class="card">
+      <div class="card-header">
+        <h3><%= room.name %></h3>
       </div>
-    <% end %>
-  </div>
-</section>
+      <div class="card-body">
+        <p><%= room.description %></p>
+        <p><strong>Adresse :</strong> <%= room.address %></p>
+        <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
+      </div>
+      <div class="card-footer">
+        <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
+        <%= link_to 'Modifier', edit_room_path(room), class: 'btn btn-warning' %>
+        <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <p>Vous n'avez pas encore de salles. <%= link_to 'Ajouter une salle', new_room_path %></p>
+<% end %>

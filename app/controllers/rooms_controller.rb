@@ -1,5 +1,5 @@
 class RoomsController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:index, :show]
   before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo]
@@ -7,13 +7,6 @@ class RoomsController < ApplicationController
   def index
     @rooms = Room.paginate(page: params[:page], per_page: 10)
   end
-
-  def ensure_owner
-    unless @room.user == current_user
-      redirect_to root_path, alert: "Vous n'êtes pas autorisé à effectuer cette action."
-    end
-  end
-
 
   def show
   end
@@ -25,7 +18,7 @@ class RoomsController < ApplicationController
   def create
     @room = current_user.rooms.new(room_params)
     if @room.save
-      redirect_to @room, notice: 'Salle créée avec succès.'
+      redirect_to @room, notice: 'Salle ajoutée avec succès.'
     else
       render :new
     end
@@ -55,18 +48,15 @@ class RoomsController < ApplicationController
 
   def search
     query = params[:query]
-    
     if query.present?
       if query.match?(/^\d{5}$/)
         @rooms = Room.where(department: query)
       else
-        # Utilisation de LIKE pour SQLite (insensible à la casse)
         @rooms = Room.where("LOWER(city) LIKE ?", "%#{query.downcase}%")
       end
     else
       @rooms = Room.none
     end
-  
     render :search
   end
 

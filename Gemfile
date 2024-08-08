@@ -21,7 +21,8 @@ gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'will_paginate'
 gem 'dotenv-rails'
-
+gem 'bootstrap', '~> 5.1.3'
+gem 'popper_js', '~> 2.0'
 
 
 gem "tzinfo-data", platforms: %i[ mswin mswin64 mingw x64_mingw jruby ]
