@@ -1,0 +1,17 @@
+<h1>Résultats de la recherche</h1>
+
+<% if @rooms.any? %>
+  <ul>
+    <% @rooms.each do |room| %>
+      <li>
+        <h2><%= link_to room.name, room_path(room) %></h2>
+        <p><strong>Adresse :</strong> <%= room.address %>, <%= room.city %>, <%= room.department %></p>
+        <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
+        <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
+        <p><strong>Description :</strong> <%= room.description %></p>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>Aucune salle trouvée pour la recherche "<%= params[:query] %>".</p>
+<% end %>

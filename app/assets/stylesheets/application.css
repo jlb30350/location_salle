@@ -65,3 +65,62 @@
   background-color: #c82333;
   border-color: #bd2130;
 }
+
+
+/* app/assets/stylesheets/application.css */
+
+.hero-section {
+  background-image: url('hero-background.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 150px 0;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.hero-content p {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.search-section {
+  padding: 50px 0;
+  background-color: #f7f7f7;
+}
+
+.room-types-section .room-type-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  text-align: center;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.testimonials-section .testimonial-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.for-owners-section {
+  background-color: #007bff;
+  color: white;
+  padding: 50px 0;
+}
+
+.for-owners-section h2 {
+  margin-bottom: 20px;
+}
+
+.for-owners-section p {
+  margin-bottom: 30px;
+}

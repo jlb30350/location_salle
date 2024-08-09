@@ -1,34 +1,84 @@
-<h1>Bienvenue sur notre site de location de salles</h1>
-<p>Positionnez votre ville afin de la situer.</p>
-
-<div id="search-container">
-  <input type="text" id="search-input" placeholder="Entrez un département, une ville ou un code postal">
-  <button id="search-button">Rechercher</button>
+<!-- app/views/pages/home.html.erb -->
+<div class="hero-section">
+  <div class="hero-content text-center">
+    <h1>Bienvenue sur jereservemasalle.com</h1>
+    <p>Trouvez la salle parfaite pour votre événement.</p>
+    <%= link_to 'Chercher une salle', search_spaces_path, class: 'btn btn-primary btn-lg' %>
+  </div>
 </div>
 
-<div id="map" style="height: 400px; width: 100%;"></div>
-<div id="results-container"></div>
+<div class="container my-5">
+  <!-- Section de présentation -->
+  <div class="about-section text-center">
+    <h2>À propos de nous</h2>
+    <p>
+      Chez jereservemasalle.com, nous vous offrons la possibilité de trouver la salle parfaite pour vos événements,
+      qu'il s'agisse de mariages, de conférences, de fêtes ou d'autres occasions spéciales.
+    </p>
+  </div>
 
-<h2>Vos salles</h2>
+  <!-- Section de recherche -->
+  <div class="search-section text-center my-5">
+    <h2>Recherchez une salle</h2>
+    <div id="search-container" class="my-4">
+      <input type="text" id="search-input" class="form-control" placeholder="Entrez un département, une ville ou un code postal">
+      <button id="search-button" class="btn btn-primary mt-2">Rechercher</button>
+    </div>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    <div id="results-container" class="mt-4"></div>
+  </div>
 
-<% if @rooms&.any? %>
-  <% @rooms.each do |room| %>
-    <div class="card">
-      <div class="card-header">
-        <h3><%= room.name %></h3>
-      </div>
-      <div class="card-body">
-        <p><%= room.description %></p>
-        <p><strong>Adresse :</strong> <%= room.address %></p>
-        <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
-      </div>
-      <div class="card-footer">
-        <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
-        <%= link_to 'Modifier', edit_room_path(room), class: 'btn btn-warning' %>
-        <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
-      </div>
+  <!-- Section des salles pour les utilisateurs connectés -->
+  <% if user_signed_in? %>
+    <div class="rooms-section my-5">
+      <h2>Vos salles</h2>
+      <% if @rooms&.any? %>
+        <% @rooms.each do |room| %>
+          <div class="card mb-3">
+            <div class="card-header">
+              <h3><%= room.name %></h3>
+            </div>
+            <div class="card-body">
+              <p><%= room.description %></p>
+              <p><strong>Adresse :</strong> <%= room.address %></p>
+              <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
+            </div>
+            <div class="card-footer">
+              <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
+              <%= link_to 'Modifier', edit_room_path(room), class: 'btn btn-warning' %>
+              <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p>Vous n'avez pas encore de salles. <%= link_to 'Ajouter une salle', new_room_path, class: 'btn btn-primary' %></p>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Section pour inciter à l'inscription -->
+    <div class="call-to-action-section text-center my-5">
+      <h2>Vous avez une salle à louer ?</h2>
+      <p>Inscrivez-vous dès aujourd'hui pour commencer à louer votre salle à des milliers de clients potentiels.</p>
+      <%= link_to "S'inscrire maintenant", new_user_registration_path, class: 'btn btn-secondary btn-lg' %>
     </div>
   <% end %>
-<% else %>
-  <p>Vous n'avez pas encore de salles. <%= link_to 'Ajouter une salle', new_room_path %></p>
-<% end %>
+
+  <!-- Témoignages de clients -->
+  <div class="testimonials-section my-5">
+    <h2 class="text-center">Ce que nos clients disent</h2>
+    <div class="row">
+      <% if @testimonials.present? %>
+        <% @testimonials.each do |testimonial| %>
+          <div class="col-md-4">
+            <div class="testimonial-card">
+              <p><%= testimonial.content %></p>
+              <p><strong><%= testimonial.author %></strong></p>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-center">Aucun témoignage pour le moment.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

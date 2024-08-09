@@ -1,20 +1,13 @@
-<h2>Vos Salles</h2>
-<% if @user_rooms.present? %>
-  <% @user_rooms.each do |room| %>
+<!-- app/views/pages/dashboard.html.erb -->
+<h2>Vos réservations</h2>
+<% if @user_bookings.present? %>
+  <% @user_bookings.each do |booking| %>
     <div>
-      <h3><%= room.name %></h3>
-      <p><%= room.description %></p>
+      <p>Réservation de la salle : <%= booking.room.name %></p>
+      <p>Date de début : <%= booking.start_date %></p>
+      <p>Date de fin : <%= booking.end_date %></p>
     </div>
   <% end %>
 <% else %>
-  <p>Vous n'avez pas encore de salles.</p>
-<% end %>
-
-<h2>Vos Réservations</h2>
-<% @user_bookings.each do |booking| %>
-  <div>
-    <p>Réservation de la salle: <%= booking.room.name %></p>
-    <p>Date de début: <%= booking.start_date %></p>
-    <p>Date de fin: <%= booking.end_date %></p>
-  </div>
+  <p>Vous n'avez aucune réservation pour le moment.</p>
 <% end %>

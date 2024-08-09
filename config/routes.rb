@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   get 'dashboard', to: 'pages#dashboard'
   get 'load_google_maps', to: 'google_maps#load_script'
 
+
+
   # Suppression de compte
   devise_scope :user do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
@@ -38,6 +40,7 @@ Rails.application.routes.draw do
     resources :reservations, only: [:index, :show, :edit, :update, :destroy]
 
     collection do
+      get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms  # Route pour les salles du propriétaire
       get 'confirmation'
       get 'search'
     end

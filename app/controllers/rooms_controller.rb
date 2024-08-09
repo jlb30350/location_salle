@@ -27,6 +27,12 @@ class RoomsController < ApplicationController
   def edit
   end
 
+    # Action pour afficher les salles du propriétaire
+    def my_rooms
+      @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
+      render :index  # Vous pouvez utiliser la vue 'index' pour afficher les salles, ou créer une vue séparée si nécessaire.
+    end
+
   def update
     if @room.update(room_params)
       redirect_to @room, notice: 'Salle mise à jour avec succès.'

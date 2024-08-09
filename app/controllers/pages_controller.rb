@@ -1,8 +1,14 @@
 class PagesController < ApplicationController
   before_action :authenticate_user!, only: [:dashboard]
 
+  def home
+    @testimonials = Testimonial.order(created_at: :desc).limit(3)
+    @spaces = Space.all # ou toute autre logique que vous utilisez pour obtenir les espaces
+  end
+
   def dashboard
-    @user_rooms = current_user.rooms if current_user
+    @user_rooms = current_user.rooms
+    @user_bookings = current_user.bookings
   end
 
   def home

@@ -10,7 +10,11 @@
           <%= link_to "Accueil", root_path, class: 'nav-link' %>
         </li>
         <li class="nav-item">
-          <%= link_to "Salles", rooms_path, class: 'nav-link' %>
+          <% if user_signed_in? && current_user.bailleur? %>
+            <%= link_to "Chercher une salle", my_rooms_rooms_path, class: 'nav-link' %>
+          <% else %>
+            <%= link_to "Salles", rooms_path, class: 'nav-link' %>
+          <% end %>
         </li>
         <% if user_signed_in? %>
           <li class="nav-item">

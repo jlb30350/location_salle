@@ -2,20 +2,22 @@ class Booking < ApplicationRecord
   belongs_to :user
   belongs_to :space
 
+  # Utilisation de préfixes pour les énumérations afin d'éviter les conflits
+  enum status: { pending: 'pending', confirmed: 'confirmed', canceled: 'canceled' }, _prefix: :status
+  enum duration: { hour: 'hour', day: 'day', week: 'week', month: 'month', year: 'year' }, _prefix: :duration
+
+  # Validations
   validates :start_date, :duration, :email, :phone, :address, presence: true
-  validates :start_time, presence: true, if: -> { duration == 'hour' }
-  validates :hour_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration == 'hour' }
-  validates :day_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration == 'day' }
-  validates :week_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration == 'week' }
-  validates :month_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration == 'month' }
-  validates :year_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration == 'year' }
-  validate :end_date_after_start_date, unless: -> { duration == 'hour' }
+  validates :start_time, presence: true, if: -> { duration_hour? }
+  validates :hour_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration_hour? }
+  validates :day_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration_day? }
+  validates :week_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration_week? }
+  validates :month_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration_month? }
+  validates :year_count, presence: true, numericality: { greater_than: 0 }, if: -> { duration_year? }
+  validate :end_date_after_start_date, unless: -> { duration_hour? }
   validate :email_format
   validate :start_date_in_future
   validate :no_overlap_with_existing_bookings
-
-  enum status: { pending: 'pending', confirmed: 'confirmed', cancelled: 'cancelled' }
-  enum duration: { hour: 'hour', day: 'day', week: 'week', month: 'month', year: 'year' }
 
   def total_amount
     case duration

@@ -20,7 +20,7 @@ gem 'sass-rails', '>= 6'
 gem 'uglifier', '>= 1.3.0'
 gem 'jquery-rails'
 gem 'will_paginate'
-gem 'dotenv-rails'
+gem 'dotenv-rails', groups: [:development, :test]
 gem 'bootstrap', '~> 5.1.3'
 gem 'popper_js', '~> 2.0'
 
