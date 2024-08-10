@@ -19,6 +19,10 @@ class Booking < ApplicationRecord
   validate :start_date_in_future
   validate :no_overlap_with_existing_bookings
 
+  # Scope pour les réservations confirmées
+  scope :confirmed, -> { where(status: 'confirmed') }
+
+  # Méthode pour calculer le montant total de la réservation en fonction de la durée
   def total_amount
     case duration
     when 'hour'
@@ -36,6 +40,7 @@ class Booking < ApplicationRecord
     end
   end
 
+  # Méthode pour calculer la date de fin en fonction de la durée
   def end_date
     return nil if start_date.nil?
 
@@ -57,27 +62,32 @@ class Booking < ApplicationRecord
 
   private
 
+  # Validation pour s'assurer que la date de fin est après la date de début
   def end_date_after_start_date
     if end_date.nil? || start_date.nil? || end_date <= start_date
       errors.add(:end_date, "doit être après la date de début")
     end
   end
 
+  # Validation du format de l'email
   def email_format
     unless email =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
       errors.add(:email, "n'est pas dans un format valide")
     end
   end
 
+  # Validation pour s'assurer que la date de début est dans le futur
   def start_date_in_future
     if start_date.present? && start_date < Date.today
       errors.add(:start_date, "doit être dans le futur")
     end
   end
 
+  # Validation pour éviter les chevauchements avec les réservations existantes
   def no_overlap_with_existing_bookings
-    existing_bookings = space.bookings.where.not(id: id)
-    if existing_bookings.any? { |booking| (start_date..end_date).overlaps?(booking.start_date..booking.end_date) }
+    overlapping_bookings = space.bookings.where.not(id: id)
+                                        .where("start_date < ? AND end_date > ?", end_date, start_date)
+    if overlapping_bookings.exists?
       errors.add(:base, "Cette période chevauche une réservation existante")
     end
   end

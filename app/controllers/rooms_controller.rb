@@ -1,5 +1,5 @@
 class RoomsController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :search]
   before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo]
@@ -27,11 +27,11 @@ class RoomsController < ApplicationController
   def edit
   end
 
-    # Action pour afficher les salles du propriétaire
-    def my_rooms
-      @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
-      render :index  # Vous pouvez utiliser la vue 'index' pour afficher les salles, ou créer une vue séparée si nécessaire.
-    end
+  # Action pour afficher les salles du propriétaire
+  def my_rooms
+    @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
+    render :index
+  end
 
   def update
     if @room.update(room_params)
@@ -53,16 +53,19 @@ class RoomsController < ApplicationController
   end
 
   def search
-    query = params[:query]
-    if query.present?
-      if query.match?(/^\d{5}$/)
-        @rooms = Room.where(department: query)
-      else
-        @rooms = Room.where("LOWER(city) LIKE ?", "%#{query.downcase}%")
-      end
-    else
-      @rooms = Room.none
-    end
+    # Sauvegarder la recherche dans la session pour une redirection après connexion
+    session[:search_query] = params[:query] if params[:query].present?
+
+    @rooms = if params[:query].present?
+               if params[:query].match?(/^\d{5}$/)
+                 Room.where(department: params[:query])
+               else
+                 Room.where("LOWER(city) LIKE ?", "%#{params[:query].downcase}%")
+               end
+             else
+               Room.none
+             end
+
     render :search
   end
 

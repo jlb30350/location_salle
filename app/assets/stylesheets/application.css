@@ -124,3 +124,20 @@
 .for-owners-section p {
   margin-bottom: 30px;
 }
+
+.day {
+  padding: 5px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.reserved {
+  color: red;
+  font-weight: bold;
+}
+
+.available {
+  color: green;
+  font-weight: bold;
+}
+

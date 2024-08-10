@@ -1,17 +1,29 @@
+<!-- app/views/rooms/search.html.erb -->
+
 <h1>Résultats de la recherche</h1>
 
 <% if @rooms.any? %>
-  <ul>
-    <% @rooms.each do |room| %>
-      <li>
+  <% @rooms.each do |room| %>
+    <div class="card mb-3">
+      <div class="card-header">
         <h2><%= link_to room.name, room_path(room) %></h2>
+      </div>
+      <div class="card-body">
+        <p><strong>Description :</strong> <%= room.description %></p>
         <p><strong>Adresse :</strong> <%= room.address %>, <%= room.city %>, <%= room.department %></p>
         <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
         <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
-        <p><strong>Description :</strong> <%= room.description %></p>
-      </li>
-    <% end %>
-  </ul>
+      </div>
+      <div class="card-footer">
+        <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
+        <% if user_signed_in? && current_user.client? %>
+          <%= link_to 'Réserver', new_room_booking_path(room), class: 'btn btn-success' %>
+        <% else %>
+          <p class="text-muted">Connectez-vous en tant que client pour réserver cette salle.</p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 <% else %>
   <p>Aucune salle trouvée pour la recherche "<%= params[:query] %>".</p>
 <% end %>

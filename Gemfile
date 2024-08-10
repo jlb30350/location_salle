@@ -23,6 +23,7 @@ gem 'will_paginate'
 gem 'dotenv-rails', groups: [:development, :test]
 gem 'bootstrap', '~> 5.1.3'
 gem 'popper_js', '~> 2.0'
+gem 'fullcalendar-rails'
 
 
 gem "tzinfo-data", platforms: %i[ mswin mswin64 mingw x64_mingw jruby ]

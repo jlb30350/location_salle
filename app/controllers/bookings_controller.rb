@@ -1,7 +1,7 @@
 class BookingsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_space
-  before_action :set_booking, only: [:show, :edit, :update, :destroy]
+  before_action :set_booking, only: [:edit, :update, :destroy]
 
   def new
     @booking = @space.bookings.new
@@ -10,21 +10,15 @@ class BookingsController < ApplicationController
   def create
     @booking = @space.bookings.new(booking_params)
     @booking.user = current_user
+    @booking.status = 'pending' # ou 'confirmed', selon votre logique
   
     if @booking.save
+      BookingMailer.confirmation_email(@booking).deliver_later
       redirect_to new_payment_path(booking_id: @booking.id), notice: 'Réservation créée avec succès. Veuillez procéder au paiement.'
     else
       flash.now[:alert] = 'Il y a eu des erreurs lors de la création de votre réservation.'
       render :new
     end
-  end
-
-  def show
-    # La méthode show est vide, vous pouvez la supprimer si vous n'avez pas besoin d'une vue détaillée pour une réservation
-  end
-
-  def edit
-    # La méthode edit est vide, vous pouvez la supprimer si vous n'avez pas besoin d'éditer une réservation existante
   end
 
   def update

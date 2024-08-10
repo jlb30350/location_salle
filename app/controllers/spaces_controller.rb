@@ -6,6 +6,7 @@ class SpacesController < ApplicationController
   end
 
   def show
+    @bookings = @space.bookings.confirmed
     @booking = @space.bookings.new
   end
 
@@ -78,7 +79,8 @@ class SpacesController < ApplicationController
       @spaces = Space.none
     end
 
-    render json: @spaces
+    # Assurez-vous qu'il y a une vue associée nommée 'search.html.erb'
+    render :search  
   end
 
   private
@@ -90,4 +92,9 @@ class SpacesController < ApplicationController
   def set_space
     @space = Space.find(params[:id])
   end
+end
+def set_room
+  @room = Room.find(params[:id])
+rescue ActiveRecord::RecordNotFound
+  redirect_to rooms_path, alert: "Salle non trouvée"
 end

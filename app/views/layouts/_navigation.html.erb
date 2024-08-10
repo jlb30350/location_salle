@@ -11,18 +11,20 @@
         </li>
         <li class="nav-item">
           <% if user_signed_in? && current_user.bailleur? %>
-            <%= link_to "Chercher une salle", my_rooms_rooms_path, class: 'nav-link' %>
+            <%= link_to "Mes Salles", my_rooms_rooms_path, class: 'nav-link' %>
           <% else %>
-            <%= link_to "Salles", rooms_path, class: 'nav-link' %>
+            <%= link_to "Chercher une salle", rooms_path, class: 'nav-link' %>
           <% end %>
         </li>
         <% if user_signed_in? %>
           <li class="nav-item">
             <%= link_to "Tableau de bord", dashboard_path, class: 'nav-link' %>
           </li>
-          <li class="nav-item">
-            <%= link_to "Ajouter une salle", new_room_path, class: 'nav-link' %>
-          </li>
+          <% if current_user.bailleur? %>
+            <li class="nav-item">
+              <%= link_to "Ajouter une salle", new_room_path, class: 'nav-link' %>
+            </li>
+          <% end %>
           <li class="nav-item">
             <%= link_to "Se déconnecter", destroy_user_session_path, method: :delete, class: 'nav-link' %>
           </li>
@@ -41,3 +43,11 @@
     </div>
   </div>
 </nav>
+
+<% if user_signed_in? %>
+  <div class="text-center mt-3">
+    <p class="alert alert-info">
+      Vous êtes connecté en tant que <strong><%= current_user.bailleur? ? 'bailleur' : 'loueur' %></strong>.
+    </p>
+  </div>
+<% end %>
