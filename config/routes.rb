@@ -12,22 +12,10 @@ Rails.application.routes.draw do
   get 'dashboard', to: 'pages#dashboard'
   get 'load_google_maps', to: 'google_maps#load_script'
 
-
-
   # Suppression de compte
   devise_scope :user do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
   end
-  
-  # Routes pour les espaces (spaces)
-  resources :spaces do
-    collection do
-      get 'search_location'
-      get 'search'
-    end
-  end
-  get '/search_spaces', to: 'spaces#search'
-  get '/api/spaces', to: 'spaces#search'
 
   # Routes pour les salles (rooms)
   resources :rooms do

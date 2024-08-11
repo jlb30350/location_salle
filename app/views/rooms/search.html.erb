@@ -6,10 +6,10 @@
   <% @rooms.each do |room| %>
     <div class="card mb-3">
       <div class="card-header">
-        <h2><%= link_to room.name, room_path(room) %></h2>
+        <h3><%= room.title %></h3>
       </div>
       <div class="card-body">
-        <p><strong>Description :</strong> <%= room.description %></p>
+        <p><%= room.description %></p>
         <p><strong>Adresse :</strong> <%= room.address %>, <%= room.city %>, <%= room.department %></p>
         <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
         <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
@@ -19,11 +19,16 @@
         <% if user_signed_in? && current_user.client? %>
           <%= link_to 'Réserver', new_room_booking_path(room), class: 'btn btn-success' %>
         <% else %>
-          <p class="text-muted">Connectez-vous en tant que client pour réserver cette salle.</p>
+          <p class="text-muted">Connectez-vous en tant que client pour réserver cet eroom.</p>
         <% end %>
       </div>
     </div>
   <% end %>
 <% else %>
-  <p>Aucune salle trouvée pour la recherche "<%= params[:query] %>".</p>
+  <p>Aucun eroom trouvé pour votre recherche.</p>
 <% end %>
+
+<!-- Bouton Retour -->
+<div class="text-center mt-4">
+  <%= link_to 'Retour', root_path, class: 'btn btn-secondary' %>
+</div>

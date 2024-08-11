@@ -15,6 +15,12 @@ class ConversationsController < ApplicationController
       end
       redirect_to conversation_messages_path(@conversation)
     end
+
+    def set_space
+      @space = Space.find(params[:space_id])
+    rescue ActiveRecord::RecordNotFound
+      redirect_to root_path, alert: 'Espace non trouvé.'
+    end
   
     private
     def conversation_params

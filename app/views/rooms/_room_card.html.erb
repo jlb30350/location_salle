@@ -2,37 +2,37 @@
 
 <div class="card">
   <div class="card-header">
-    <h3><%= space.title %></h3>
+    <h3><%= room.title %></h3>
   </div>
   <div class="card-body">
-    <p><%= space.description %></p>
-    <p><strong>Adresse :</strong> <%= space.address %></p>
-    <p><strong>Ville :</strong> <%= space.city.present? ? space.city : 'Non spécifiée' %></p>
-    <p><strong>Département :</strong> <%= space.department %></p>
-    <p><strong>Type de salle :</strong> <%= space.space_type.present? ? space.space_type.capitalize : 'Type inconnu' %></p>
-    <p><strong>Prix :</strong> <%= number_to_currency(space.price) %></p>
-    <p><strong>Type de lieu :</strong> <%= space.location_type.present? ? space.location_type.capitalize : 'Type inconnu' %></p>
-    <p><strong>Nombre de tables :</strong> <%= space.tables_count %></p>
-    <p><strong>Nombre de chaises :</strong> <%= space.chairs_count %></p>
-    <p><strong>Étage :</strong> <%= space.floor %></p>
-    <p><strong>Ascenseur :</strong> <%= space.has_elevator ? 'Oui' : 'Non' %></p>
-    <p><strong>Climatisation :</strong> <%= space.has_air_conditioning ? 'Oui' : 'Non' %></p>
-    <p><strong>Fontaine à eau :</strong> <%= space.has_water_fountain ? 'Oui' : 'Non' %></p>
-    <p><strong>Parking disponible :</strong> <%= space.has_parking ? 'Oui' : 'Non' %></p>
-    <p><strong>WiFi disponible :</strong> <%= space.has_wifi ? 'Oui' : 'Non' %></p>
-    <p><strong>Cuisine disponible :</strong> <%= space.has_kitchen ? 'Oui' : 'Non' %></p>
-    <p><strong>Système de sonorisation :</strong> <%= space.has_sound_system ? 'Oui' : 'Non' %></p>
-    <p><strong>Accessible en fauteuil roulant :</strong> <%= space.wheelchair_accessible ? 'Oui' : 'Non' %></p>
-    <p><strong>Capacité :</strong> <%= space.capacity %></p>
-    <% if space.photos.attached? %>
+    <p><%= room.description %></p>
+    <p><strong>Adresse :</strong> <%= room.address %></p>
+    <p><strong>Ville :</strong> <%= room.city.present? ? room.city : 'Non spécifiée' %></p>
+    <p><strong>Département :</strong> <%= room.department %></p>
+    <p><strong>Type de salle :</strong> <%= room.room_type.present? ? room.room_type.capitalize : 'Type inconnu' %></p>
+    <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
+    <p><strong>Type de lieu :</strong> <%= room.location_type.present? ? room.location_type.capitalize : 'Type inconnu' %></p>
+    <p><strong>Nombre de tables :</strong> <%= room.tables_count %></p>
+    <p><strong>Nombre de chaises :</strong> <%= room.chairs_count %></p>
+    <p><strong>Étage :</strong> <%= room.floor %></p>
+    <p><strong>Ascenseur :</strong> <%= room.has_elevator ? 'Oui' : 'Non' %></p>
+    <p><strong>Climatisation :</strong> <%= room.has_air_conditioning ? 'Oui' : 'Non' %></p>
+    <p><strong>Fontaine à eau :</strong> <%= room.has_water_fountain ? 'Oui' : 'Non' %></p>
+    <p><strong>Parking disponible :</strong> <%= room.has_parking ? 'Oui' : 'Non' %></p>
+    <p><strong>WiFi disponible :</strong> <%= room.has_wifi ? 'Oui' : 'Non' %></p>
+    <p><strong>Cuisine disponible :</strong> <%= room.has_kitchen ? 'Oui' : 'Non' %></p>
+    <p><strong>Système de sonorisation :</strong> <%= room.has_sound_system ? 'Oui' : 'Non' %></p>
+    <p><strong>Accessible en fauteuil roulant :</strong> <%= room.wheelchair_accessible ? 'Oui' : 'Non' %></p>
+    <p><strong>Capacité :</strong> <%= room.capacity %></p>
+    <% if room.photos.attached? %>
       <div class="photos">
-        <% space.photos.each do |photo| %>
+        <% room.photos.each do |photo| %>
           <%= image_tag photo, class: "img-fluid" %>
         <% end %>
       </div>
     <% end %>
   </div>
   <div class="card-footer">
-    <%= link_to 'Voir les détails', space_path(space), class: 'btn btn-primary' %>
+    <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
   </div>
 </div>

@@ -13,5 +13,9 @@ class Room < ApplicationRecord
   validates :address, presence: true
   validates :city, presence: true
   validates :department, presence: true
+  validates :surface, presence: true
+  validates :mail, presence: true
+  validates :phone, presence: true
+  validates :kitchen, presence: true
 end
 

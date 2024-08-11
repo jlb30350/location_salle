@@ -1,9 +1,20 @@
- # app/views/rooms/show.html.erb
- <% meta_title @room.name %>
-<% meta_description @room.description.truncate(160) %>
-<%= canonical_link room_url(@room) %>
-<% og_tags({
-  title: @room.name,
-  description: @room.description.truncate(160),
-  url: room_url(@room)
-}) %>
+<h1><%= @room.name %></h1>
+
+<div>
+  <h2>Calendrier des réservations</h2>
+  <%= month_calendar(events: @room.bookings.confirmed) do |date, bookings| %>
+    <div class="day">
+      <% if bookings.any? %>
+        <span class="reserved"><%= bookings.map { |b| b.user.name }.join(", ") %></span>
+      <% else %>
+        <span class="available">Disponible</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Débogage dans la console -->
+<% puts @room.inspect %>
+<% puts @room.bookings.confirmed.inspect %>
+
+<%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary' %>

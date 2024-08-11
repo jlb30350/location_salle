@@ -9,8 +9,9 @@ class RoomsController < ApplicationController
   end
 
   def show
+    @room = Room.find(params[:id])
   end
-
+  
   def new
     @room = Room.new
   end
@@ -72,7 +73,7 @@ class RoomsController < ApplicationController
   private
 
   def room_params
-    params.require(:room).permit(:name, :description, :capacity, :price, :address, :city, :department, photos: [])
+    params.require(:room).permit(:name, :description, :capacity, :price, :address, :city, :department,:mail, :phone,  photos: [])
   end
 
   def set_room

@@ -2,17 +2,15 @@ class PagesController < ApplicationController
   before_action :authenticate_user!, only: [:dashboard]
 
   def home
+    @latest_rooms = Room.order(created_at: :desc).limit(3)
+    @latest_reviews = Review.order(created_at: :desc).limit(3)
     @testimonials = Testimonial.order(created_at: :desc).limit(3)
-    @spaces = Space.all # ou toute autre logique que vous utilisez pour obtenir les espaces
+    @room = Room.all # ou toute autre logique que vous utilisez pour obtenir les eroom
   end
 
   def dashboard
     @user_rooms = current_user.rooms
     @user_bookings = current_user.bookings
-  end
-
-  def home
-    @rooms = Room.limit(3).order(created_at: :desc)
   end
 
   def about

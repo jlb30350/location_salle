@@ -1,27 +1,16 @@
-# app/models/review.rb
 class Review < ApplicationRecord
   belongs_to :user
   belongs_to :room
-  validates :rating, presence: true, inclusion: { in: 1..5 }
+
+  # Validations
   validates :content, presence: true
-end
+  validates :rating, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 5 }
 
-# app/controllers/reviews_controller.rb
-class ReviewsController < ApplicationController
-  def create
-    @room = Room.find(params[:room_id])
-    @review = @room.reviews.build(review_params)
-    @review.user = current_user
-    if @review.save
-      redirect_to @room, notice: 'Avis ajouté avec succès.'
-    else
-      redirect_to @room, alert: 'Erreur lors de l'ajout de l'avis.'
-    end
-  end
+  # Callbacks (si vous en avez)
+  # before_save :some_method
 
-  private
-
-  def review_params
-    params.require(:review).permit(:rating, :content)
+  # Méthodes d'instance ou de classe
+  def some_method
+    # logique ici
   end
 end

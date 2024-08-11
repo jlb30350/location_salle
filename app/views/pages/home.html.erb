@@ -1,84 +1,73 @@
 <!-- app/views/pages/home.html.erb -->
-<div class="hero-section">
-  <div class="hero-content text-center">
-    <h1>Bienvenue sur jereservemasalle.com</h1>
-    <p>Trouvez la salle parfaite pour votre événement.</p>
-    <%= link_to 'Chercher une salle', search_spaces_path, class: 'btn btn-primary btn-lg' %>
+<div class="hero-section text-center py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <h1 class="display-4">Bienvenue sur Jereservemasalle.com</h1>
+    <p class="lead">La plateforme idéale pour trouver ou louer la salle parfaite pour tous vos événements.</p>
+    <%= image_tag 'salle.jpg', alt: 'Logo du site', class: 'my-4' %>
   </div>
 </div>
 
 <div class="container my-5">
   <!-- Section de présentation -->
-  <div class="about-section text-center">
-    <h2>À propos de nous</h2>
-    <p>
-      Chez jereservemasalle.com, nous vous offrons la possibilité de trouver la salle parfaite pour vos événements,
-      qu'il s'agisse de mariages, de conférences, de fêtes ou d'autres occasions spéciales.
-    </p>
-  </div>
-
-  <!-- Section de recherche -->
-  <div class="search-section text-center my-5">
-    <h2>Recherchez une salle</h2>
-    <div id="search-container" class="my-4">
-      <input type="text" id="search-input" class="form-control" placeholder="Entrez un département, une ville ou un code postal">
-      <button id="search-button" class="btn btn-primary mt-2">Rechercher</button>
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Pour les Bailleurs</h2>
+      <p>Vous possédez une salle que vous souhaitez mettre en location ? Jereservemasalle.com vous permet de la proposer à un large public. Créez un compte, publiez votre annonce et gérez vos réservations en toute simplicité.p>Rejoignez notre plateforme et commencez à louer votre espace dès aujourd'hui !</p>
+      <ul>
+        <li>Augmentez vos revenus</li>
+        <li>Gérez facilement vos réservations</li>
+        <li>Profitez de notre large base de clients</li>
+      </ul></p>
     </div>
-    <div id="map" style="height: 400px; width: 100%;"></div>
-    <div id="results-container" class="mt-4"></div>
+    <div class="col-md-6">
+      <h2>Pour les Loueurs</h2>
+      <p>Vous cherchez un lieu pour organiser un événement ? Découvrez une large sélection de salles disponibles à la location, filtrées par ville, capacité, et autres critères pour répondre à vos besoins.</p>
+      <li>Trouvez la salle parfaite pour votre événement</li>
+      <li> Commoditer de recherche 
+    </div>
   </div>
 
-  <!-- Section des salles pour les utilisateurs connectés -->
-  <% if user_signed_in? %>
-    <div class="rooms-section my-5">
-      <h2>Vos salles</h2>
-      <% if @rooms&.any? %>
-        <% @rooms.each do |room| %>
-          <div class="card mb-3">
-            <div class="card-header">
-              <h3><%= room.name %></h3>
-            </div>
-            <div class="card-body">
-              <p><%= room.description %></p>
-              <p><strong>Adresse :</strong> <%= room.address %></p>
-              <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
-            </div>
-            <div class="card-footer">
-              <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
-              <%= link_to 'Modifier', edit_room_path(room), class: 'btn btn-warning' %>
-              <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
-            </div>
+  <!-- Dernières salles ajoutées -->
+  <div class="my-5">
+  <h2 class="text-center">Nos dernières salles</h2>
+  <div class="row">
+    <% @latest_rooms.each do |room| %>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <% if room.photos.attached? %>
+            <%= image_tag room.photos.first, alt: room.name, class: 'card-img-top' %>
+          <% end %>
+          <div class="card-body">
+            <h5 class="card-title"><%= room.name %></h5>
+            <p class="card-text"><%= room.description.truncate(100) %></p>
+            <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
+
           </div>
-        <% end %>
-      <% else %>
-        <p>Vous n'avez pas encore de salles. <%= link_to 'Ajouter une salle', new_room_path, class: 'btn btn-primary' %></p>
+        </div>
+      </div>
       <% end %>
     </div>
-  <% else %>
-    <!-- Section pour inciter à l'inscription -->
-    <div class="call-to-action-section text-center my-5">
-      <h2>Vous avez une salle à louer ?</h2>
-      <p>Inscrivez-vous dès aujourd'hui pour commencer à louer votre salle à des milliers de clients potentiels.</p>
-      <%= link_to "S'inscrire maintenant", new_user_registration_path, class: 'btn btn-secondary btn-lg' %>
-    </div>
-  <% end %>
+  </div>
 
-  <!-- Témoignages de clients -->
-  <div class="testimonials-section my-5">
-    <h2 class="text-center">Ce que nos clients disent</h2>
+  <!-- Derniers avis -->
+  <div class="my-5">
+    <h2 class="text-center">Ce que disent nos clients</h2>
     <div class="row">
-      <% if @testimonials.present? %>
-        <% @testimonials.each do |testimonial| %>
-          <div class="col-md-4">
-            <div class="testimonial-card">
-              <p><%= testimonial.content %></p>
-              <p><strong><%= testimonial.author %></strong></p>
-            </div>
+      <% @latest_reviews.each do |review| %>
+        <div class="col-md-4">
+          <div class="testimonial-card p-3 mb-3 bg-light">
+            <p><%= review.content.truncate(100) %></p>
+            <p><strong><%= review.user.name %></strong></p>
+            <p><em>Note : <%= review.rating %> étoiles</em></p>
           </div>
-        <% end %>
-      <% else %>
-        <p class="text-center">Aucun témoignage pour le moment.</p>
+        </div>
       <% end %>
     </div>
   </div>
+</div>
+
+<div class="text-center my-5">
+  <p>Prêt à commencer ?</p>
+  <%= link_to "S'inscrire en tant que bailleur", new_user_registration_path(role: 'bailleur'), class: 'btn btn-secondary btn-lg' %>
+  <%= link_to "Rechercher une salle", rooms_path, class: 'btn btn-primary btn-lg' %>
 </div>
