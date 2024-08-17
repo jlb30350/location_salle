@@ -1,36 +1,126 @@
-# app/views/rooms/_form.html.erb
-<%= form_with(model: space, local: true) do |form| %>
-  <!-- ... autres champs ... -->
-
-  <div class="field">
-    <%= form.label :city %>
-    <%= form.text_field :city %>
+<!-- app/views/rooms/_form.html.erb-->
+<%= form_with(model: @room, local: true) do |form| %>
+  <!-- Champ pour le nom de la salle -->
+  <div class="form-group">
+    <%= form.label :name, "Nom de la salle" %>
+    <%= form.text_field :name, class: "form-control", placeholder: "Entrez le nom de la salle" %>
   </div>
 
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.email_field :email %>
+  <!-- Champ pour la description -->
+  <div class="form-group">
+    <%= form.label :description, "Description" %>
+    <%= form.text_area :description, class: "form-control", placeholder: "Décrivez votre salle" %>
   </div>
 
-  <div class="field">
-    <%= form.label :phone %>
-    <%= form.telephone_field :phone %>
+  <!-- Champ pour la capacité -->
+  <div class="form-group">
+    <%= form.label :capacity, "Capacité (nombre de personnes)" %>
+    <%= form.number_field :capacity, class: "form-control", placeholder: "Capacité de la salle", min: 0 %>
   </div>
-  
-    <div class="field">
-      <%= f.label :photos %>
-      <%= f.file_field :photos, multiple: true %>
+
+  <!-- Champ pour le prix -->
+  <div class="form-group">
+    <%= form.label :price, "Prix (en €)" %>
+    <%= form.number_field :price, class: "form-control", step: 0.01, placeholder: "Prix de base", min: 0 %>
+  </div>
+
+  <!-- Champ pour l'adresse -->
+  <div class="form-group">
+    <%= form.label :address, "Adresse" %>
+    <%= form.text_field :address, class: "form-control", placeholder: "Adresse complète de la salle" %>
+  </div>
+
+  <!-- Champ pour la ville -->
+  <div class="form-group">
+    <%= form.label :city, "Ville" %>
+    <%= form.text_field :city, class: "form-control", placeholder: "Ville où se trouve la salle" %>
+  </div>
+
+  <!-- Champ pour le département -->
+  <div class="form-group">
+    <%= form.label :department, "Département" %>
+    <%= form.text_field :department, class: "form-control", placeholder: "Département (code postal)" %>
+  </div>
+
+  <!-- Champ pour la surface -->
+  <div class="form-group">
+    <%= form.label :surface, "Surface (en m²)" %>
+    <%= form.number_field :surface, class: "form-control", placeholder: "Surface en m²", min: 0 %>
+  </div>
+
+  <!-- Champ pour l'email -->
+  <div class="form-group">
+    <%= form.label :mail, "Email" %>
+    <%= form.email_field :mail, class: "form-control", placeholder: "Adresse email de contact" %>
+  </div>
+
+  <!-- Champ pour le téléphone -->
+  <div class="form-group">
+    <%= form.label :phone, "Numéro de téléphone" %>
+    <%= form.telephone_field :phone, class: "form-control", placeholder: "Numéro de téléphone de contact" %>
+  </div>
+
+  <!-- Champ pour la cuisine disponible -->
+  <div class="form-group">
+    <%= form.label :kitchen, "Cuisine disponible ?" %>
+    <%= form.select :kitchen, [["Oui", true], ["Non", false]], class: "form-control" %>
+  </div>
+
+  <!-- Champs pour les tarifs -->
+  <h3>Tarification</h3>
+  <div class="form-group">
+    <%= form.label :hourly_rate, "Tarif horaire (€)" %>
+    <%= form.number_field :hourly_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :daily_rate, "Tarif journalier (€)" %>
+    <%= form.number_field :daily_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :weekly_rate, "Tarif hebdomadaire (€)" %>
+    <%= form.number_field :weekly_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :monthly_rate, "Tarif mensuel (€)" %>
+    <%= form.number_field :monthly_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :weekend_rate, "Tarif week-end (€)" %>
+    <%= form.number_field :weekend_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :quarterly_rate, "Tarif trimestriel (€)" %>
+    <%= form.number_field :quarterly_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :semiannual_rate, "Tarif semestriel (€)" %>
+    <%= form.number_field :semiannual_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= form.label :annual_rate, "Tarif annuel (€)" %>
+    <%= form.number_field :annual_rate, class: "form-control", step: 0.01, min: 0 %>
+  </div>
+
+  <!-- Champ pour les photos -->
+  <div class="form-group">
+    <%= form.label :photos, "Photos" %>
+    <%= form.file_field :photos, multiple: true, class: "form-control-file" %>
+  </div>
+
+  <!-- Affichage des photos existantes -->
+  <% if room.photos.attached? %>
+    <h3>Photos existantes</h3>
+    <div class="existing-photos">
+      <% room.photos.each do |photo| %>
+        <%= image_tag photo.variant(resize: "200x200"), class: "img-thumbnail" %>
+        <%= link_to 'Supprimer', delete_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
+      <% end %>
     </div>
-  
-    <% if room.photos.attached? %>
-      <h3>Photos existantes</h3>
-      <div class="existing-photos">
-        <% room.photos.each do |photo| %>
-          <%= image_tag photo.variant(resize: "200x200") %>
-          <%= link_to 'Supprimer', delete_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' } %>
-        <% end %>
-      </div>
-    <% end %>
-  
-    <%= f.submit %>
   <% end %>
+
+  <!-- Bouton de soumission -->
+  <div class="form-group">
+    <%= form.submit "Enregistrer la salle", class: "btn btn-primary" %>
+  </div>
+<% end %>
+

@@ -32,6 +32,33 @@ que ce soit pour un mariage, une conférence ou une réunion, nous avons la sall
     <% end %>
   </div>
 </section>
+<!-- app/views/rooms/index.html.erb -->
+<h1>Toutes les salles</h1>
+
+<% if @rooms.any? %>
+  <div class="row">
+    <% @rooms.each do |room| %>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3><%= room.name %></h3>
+          </div>
+          <div class="card-body">
+            <p><%= room.description.truncate(100) %></p>
+            <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
+            <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
+            <p><strong>Adresse :</strong> <%= room.address %>, <%= room.city %>, <%= room.department %></p>
+          </div>
+          <div class="card-footer">
+            <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p>Aucune salle n'a été trouvée.</p>
+<% end %>
 
 <section class="for-owners">
   <h2>Vous êtes propriétaire d'une salle ?</h2>

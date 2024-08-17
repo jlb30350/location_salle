@@ -1,22 +1,4 @@
 # app/views/rooms/edit.html.erb
-<h1>Modifier <%= @room.name %></h1>
+<h1>Modifier la salle</h1>
 
-<%= form_with(model: @room, local: true) do |f| %>
-  <!-- Champs du formulaire pour les détails de la salle -->
-
-  <h2>Gérer les disponibilités</h2>
-  <%= month_calendar(events: @room.availabilities) do |date, availabilities| %>
-    <%= date %>
-
-    <% availabilities.each do |availability| %>
-      <div>
-        <%= availability.start_time.strftime("%H:%M") %> - <%= availability.end_time.strftime("%H:%M") %>
-        <%= link_to 'Supprimer', availability_path(availability), method: :delete, data: { confirm: 'Êtes-vous sûr ?' } %>
-      </div>
-    <% end %>
-
-    <%= link_to 'Ajouter disponibilité', new_room_availability_path(@room, date: date) %>
-  <% end %>
-
-  <%= f.submit 'Mettre à jour la salle' %>
-<% end %>
+<%= render 'form' %>

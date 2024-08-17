@@ -6,16 +6,16 @@ class Room < ApplicationRecord
   has_many :bookings
   has_many :reviews
 
-  validates :name, presence: true
-  validates :description, presence: true
-  validates :capacity, presence: true, numericality: { only_integer: true, greater_than: 0 }
-  validates :price, presence: true, numericality: { greater_than: 0 }
-  validates :address, presence: true
-  validates :city, presence: true
-  validates :department, presence: true
-  validates :surface, presence: true
-  validates :mail, presence: true
-  validates :phone, presence: true
-  validates :kitchen, presence: true
+  # Validations de présence
+  validates :name, :description, :capacity, :price, :address, :city, :department, :surface, :mail, :phone, presence: true
+
+  # Validations numériques
+  validates :capacity, :surface, numericality: { greater_than_or_equal_to: 0 }
+  validates :price, :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
+            :quarterly_rate, :semiannual_rate, :annual_rate, numericality: { greater_than_or_equal_to: 0 }
+
+  # Validations spécifiques pour le téléphone et l'email
+  validates :phone, format: { with: /\A\+?[0-9]{10,15}\z/, message: "doit être un numéro valide" }
+  validates :mail, format: { with: /\A[^@\s]+@[^@\s]+\z/, message: "doit être une adresse email valide" }
 end
 

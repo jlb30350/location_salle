@@ -12,7 +12,16 @@
     </div>
   <% end %>
 </div>
+<h1><%= @room.name %></h1>
 
+<p><%= @room.description %></p>
+<p><%= @room.address %></p>
+<p><strong>Capacité :</strong> <%= @room.capacity %></p>
+<p><strong>Prix :</strong> <%= number_to_currency(@room.price) %></p>
+
+<%= link_to 'Modifier', edit_room_path(@room), class: 'btn btn-warning' %>
+<%= link_to 'Supprimer', room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
+<%= link_to 'Retour à la liste', rooms_path, class: 'btn btn-secondary' %>
 <!-- Débogage dans la console -->
 <% puts @room.inspect %>
 <% puts @room.bookings.confirmed.inspect %>

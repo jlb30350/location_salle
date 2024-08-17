@@ -1,8 +1,8 @@
 <h1>Résultats de recherche</h1>
 
-<% if @spaces.any? %>
-  <% @spaces.each do |space| %>
-    <%= render 'spaces/space_card', space: space %>
+<% if @rooms.any? %>
+  <% @rooms.each do |room| %>
+    <%= render 'rooms/room_card', room: room %>
   <% end %>
 <% else %>
   <p>Aucune salle trouvée pour cette recherche.</p>

@@ -9,7 +9,6 @@ class RoomsController < ApplicationController
   end
 
   def show
-    @room = Room.find(params[:id])
   end
   
   def new
@@ -26,12 +25,6 @@ class RoomsController < ApplicationController
   end
 
   def edit
-  end
-
-  # Action pour afficher les salles du propriétaire
-  def my_rooms
-    @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
-    render :index
   end
 
   def update
@@ -54,7 +47,6 @@ class RoomsController < ApplicationController
   end
 
   def search
-    # Sauvegarder la recherche dans la session pour une redirection après connexion
     session[:search_query] = params[:query] if params[:query].present?
 
     @rooms = if params[:query].present?
@@ -73,11 +65,13 @@ class RoomsController < ApplicationController
   private
 
   def room_params
-    params.require(:room).permit(:name, :description, :capacity, :price, :address, :city, :department,:mail, :phone,  photos: [])
+    params.require(:room).permit(:name, :description, :capacity, :price, :address, :city, :department, :surface, :mail, :phone, :kitchen, photos: [])
   end
 
   def set_room
     @room = Room.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to rooms_path, alert: "Salle non trouvée"
   end
 
   def ensure_bailleur

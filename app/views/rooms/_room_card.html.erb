@@ -1,38 +1,26 @@
-# app/views/rooms/_room_card.html.erb
-
-<div class="card">
+<!-- app/views/rooms/_room_card.html.erb -->
+<div class="card mb-3">
   <div class="card-header">
-    <h3><%= room.title %></h3>
+    <h3><%= room.name %></h3>
   </div>
   <div class="card-body">
-    <p><%= room.description %></p>
+    <p><%= room.description.truncate(100) %></p>
     <p><strong>Adresse :</strong> <%= room.address %></p>
     <p><strong>Ville :</strong> <%= room.city.present? ? room.city : 'Non spécifiée' %></p>
     <p><strong>Département :</strong> <%= room.department %></p>
     <p><strong>Type de salle :</strong> <%= room.room_type.present? ? room.room_type.capitalize : 'Type inconnu' %></p>
+    <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
     <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
-    <p><strong>Type de lieu :</strong> <%= room.location_type.present? ? room.location_type.capitalize : 'Type inconnu' %></p>
-    <p><strong>Nombre de tables :</strong> <%= room.tables_count %></p>
-    <p><strong>Nombre de chaises :</strong> <%= room.chairs_count %></p>
-    <p><strong>Étage :</strong> <%= room.floor %></p>
-    <p><strong>Ascenseur :</strong> <%= room.has_elevator ? 'Oui' : 'Non' %></p>
-    <p><strong>Climatisation :</strong> <%= room.has_air_conditioning ? 'Oui' : 'Non' %></p>
-    <p><strong>Fontaine à eau :</strong> <%= room.has_water_fountain ? 'Oui' : 'Non' %></p>
-    <p><strong>Parking disponible :</strong> <%= room.has_parking ? 'Oui' : 'Non' %></p>
-    <p><strong>WiFi disponible :</strong> <%= room.has_wifi ? 'Oui' : 'Non' %></p>
-    <p><strong>Cuisine disponible :</strong> <%= room.has_kitchen ? 'Oui' : 'Non' %></p>
-    <p><strong>Système de sonorisation :</strong> <%= room.has_sound_system ? 'Oui' : 'Non' %></p>
-    <p><strong>Accessible en fauteuil roulant :</strong> <%= room.wheelchair_accessible ? 'Oui' : 'Non' %></p>
-    <p><strong>Capacité :</strong> <%= room.capacity %></p>
+    
     <% if room.photos.attached? %>
-      <div class="photos">
+      <div class="photos mt-3">
         <% room.photos.each do |photo| %>
           <%= image_tag photo, class: "img-fluid" %>
         <% end %>
       </div>
     <% end %>
   </div>
-  <div class="card-footer">
+  <div class="card-footer d-flex justify-content-between">
     <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
   </div>
 </div>
