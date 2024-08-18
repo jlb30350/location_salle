@@ -11,7 +11,7 @@
   </div>
 <% end %>
 
-<%= form_with(model: @room, local: true) do |form| %>
+<%= form_with(model: @room, local: true, html: { onsubmit: "return checkPhotos();" }) do |form| %>
   <!-- Champ pour le nom de la salle -->
   <div class="form-group <%= 'has-error' if @room.errors[:name].any? %>">
     <%= form.label :name, "Nom de la salle" %>
@@ -216,9 +216,10 @@
     <% end %>
   </div>
 
+  <!-- Affichage des photos existantes uniquement si la salle est persistée et a des photos -->
   <% if @room.persisted? && @room.photos.attached? %>
-    <h3>Photos existantes</h3>
-    <div class="existing-photos">
+  <h3>Photos existantes</h3>
+  <div class="existing-photos">
     <% @room.photos.each do |photo| %>
       <%= image_tag photo.variant(resize: "200x200"), class: "img-thumbnail" %>
       <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
@@ -241,4 +242,3 @@
     }
     return true;
   }
-</script>

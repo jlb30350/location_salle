@@ -13,11 +13,11 @@ class RoomsController < ApplicationController
     render :index
   end
 
+  def show_photo
+    @room = Room.find(params[:room_id])
+    @photo = @room.photos.find(params[:id])
+  end  # Ajout de `end` ici
 
-  def show
-    @room = Room.find(params[:id])
-  end
-  
   def new
     @room = Room.new
   end
@@ -48,9 +48,13 @@ class RoomsController < ApplicationController
   end
 
   def delete_photo
-    @photo = @room.photos.find(params[:photo_id])
-    @photo.purge
-    redirect_to edit_room_path(@room), notice: 'Photo supprimée avec succès.'
+    photo = @room.photos.find(params[:photo_id])
+    if photo.purge
+      flash[:notice] = "Photo supprimée avec succès."
+    else
+      flash[:alert] = "Erreur lors de la suppression de la photo."
+    end
+    redirect_to edit_room_path(@room)
   end
 
   def search
