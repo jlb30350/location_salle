@@ -9,6 +9,7 @@ class RoomsController < ApplicationController
   end
 
   def show
+    @room = Room.find(params[:id])
   end
   
   def new
@@ -65,13 +66,11 @@ class RoomsController < ApplicationController
   private
 
   def room_params
-    params.require(:room).permit(:name, :description, :capacity, :price, :address, :city, :department, :surface, :mail, :phone, :kitchen, photos: [])
+    params.require(:room).permit(:name, :description, :capacity, :address, :city, :department, :surface, :mail, :phone, :kitchen, :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate, :quarterly_rate, :semiannual_rate, :annual_rate, photos: [])
   end
 
   def set_room
     @room = Room.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to rooms_path, alert: "Salle non trouvée"
   end
 
   def ensure_bailleur
