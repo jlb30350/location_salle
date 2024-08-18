@@ -8,6 +8,12 @@ class RoomsController < ApplicationController
     @rooms = Room.paginate(page: params[:page], per_page: 10)
   end
 
+  def my_rooms
+    @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
+    render :index
+  end
+
+
   def show
     @room = Room.find(params[:id])
   end

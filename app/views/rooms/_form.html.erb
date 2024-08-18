@@ -219,10 +219,10 @@
   <% if @room.persisted? && @room.photos.attached? %>
     <h3>Photos existantes</h3>
     <div class="existing-photos">
-      <% @room.photos.each do |photo| %>
-        <%= image_tag photo.variant(resize: "200x200"), class: "img-thumbnail" %>
-        <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
-      <% end %>
+    <% @room.photos.each do |photo| %>
+      <%= image_tag photo.variant(resize: "200x200"), class: "img-thumbnail" %>
+      <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
+    <% end %>
     </div>
   <% end %>
 
@@ -231,3 +231,14 @@
     <%= form.submit "Enregistrer la salle", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<script>
+  function checkPhotos() {
+    const photosField = document.querySelector('input[type="file"]');
+    if (photosField && photosField.files.length === 0) {
+      alert("Veuillez sélectionner au moins une photo avant de soumettre le formulaire.");
+      return false;
+    }
+    return true;
+  }
+</script>

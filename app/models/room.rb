@@ -23,7 +23,16 @@ class Room < ApplicationRecord
   # Optionnel : Validation personnalisée pour s'assurer qu'au moins un des tarifs est défini
   validate :at_least_one_rate_present
 
+  validate :check_photos_presence
+
   private
+
+  def check_photos_presence
+    if photos.blank?
+      errors.add(:photos, "doivent être téléchargées.")
+    end
+  end
+
 
   def at_least_one_rate_present
     if [hourly_rate, daily_rate, weekly_rate, monthly_rate, weekend_rate, quarterly_rate, semiannual_rate, annual_rate].all?(&:zero?)
