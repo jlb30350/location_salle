@@ -17,7 +17,7 @@ class Room < ApplicationRecord
   
   # Validations numériques pour les champs de tarification et autres
   validates :capacity, :surface, numericality: { greater_than_or_equal_to: 0 }
-  validates :price, :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
+  validates :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
             :quarterly_rate, :semiannual_rate, :annual_rate, numericality: { greater_than_or_equal_to: 0, message: "doit être un nombre positif" }
 
   # Optionnel : Validation personnalisée pour s'assurer qu'au moins un des tarifs est défini

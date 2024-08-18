@@ -14,7 +14,7 @@
 
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
   <%= javascript_include_tag 'application', 'data-turbo-track': 'reload', defer: true %>
-  <%= javascript_include_tag 'search' %>
+  <%= javascript_include_tag 'search' %> <!-- Assurez-vous que ce fichier est nécessaire -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -30,8 +30,6 @@
   <%= render 'layouts/navigation' %>
 
   <div class="container mt-3">
-    <%= render 'shared/flash_messages' %>
-
     <div id="search-container">
       <input type="text" id="search-input" class="form-control" placeholder="Positionner votre salle sur la carte">
       <button id="search-button" class="btn btn-primary mt-2">Voir votre salle</button>
@@ -45,6 +43,7 @@
     <%= yield %>
   </div>
 
+  <!-- JavaScript inclusions -->
   <%= javascript_include_tag 'https://code.jquery.com/jquery-3.5.1.slim.min.js' %>
   <%= javascript_include_tag 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js' %>
   <%= javascript_include_tag 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js' %>
@@ -63,6 +62,6 @@
       }
     }
   </script>
-  <%= javascript_include_tag 'load_google_maps' %>
+  <%= javascript_include_tag 'load_google_maps' %> <!-- Assurez-vous que ce fichier charge l'API Google Maps -->
 </body>
 </html>

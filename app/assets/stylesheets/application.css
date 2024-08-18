@@ -164,3 +164,13 @@
 .testimonials h2 {
   margin-bottom: 30px;
 }
+
+.has-error .form-control {
+  border-color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.text-danger {
+  color: #dc3545;
+  font-size: 0.875em;
+}
