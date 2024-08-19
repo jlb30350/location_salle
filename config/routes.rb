@@ -19,9 +19,10 @@ Rails.application.routes.draw do
 
    # Suppression de photos
   delete 'rooms/:room_id/photos/:id', to: 'rooms#delete_photo', as: :delete_room_photo
+  delete 'rooms/:id/delete_static_photo', to: 'rooms#delete_static_photo', as: 'delete_static_photo'
+  
 
-  # config/routes.rb
-  get '/rooms/:room_id/photos/:id', to: 'rooms#show_photo', as: :room_photo
+
 
 
   # Routes pour les salles (rooms)

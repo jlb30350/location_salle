@@ -1,5 +1,3 @@
-<!-- app/views/rooms/_form.html.erb -->
-
 <% if @room.errors.any? %>
   <div id="error_explanation">
     <h2><%= pluralize(@room.errors.count, "erreur") %> ont empêché cette salle d'être enregistrée :</h2>
@@ -217,13 +215,19 @@
   </div>
 
   <!-- Affichage des photos existantes uniquement si la salle est persistée et a des photos -->
-  <% if @room.persisted? && @room.photos.attached? %>
+<% if @room.persisted? && @room.photos.attached? %>
   <h3>Photos existantes</h3>
-  <div class="existing-photos">
+  <div class="row">
     <% @room.photos.each do |photo| %>
-      <%= image_tag photo.variant(resize: "200x200"), class: "img-thumbnail" %>
-      <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
-    <% end %>
+      <div class="col-md-3 text-center">
+        <div class="mb-3">
+          <%= image_tag(photo.variant(resize: "200x200"), class: "img-thumbnail") %>
+        </div>
+        <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
+        <%= link_to 'Supprimer la photo statique', delete_static_photo_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo statique ?' }, class: "btn btn-danger btn-sm" %>
+
+      </div>
+      <% end %>
     </div>
   <% end %>
 
@@ -242,3 +246,4 @@
     }
     return true;
   }
+</script>
