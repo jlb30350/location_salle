@@ -15,7 +15,9 @@
     <% if room.photos.attached? %>
       <div class="photos mt-3">
         <% room.photos.each do |photo| %>
-          <%= image_tag photo, class: "img-fluid" %>
+          <%= image_tag 'default_image.png', class: "card-img-top", alt: "Une image par défaut" %>
+
+
         <% end %>
       </div>
     <% end %>

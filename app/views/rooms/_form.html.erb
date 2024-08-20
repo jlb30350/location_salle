@@ -221,7 +221,8 @@
     <% @room.photos.each do |photo| %>
       <div class="col-md-3 text-center">
         <div class="mb-3">
-          <%= image_tag(photo.variant(resize: "200x200"), class: "img-thumbnail") %>
+        <%= image_tag 'default_image.png', class: "card-img-top", alt: "Une image par défaut" %>
+
         </div>
         <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
         <%= link_to 'Supprimer la photo statique', delete_static_photo_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo statique ?' }, class: "btn btn-danger btn-sm" %>
