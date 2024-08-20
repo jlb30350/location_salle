@@ -17,19 +17,14 @@ Rails.application.routes.draw do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
   end
 
-   # Suppression de photos
-  delete 'rooms/:room_id/photos/:id', to: 'rooms#delete_photo', as: :delete_room_photo
-  delete 'rooms/:id/delete_static_photo', to: 'rooms#delete_static_photo', as: 'delete_static_photo'
-  
-
-
-
-
   # Routes pour les salles (rooms)
   resources :rooms do
     member do
-      delete 'photos/:photo_id', to: 'rooms#delete_photo', as: 'delete_photo'
+      delete 'delete', as: 'destroy_room'  # Route pour supprimer une salle
+      delete 'photos/:photo_id', to: 'rooms#delete_photo', as: 'delete_photo'  # Route pour supprimer une photo
+      delete 'delete_static_photo', to: 'rooms#delete_static_photo', as: 'delete_static_photo'  # Suppression d'une photo statique
     end
+
     resources :bookings, only: [:new, :create]
     resources :payments, only: [:new, :create]
     resources :reviews, only: [:create]
