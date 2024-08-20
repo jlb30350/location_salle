@@ -14,8 +14,11 @@ class RoomsController < ApplicationController
   end
 
   def show
-    # Code additionnel ici si nécessaire
+    @room = Room.find(params[:id])
+    # Supposons que le statut '1' représente une réservation confirmée
+    @bookings = @room.bookings.where(status: 1)
   end
+  
 
   def new
     @room = Room.new
