@@ -1,6 +1,6 @@
 class RoomsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :search]
-  before_action :set_room, only: %i[edit update destroy delete_photo]
+  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo]
 
@@ -13,13 +13,9 @@ class RoomsController < ApplicationController
     render :index
   end
 
-  def show_photo
-    @room = Room.find(params[:room_id])
-    @photo = @room.photos.find(params[:id])
-    render json: { message: "Photo trouvée" } # Exemple de réponse JSON
+  def show
+    # Code additionnel ici si nécessaire
   end
-  
-  
 
   def new
     @room = Room.new
@@ -35,6 +31,7 @@ class RoomsController < ApplicationController
   end
 
   def edit
+    # Code optionnel pour l'édition
   end
 
   def update
@@ -58,20 +55,6 @@ class RoomsController < ApplicationController
       head :unprocessable_entity  # Réponse en cas d'erreur
     end
   end
-  
-  def delete_static_photo
-    # Implémentez la logique pour supprimer la photo statique
-    # Par exemple, si la photo est stockée localement, vous pouvez la supprimer via File.delete
-    if File.exist?(Rails.root.join('app/assets/images/salle fetes blanquefort.jpg'))
-      File.delete(Rails.root.join('app/assets/images/salle fetes blanquefort.jpg'))
-      flash[:notice] = "Photo statique supprimée avec succès."
-    else
-      flash[:alert] = "Erreur lors de la suppression de la photo statique."
-    end
-    redirect_to edit_room_path(@room)
-  end
-  
-
 
   def search
     session[:search_query] = params[:query] if params[:query].present?
@@ -96,7 +79,10 @@ class RoomsController < ApplicationController
   end
 
   def set_room
-    @room = Room.find(params[:id])
+    @room = Room.find_by(id: params[:id])
+    if @room.nil?
+      redirect_to rooms_path, alert: "Salle non trouvée."
+    end
   end
 
   def ensure_bailleur

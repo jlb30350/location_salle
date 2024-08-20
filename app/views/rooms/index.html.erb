@@ -38,24 +38,29 @@ que ce soit pour un mariage, une conférence ou une réunion, nous avons la sall
 <% if @rooms.any? %>
   <div class="row">
     <% @rooms.each do |room| %>
-      <div class="col-md-4">
-        <div class="card mb-3">
-          <div class="card-header">
-            <h3><%= room.name %></h3>
-          </div>
-          <div class="card-body">
-            <p><%= room.description.truncate(100) %></p>
-            <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
-            <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
-            <p><strong>Adresse :</strong> <%= room.address %>, <%= room.city %>, <%= room.department %></p>
-          </div>
-          <div class="card-footer">
-            <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+            <% if room.photos.attached? %>
+        <%= link_to url_for(room.photos.first), data: { lightbox: "rooms", title: room.name } do %>
+          <%= image_tag room.photos.first.variant(resize_to_limit: [100, 100]), class: "card-img-top" %>
+        <% end %>
+        <% else %>
+          <%= image_tag 'default_image.png', class: "card-img-top", alt: "Default Image" %>
+        <% end %>
+        <div class="card-body">
+          <h5 class="card-title"><%= room.name %></h5>
+          <p class="card-text"><%= room.description.truncate(80) %></p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <%= link_to 'Voir les détails', room_path(room), class: "btn btn-sm btn-outline-secondary" %>
+            </div>
+            <small class="text-muted"><%= room.price %> €</small>
           </div>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
+</div>
 <% else %>
   <p>Aucune salle n'a été trouvée.</p>
 <% end %>

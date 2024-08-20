@@ -174,3 +174,19 @@
   color: #dc3545;
   font-size: 0.875em;
 }
+
+/* app/assets/stylesheets/application.css */
+.card-img-top {
+  width: 100%; /* Responsive image */
+  border-radius: 0.25rem; /* Rounded corners for the image */
+}
+
+.lightbox {
+  cursor: pointer; /* Indicates that the image can be clicked */
+}
+
+.card-img-top {
+  background-image: url('path_to_default_image_if_any.png');
+  background-color: #f0f0f0; /* Couleur de fond si l'image ne charge pas */
+  background-size: cover;
+}

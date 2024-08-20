@@ -1,3 +1,5 @@
+<!-- app/views/rooms/_photos.html.erb -->
+
 <h3>Photos statiques</h3>
 <%= image_tag('salle fetes blanquefort.jpg', alt: 'Photo de la salle') %>
 
@@ -7,11 +9,10 @@
     <% @room.photos.each do |photo| %>
       <div class="col-md-3 text-center">
         <div class="mb-3">
-        <%= image_tag(photo.variant(resize: "200x200"), class: "img-thumbnail") %>
+          <%= image_tag(photo.variant(resize: "200x200"), class: "img-thumbnail") %>
         </div>
         <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
-
       </div>
-    <% end %>
-  </div>
-<% end %>
+    <% end %> <!-- Fin de la boucle each -->
+  </div> <!-- Fin de la div.row -->
+<% end %> <!-- Fin du if @room.persisted? && @room.photos.attached? -->
