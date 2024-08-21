@@ -1,3 +1,5 @@
+// app/javascript/application.js 
+
 //= require_tree .
 // Rails UJS and Turbo configuration
 //= require rails-ujs
@@ -53,3 +55,5 @@ function submitDeleteForm(action) {
   document.body.appendChild(form);
   form.submit();
 }
+
+
