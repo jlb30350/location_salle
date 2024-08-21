@@ -53,28 +53,27 @@
   
   <script>
   let map;
-  function initMap() {
+let currentMarker; // Variable pour stocker le marqueur actuel
+
+function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-      center: { lat: 46.603354, lng: 1.888334 },
-      zoom: 6
+        center: { lat: 46.603354, lng: 1.888334 }, // Coordonnées initiales centrées sur la France
+        zoom: 6
     });
-    console.log("Map initialized");
-  }
+}
 
-  document.getElementById('locationForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var location = document.getElementById('locationInput').value;
-    if (location) {
-        centerMapOnLocation(location);
-    }
-  });
-
-  function centerMapOnLocation(location) {
+function centerMapOnLocation(location) {
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode({ 'address': location }, function(results, status) {
         if (status === 'OK') {
+            // Supprime le marqueur précédent s'il existe
+            if (currentMarker) {
+                currentMarker.setMap(null);
+            }
+
+            // Centre la carte sur la nouvelle localisation et ajoute un nouveau marqueur
             map.setCenter(results[0].geometry.location);
-            new google.maps.Marker({
+            currentMarker = new google.maps.Marker({
                 map: map,
                 position: results[0].geometry.location
             });
@@ -82,7 +81,17 @@
             alert('Geocode was not successful for the following reason: ' + status);
         }
     });
-  }
+}
+
+// Événement pour gérer la soumission du formulaire
+document.getElementById('locationForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var location = document.getElementById('locationInput').value;
+    if (location) {
+        centerMapOnLocation(location);
+    }
+});
+
 </script>
 
 
