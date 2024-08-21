@@ -12,7 +12,7 @@
 }
 
 .navbar {
-  background-color: #333;
+  background-color: #f9f8fa;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -44,16 +44,16 @@
   border: 1px solid transparent;
   border-radius: 5px;
   transition: background-color 0.3s, border-color 0.3s;
-  background-color: #444;
+  background-color: #ffc107;
 }
 
 .nav-link:hover {
-  background-color: #555;
+  background-color: #555555;
   border-color: #ccc;
 }
 
 .nav-link.btn {
-  color: #fff;
+  color: #ffffff;
 }
 
 .nav-link.btn.btn-danger {
