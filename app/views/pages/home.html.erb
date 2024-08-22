@@ -6,6 +6,17 @@
     <%= image_tag 'salle.jpg', alt: 'Logo du site', class: 'my-4' %>
   </div>
 </div>
+<!-- Exemple de formulaire de recherche dans app/views/pages/home.html.erb -->
+<div class="search-section">
+  <h2>Recherchez une salle par département ou ville</h2>
+  <%= form_with url: search_rooms_path, method: :get, local: true do |f| %>
+    <div class="form-group">
+      <%= f.label :query, "Entrez un code postal à 5 chiffres ou un nom de ville" %>
+      <%= f.text_field :query, value: params[:query], class: "form-control", placeholder: "Ex: 75001 ou Paris" %>
+    </div>
+    <%= f.submit "Rechercher votre future salle à louer", class: "btn btn-primary" %>
+  <% end %>
+</div>
 
 <div class="container my-5">
   <!-- Section pour les Bailleurs -->
