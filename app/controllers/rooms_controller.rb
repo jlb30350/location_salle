@@ -1,12 +1,20 @@
 class RoomsController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show, :search]
+  before_action :authenticate_user!, only: [:index, :show, :new, :edit, :create, :update, :destroy]
   before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo]
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo]
+  before_action :ensure_bailleur_or_correct_visibility, only: [:show]
 
-  def index
-    @rooms = Room.paginate(page: params[:page], per_page: 10)
+  # app/controllers/rooms_controller.rb
+def index
+  if user_signed_in? && current_user.bailleur?
+    @rooms = current_user.rooms
+  else
+    @rooms = Room.where(is_public: true) # Cette ligne est exécutée si l'utilisateur n'est pas connecté ou n'est pas un bailleur
   end
+end
+
+  
 
   def my_rooms
     @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
@@ -46,16 +54,19 @@ class RoomsController < ApplicationController
   end
 
   def destroy
-    @room.destroy
-    redirect_to rooms_url, notice: 'Salle supprimée avec succès.'
+    if @room.destroy
+      redirect_to rooms_url, notice: 'La salle a été supprimée avec succès.'
+    else
+      redirect_to @room, alert: "La suppression de la salle a échoué."
+    end
   end
 
   def delete_photo
     photo = @room.photos.find(params[:photo_id])
     if photo.purge
-      head :ok  # Réponse pour indiquer que tout s'est bien passé
+      redirect_to edit_room_path(@room), notice: 'Photo supprimée avec succès.'
     else
-      head :unprocessable_entity  # Réponse en cas d'erreur
+      redirect_to edit_room_path(@room), alert: "La suppression de la photo a échoué."
     end
   end
 
@@ -82,21 +93,15 @@ class RoomsController < ApplicationController
   end
 
   def set_room
-    @room = Room.find_by(id: params[:id])
-    if @room.nil?
-      redirect_to rooms_path, alert: "Salle non trouvée."
-    end
+    @room = Room.find(params[:id])
+    redirect_to rooms_path, alert: "Accès non autorisé" unless room_visible_to_current_user?(@room)
   end
 
-  def ensure_bailleur
-    unless current_user.bailleur?
-      redirect_to root_path, alert: "Seuls les bailleurs peuvent gérer les salles."
-    end
+  def ensure_bailleur_or_correct_visibility
+    redirect_to root_path unless room_visible_to_current_user?(@room)
   end
 
-  def ensure_owner
-    unless @room.user == current_user
-      redirect_to root_path, alert: "Vous n'êtes pas autorisé à effectuer cette action."
-    end
+  def room_visible_to_current_user?(room)
+    room.is_public || (user_signed_in? && current_user.bailleur? && room.user_id == current_user.id)
   end
 end

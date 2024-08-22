@@ -4,7 +4,7 @@ class PagesController < ApplicationController
   def home
     @latest_rooms = Room.order(created_at: :desc).limit(3)
     @latest_reviews = Review.order(created_at: :desc).limit(3)
-    @testimonials = Testimonial.order(created_at: :desc).limit(3)
+    @testimonials = Testimonial.limit(5)
     @featured_rooms = Room.order(created_at: :desc).limit(3)
     @room = Room.all # ou toute autre logique que vous utilisez pour obtenir les eroom
   end

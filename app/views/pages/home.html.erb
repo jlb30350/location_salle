@@ -1,30 +1,30 @@
 <!-- app/views/pages/home.html.erb -->
-<div class="hero-section text-center py-5" style="background-color: #f8f9fa;">
+<div class="hero-section text-center py-5" style="background-color: #333; color: white;">
   <div class="container">
-    <h1 class="display-4">Bienvenue sur Jereservemasalle.com</h1>
-    <p class="lead">La plateforme idéale pour trouver ou louer la salle parfaite pour tous vos événements.</p>
+    <h1 class="display-4">Bienvenue sur JeReserveMaSalle.com</h1>
+    <p class="lead">Trouvez la salle idéale pour chaque occasion, ou maximisez vos revenus en mettant en location votre espace !</p>
     <%= image_tag 'salle.jpg', alt: 'Logo du site', class: 'my-4' %>
   </div>
 </div>
 
 <div class="container my-5">
-  <!-- Section de présentation -->
+  <!-- Section pour les Bailleurs -->
   <div class="row">
     <div class="col-md-6">
       <h2>Pour les Bailleurs</h2>
-      <p>Vous possédez une salle que vous souhaitez mettre en location ? Jereservemasalle.com vous permet de la proposer à un large public. Créez un compte, publiez votre annonce et gérez vos réservations en toute simplicité.</p>
+      <p>Maximisez vos profits en exposant votre salle à une large audience ciblée. Gérez vos réservations et transactions en toute simplicité grâce à notre système intégré.</p>
       <ul>
-        <li>Augmentez vos revenus</li>
-        <li>Gérez facilement vos réservations</li>
-        <li>Profitez de notre large base de clients</li>
+        <li>Augmentez votre taux d'occupation et vos revenus</li>
+        <li>Gestion simplifiée de vos annonces</li>
+        <li>Support client dédié pour optimiser votre annonce</li>
       </ul>
     </div>
     <div class="col-md-6">
-      <h2>Pour les Loueurs</h2>
-      <p>Vous cherchez un lieu pour organiser un événement ? Découvrez une large sélection de salles disponibles à la location, filtrées par ville, capacité, et autres critères pour répondre à vos besoins.</p>
+      <h2>Pour les Locataires</h2>
+      <p>Explorez un large éventail de salles adaptées à vos besoins spécifiques. Réservez en quelques clics avec toutes les informations nécessaires pour une planification sans stress.</p>
       <ul>
-        <li>Trouvez la salle parfaite pour votre événement</li>
-        <li>Commodité de recherche</li>
+        <li>Choix diversifié de salles avec tarifs transparents</li>
+        <li>Processus de réservation simple et sécurisé</li>
       </ul>
     </div>
   </div>
@@ -70,7 +70,7 @@
       </a>
       <a class="carousel-control-next" href="#testimonialCarousel" role="button" data-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Suivant</span>
+        <span the="sr-only">Suivant</span>
       </a>
     </div>
   </section>
@@ -78,4 +78,7 @@
   <!-- Section d'inscription et de recherche -->
   <div class="text-center my-5">
     <p>Prêt à commencer ?</p>
-    <%= link_to "S'inscrire en tant que bailleur", new_user_registration_path(role: '
+    <%= link_to "S'inscrire en tant que bailleur", new_user_registration_path(role: 'bailleur'), class: 'btn btn-success' %>
+    <%= link_to "Rechercher votre salle", rooms_path, class: 'btn btn-info' %>
+  </div>
+</div>
