@@ -1,17 +1,17 @@
 class BookingsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_space
+  before_action :set_room
   before_action :set_booking, only: [:edit, :update, :destroy]
 
   def new
-    @booking = @space.bookings.new
+    @booking = @room.bookings.new
   end
 
   def create
-    @booking = @space.bookings.new(booking_params)
+    @booking = @room.bookings.new(booking_params)
     @booking.user = current_user
-    @booking.status = 'pending' # ou 'confirmed', selon votre logique
-  
+    @booking.status = 'pending'  # ou 'confirmed', selon votre logique
+
     if @booking.save
       BookingMailer.confirmation_email(@booking).deliver_later
       redirect_to new_payment_path(booking_id: @booking.id), notice: 'Réservation créée avec succès. Veuillez procéder au paiement.'
@@ -21,9 +21,13 @@ class BookingsController < ApplicationController
     end
   end
 
+  def edit
+    # Préparation pour l'édition, @booking est déjà défini par set_booking
+  end
+
   def update
     if @booking.update(booking_params)
-      redirect_to space_booking_path(@space, @booking), notice: 'Réservation mise à jour avec succès.'
+      redirect_to room_booking_path(@room, @booking), notice: 'Réservation mise à jour avec succès.'
     else
       flash.now[:alert] = 'Il y a eu des erreurs lors de la mise à jour de votre réservation.'
       render :edit
@@ -40,16 +44,16 @@ class BookingsController < ApplicationController
 
   private
 
-  def set_space
-    @space = Space.find(params[:space_id])
+  def set_room
+    @room = Room.find(params[:room_id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to root_path, alert: 'Espace non trouvé.'
+    redirect_to root_path, alert: 'Salle non trouvée.'
   end
 
   def set_booking
-    @booking = @space.bookings.find(params[:id])
+    @booking = @room.bookings.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to space_path(@space), alert: 'Réservation non trouvée.'
+    redirect_to room_path(@room), alert: 'Réservation non trouvée.'
   end
 
   def booking_params

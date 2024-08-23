@@ -91,6 +91,34 @@ class RoomsController < ApplicationController
 
   private
 
+  def room_params
+    params.require(:room).permit(
+      :name, :description, :capacity, :address, :city, :department, :surface,
+      :mail, :phone, :kitchen, :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate,
+      :weekend_rate, :quarterly_rate, :semiannual_rate, :annual_rate, photos: []
+    )
+  end
+
+  def update
+    @room = Room.find(params[:id])
+    if @room.update(room_params)  # Utilisation correcte de room_params ici
+      redirect_to @room, notice: 'Salle mise à jour avec succès.'
+    else
+      render :edit
+    end
+  end
+
+  def create
+    @room = current_user.rooms.new(room_params)
+    if @room.save
+      redirect_to @room, notice: 'Salle ajoutée avec succès.'
+    else
+      render :new
+    end
+  end
+  
+
+
   def ensure_bailleur
     unless current_user&.bailleur?
       redirect_to root_path, alert: "Accès non autorisé"

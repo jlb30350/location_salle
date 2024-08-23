@@ -1,6 +1,6 @@
 class Booking < ApplicationRecord
   belongs_to :user
-  belongs_to :space
+  belongs_to :room
 
   # Utilisation de préfixes pour les énumérations afin d'éviter les conflits
   enum status: { pending: 'pending', confirmed: 'confirmed', canceled: 'canceled' }, _prefix: :status
@@ -26,15 +26,15 @@ class Booking < ApplicationRecord
   def total_amount
     case duration
     when 'hour'
-      space.calculate_price(:hour) * hour_count
+      room.calculate_price(:hour) * hour_count
     when 'day'
-      space.calculate_price(:day) * day_count
+      room.calculate_price(:day) * day_count
     when 'week'
-      space.calculate_price(:week) * week_count
+      room.calculate_price(:week) * week_count
     when 'month'
-      space.calculate_price(:month) * month_count
+      room.calculate_price(:month) * month_count
     when 'year'
-      space.calculate_price(:year) * year_count
+      room.calculate_price(:year) * year_count
     else
       0
     end
@@ -85,7 +85,7 @@ class Booking < ApplicationRecord
 
   # Validation pour éviter les chevauchements avec les réservations existantes
   def no_overlap_with_existing_bookings
-    overlapping_bookings = space.bookings.where.not(id: id)
+    overlapping_bookings = room.bookings.where.not(id: id)
                                         .where("start_date < ? AND end_date > ?", end_date, start_date)
     if overlapping_bookings.exists?
       errors.add(:base, "Cette période chevauche une réservation existante")

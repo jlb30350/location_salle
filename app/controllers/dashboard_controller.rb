@@ -2,7 +2,7 @@
 class DashboardController < ApplicationController
     def index
       if current_user.bailleur?
-        @spaces = current_user.spaces
+        @rooms = current_user.rooms
         render 'bailleur_dashboard'
       else
         @bookings = current_user.bookings
