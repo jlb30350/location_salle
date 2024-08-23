@@ -19,12 +19,13 @@
     <p><%= @room.address %></p>
     <p><strong>Capacité :</strong> <%= @room.capacity %></p>
     <p><strong>Prix :</strong> <%= number_to_currency(@room.price) %></p>
-    <%= link_to 'Modifier', edit_room_path(@room), class: 'btn btn-warning' %>
-    <%= link_to 'Supprimer', room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
-
-    <%= link_to 'Retour à la liste', rooms_path, class: 'btn btn-secondary' %>
-    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary' %>
-  <% else %>
-    <p>Cette salle n'existe pas ou a été supprimée.</p>
+    <% if current_user.try(:bailleur?) && @room.user == current_user %>
+      <%= link_to 'Modifier', edit_room_path(@room), class: "btn btn-warning" %>
+      <%= link_to 'Supprimer', room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' } %>
+      <%= link_to 'Retour à la liste', rooms_path, class: 'btn btn-secondary' %>
+      <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary' %>
+    <% else %>
+      <p>Cette salle n'existe pas ou a été supprimée.</p>
+    <% end %>
   <% end %>
 </div>

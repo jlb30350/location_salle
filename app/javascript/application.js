@@ -15,6 +15,17 @@ document.addEventListener("turbo:load", () => {
   setupLogoutLinks();
 });
 
+document.addEventListener('touchmove', function(e) {
+  // Votre logique ici
+}, { passive: true });
+
+
+element.addEventListener('touchstart', function(e) {
+  // Votre logique ici
+}, { passive: true });
+
+
+
 function initializeLightbox() {
   Lightbox.option({
     'resizeDuration': 200,

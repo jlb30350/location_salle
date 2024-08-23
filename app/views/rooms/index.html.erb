@@ -21,7 +21,9 @@
                 <%= link_to 'Voir les détails', room_path(room), class: "btn btn-sm btn-outline-secondary" %>
                 <% if current_user.try(:bailleur?) && room.user == current_user %>
                   <%= link_to 'Modifier', edit_room_path(room), class: "btn btn-warning" %>
-                  <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: "btn btn-danger" %>
+                  <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' } %>
+                  
+
                 <% end %>
               </div>
               <small class="text-muted"><%= room.price %> €</small>

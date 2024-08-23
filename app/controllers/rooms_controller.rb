@@ -20,10 +20,12 @@ class RoomsController < ApplicationController
   end
 
   def show
-    @room = Room.find(params[:id])
-    @bookings = @room.bookings.where(status: 1)
+    @room = Room.find_by(id: params[:id])
+    return redirect_to rooms_path, alert: 'Salle non trouvée.' unless @room
+  
+    @bookings = @room.bookings.where('start_date >= ? AND end_date <= ?', Date.today.beginning_of_month, Date.today.end_of_month)
   end
-
+  
   def show_photo
     @room = Room.find(params[:room_id])
     @photo = @room.photos.find(params[:id])
@@ -57,11 +59,14 @@ class RoomsController < ApplicationController
   end
 
   def destroy
+    @room = current_user.rooms.find(params[:id])
     if @room.destroy
       redirect_to rooms_url, notice: 'La salle a été supprimée avec succès.'
     else
-      redirect_to @room, alert: "La suppression de la salle a échoué."
+      redirect_to rooms_url, alert: "Impossible de supprimer la salle."
     end
+  rescue ActiveRecord::RecordNotFound
+    redirect_to rooms_url, alert: 'Salle non trouvée ou vous n\'avez pas les droits pour la supprimer.'
   end
 
   def delete_photo
