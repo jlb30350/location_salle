@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get 'privacy', to: 'pages#privacy'
   get 'dashboard', to: 'pages#dashboard'
   get 'load_google_maps', to: 'google_maps#load_script'
+  get 'rooms/:room_id/photos/:id', to: 'rooms#show_photo', as: 'room_photo'
 
   # Suppression de compte
   devise_scope :user do

@@ -1,0 +1,11 @@
+<div id="map" style="height: 400px;"></div>
+<script>
+  function initMap() {
+    var map = new google.maps.Map(document.getElementById('map'), {
+      center: { lat: 46.2276, lng: 2.2137 }, // Coordonnées de la France
+      zoom: 6
+    });
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=VOAIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap">
+</script>

@@ -1,0 +1,7 @@
+<!-- app/views/rooms/show_photo.html.erb -->
+<h1>Photo de la Salle</h1>
+<% if @photo %>
+  <img src="<%= url_for(@photo) %>" alt="Photo de la salle">
+<% else %>
+  <p>Aucune photo disponible.</p>
+<% endif %>
