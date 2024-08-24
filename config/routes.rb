@@ -21,8 +21,10 @@ Rails.application.routes.draw do
   resources :rooms do
     member do
       delete 'delete', to: 'rooms#destroy', as: 'destroy_room'  # Action conventionnelle de suppression d'une salle
-      delete 'photos/:photo_id', to: 'rooms#delete_photo', as: 'delete_photo'  # Suppression d'une photo
+      delete 'photos/:photo_id', to: 'rooms#delete_photo', as: 'delete_photo' # Suppression d'une photo
       delete 'delete_static_photo', to: 'rooms#delete_static_photo', as: 'delete_static_photo'  # Suppression d'une photo statique
+      delete 'delete_main_photo'
+
     end
 
     resources :bookings, only: [:new, :create]

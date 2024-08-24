@@ -8,18 +8,16 @@
   <%= yield(:canonical_link) if content_for?(:canonical_link) %>
   <%= yield(:og_tags) if content_for?(:og_tags) %>
   <meta name="robots" content="index, follow">
-  
+
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
   <%= stylesheet_link_tag 'custom_styles', media: 'all', 'data-turbo-track': 'reload' %>
-
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox-plus-jquery.min.js"></script>
-
 
   <style>
     #map { height: 400px; width: 100%; margin-top: 40px; }
@@ -33,78 +31,74 @@
   <%= render 'layouts/navigation' %>
 
   <div class="container mt-3">
-  <form id="locationForm">
-  <input type="text" id="locationInput" placeholder="Entrez un code postal ou une ville">
-  <button type="submit">Cliquer ici pour positionner votre salle à louer sur la carte avec son adresse ou son code postal ou le nom de la ville</button>
-  </form>
+    <form id="locationForm">
+      <input type="text" id="locationInput" placeholder="Entrez un code postal ou une ville" class="form-control mb-2">
+      <button type="submit" class="btn btn-primary">Positionner votre salle</button>
+    </form>
 
     <div id="map"></div>
     <div id="results-container"></div>
-    
-    <%= render 'shared/user_actions' %>
 
+    <%= render 'shared/user_actions' %>
     <%= yield %>
   </div>
 
-    <!-- JavaScript inclusions -->
- 
-  <%= javascript_include_tag 'https://code.jquery.com/jquery-3.5.1.min.js' %> <!-- Charger jQuery avant Bootstrap -->
+  <!-- JavaScript inclusions -->
+  <%= javascript_include_tag 'https://code.jquery.com/jquery-3.5.1.min.js' %>
   <%= javascript_include_tag 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js' %>
   <%= javascript_include_tag 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js' %>
- 
-  
-  <script>
-  let map;
+  <%= javascript_include_tag 'application' %>
 
-  function initMap() {
+  <%= csrf_meta_tags %>
+
+
+
+  <script>
+    let map;
+    let currentMarker = null;
+
+    function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
-          center: { lat: 46.603354, lng: 1.888334 }, // Coordonnées initiales centrées sur la France
-          zoom: 6
+        center: { lat: 46.603354, lng: 1.888334 }, // Coordonnées initiales centrées sur la France
+        zoom: 6
       });
-  }
-  
-  let currentMarker = null;  // Gardez une référence au marqueur actuel pour pouvoir le retirer plus tard
-  
-  function centerMapOnLocation(location) {
+    }
+
+    function centerMapOnLocation(location) {
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode({ 'address': location }, function(results, status) {
-          if (status == 'OK') {
-              map.setCenter(results[0].geometry.location);
-  
-              // Supprimez l'ancien marqueur si un existe
-              if (currentMarker) {
-                  currentMarker.setMap(null);
-              }
-  
-              // Créez et placez le nouveau marqueur
-              currentMarker = new google.maps.Marker({
-                  map: map,
-                  position: results[0].geometry.location,
-                  title: 'Nouvelle Position'  // Optionnel: ajoutez un titre au marqueur
-              });
-          } else {
-              alert('Geocode was not successful for the following reason: ' + status);
+        if (status == 'OK') {
+          map.setCenter(results[0].geometry.location);
+
+          // Supprimez l'ancien marqueur si un existe
+          if (currentMarker) {
+            currentMarker.setMap(null);
           }
+
+          // Créez et placez le nouveau marqueur
+          currentMarker = new google.maps.Marker({
+            map: map,
+            position: results[0].geometry.location,
+            title: 'Nouvelle Position'  // Optionnel: ajoutez un titre au marqueur
+          });
+        } else {
+          alert('Geocode was not successful for the following reason: ' + status);
+        }
       });
-  }
-  
-  // Événement pour gérer la soumission du formulaire
-  document.getElementById('locationForm').addEventListener('submit', function(event) {
+    }
+
+    // Événement pour gérer la soumission du formulaire
+    document.getElementById('locationForm').addEventListener('submit', function(event) {
       event.preventDefault();
       var location = document.getElementById('locationInput').value;
       if (location) {
-          centerMapOnLocation(location);
+        centerMapOnLocation(location);
       }
-  });
-  
-
-</script>
-
+    });
+  </script>
 
   <!-- Utilisation de async et defer pour l'API Google Maps -->
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap&libraries=places"></script>
-
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap&libraries=places"></script>
 
 </body>
 </html>

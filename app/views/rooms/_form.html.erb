@@ -10,7 +10,7 @@
 <% end %>
 
 <%= form_with(model: @room, local: true, html: { onsubmit: "return checkPhotos();" }) do |form| %>
-  <!-- Champ pour le nom de la salle -->
+  <!-- Nom de la salle -->
   <div class="form-group <%= 'has-error' if @room.errors[:name].any? %>">
     <%= form.label :name, "Nom de la salle" %>
     <%= form.text_field :name, class: "form-control" %>
@@ -21,10 +21,10 @@
     <% end %>
   </div>
 
-  <!-- Champ pour la description -->
+  <!-- Description -->
   <div class="form-group <%= 'has-error' if @room.errors[:description].any? %>">
     <%= form.label :description, "Description" %>
-    <%= form.text_area :description, class: "form-control", placeholder: "Décrivez votre salle" %>
+    <%= form.text_area :description, class: "form-control" %>
     <% if @room.errors[:description].any? %>
       <div class="text-danger">
         <%= @room.errors[:description].first %>
@@ -32,21 +32,10 @@
     <% end %>
   </div>
 
-  <!-- Champ pour la capacité -->
-  <div class="form-group <%= 'has-error' if @room.errors[:capacity].any? %>">
-    <%= form.label :capacity, "Capacité (nombre de personnes)" %>
-    <%= form.number_field :capacity, class: "form-control", placeholder: "Capacité de la salle", min: 0 %>
-    <% if @room.errors[:capacity].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:capacity].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Champ pour l'adresse -->
+  <!-- Adresse -->
   <div class="form-group <%= 'has-error' if @room.errors[:address].any? %>">
     <%= form.label :address, "Adresse" %>
-    <%= form.text_field :address, class: "form-control", placeholder: "Adresse complète de la salle" %>
+    <%= form.text_field :address, class: "form-control" %>
     <% if @room.errors[:address].any? %>
       <div class="text-danger">
         <%= @room.errors[:address].first %>
@@ -54,10 +43,10 @@
     <% end %>
   </div>
 
-  <!-- Champ pour la ville -->
+  <!-- Ville -->
   <div class="form-group <%= 'has-error' if @room.errors[:city].any? %>">
     <%= form.label :city, "Ville" %>
-    <%= form.text_field :city, class: "form-control", placeholder: "Ville où se trouve la salle" %>
+    <%= form.text_field :city, class: "form-control" %>
     <% if @room.errors[:city].any? %>
       <div class="text-danger">
         <%= @room.errors[:city].first %>
@@ -65,10 +54,10 @@
     <% end %>
   </div>
 
-  <!-- Champ pour le département -->
+  <!-- Département -->
   <div class="form-group <%= 'has-error' if @room.errors[:department].any? %>">
     <%= form.label :department, "Département" %>
-    <%= form.text_field :department, class: "form-control", placeholder: "Département (code postal)" %>
+    <%= form.text_field :department, class: "form-control" %>
     <% if @room.errors[:department].any? %>
       <div class="text-danger">
         <%= @room.errors[:department].first %>
@@ -76,10 +65,10 @@
     <% end %>
   </div>
 
-  <!-- Champ pour la surface -->
+  <!-- Superficie -->
   <div class="form-group <%= 'has-error' if @room.errors[:surface].any? %>">
-    <%= form.label :surface, "Surface (en m²)" %>
-    <%= form.number_field :surface, class: "form-control", placeholder: "Surface en m²", min: 0 %>
+    <%= form.label :surface, "Superficie (m²)" %>
+    <%= form.number_field :surface, class: "form-control", min: 0, step: 1 %>
     <% if @room.errors[:surface].any? %>
       <div class="text-danger">
         <%= @room.errors[:surface].first %>
@@ -87,9 +76,20 @@
     <% end %>
   </div>
 
-  <!-- Champ pour l'email -->
+  <!-- Capacité -->
+  <div class="form-group <%= 'has-error' if @room.errors[:capacity].any? %>">
+    <%= form.label :capacity, "Capacité (nombre de personnes)" %>
+    <%= form.number_field :capacity, class: "form-control", min: 1, step: 1 %>
+    <% if @room.errors[:capacity].any? %>
+      <div class="text-danger">
+        <%= @room.errors[:capacity].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Email -->
   <div class="form-group <%= 'has-error' if @room.errors[:mail].any? %>">
-    <%= form.label :mail, "Email de contact" %>
+    <%= form.label :mail, "Email" %>
     <%= form.email_field :mail, class: "form-control" %>
     <% if @room.errors[:mail].any? %>
       <div class="text-danger">
@@ -98,9 +98,9 @@
     <% end %>
   </div>
 
-  <!-- Champ pour le téléphone -->
+  <!-- Téléphone -->
   <div class="form-group <%= 'has-error' if @room.errors[:phone].any? %>">
-    <%= form.label :phone, "Numéro de téléphone" %>
+    <%= form.label :phone, "Téléphone" %>
     <%= form.telephone_field :phone, class: "form-control" %>
     <% if @room.errors[:phone].any? %>
       <div class="text-danger">
@@ -109,130 +109,68 @@
     <% end %>
   </div>
 
-  <!-- Champ pour la cuisine disponible -->
-  <div class="form-group <%= 'has-error' if @room.errors[:kitchen].any? %>">
-    <%= form.label :kitchen, "Cuisine disponible ?" %>
-    <%= form.select :kitchen, [["Oui", true], ["Non", false]], class: "form-control" %>
-    <% if @room.errors[:kitchen].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:kitchen].first %>
-      </div>
-    <% end %>
+  <!-- Cuisine -->
+  <div class="form-group">
+    <%= form.label :kitchen, "Cuisine" %>
+    <%= form.check_box :kitchen, class: "form-check-input" %>
   </div>
 
-  <!-- Champs pour les tarifs -->
-  <h3>Tarification</h3>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:hourly_rate].any? %>">
-    <%= form.label :hourly_rate, "Tarif horaire (€)" %>
-    <%= form.number_field :hourly_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:hourly_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:hourly_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:daily_rate].any? %>">
-    <%= form.label :daily_rate, "Tarif journalier (€)" %>
-    <%= form.number_field :daily_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:daily_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:daily_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:weekly_rate].any? %>">
-    <%= form.label :weekly_rate, "Tarif hebdomadaire (€)" %>
-    <%= form.number_field :weekly_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:weekly_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:weekly_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:monthly_rate].any? %>">
-    <%= form.label :monthly_rate, "Tarif mensuel (€)" %>
-    <%= form.number_field :monthly_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:monthly_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:monthly_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:weekend_rate].any? %>">
-    <%= form.label :weekend_rate, "Tarif week-end (€)" %>
-    <%= form.number_field :weekend_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:weekend_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:weekend_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:quarterly_rate].any? %>">
-    <%= form.label :quarterly_rate, "Tarif trimestriel (€)" %>
-    <%= form.number_field :quarterly_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:quarterly_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:quarterly_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:semiannual_rate].any? %>">
-    <%= form.label :semiannual_rate, "Tarif semestriel (€)" %>
-    <%= form.number_field :semiannual_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:semiannual_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:semiannual_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="form-group <%= 'has-error' if @room.errors[:annual_rate].any? %>">
-    <%= form.label :annual_rate, "Tarif annuel (€)" %>
-    <%= form.number_field :annual_rate, class: "form-control", step: 1, min: 0 %>
-    <% if @room.errors[:annual_rate].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:annual_rate].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Champ pour les photos -->
-  <div class="form-group <%= 'has-error' if @room.errors[:photos].any? %>">
-    <%= form.label :photos, "Photos" %>
-    <%= form.file_field :photos, multiple: true, class: "form-control-file" %>
-    <% if @room.errors[:photos].any? %>
-      <div class="text-danger">
-        <%= @room.errors[:photos].first %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Affichage des photos existantes uniquement si la salle est persistée et a des photos -->
-<% if @room.persisted? && @room.photos.attached? %>
-  <h3>Photos existantes</h3>
-  <div class="row">
-    <% @room.photos.each do |photo| %>
-      <div class="col-md-3 text-center">
-        <div class="mb-3">
-        <%= image_tag 'default_image.png', class: "card-img-top", alt: "Une image par défaut" %>
-
+  <!-- Champs de tarification -->
+  <% [:hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate, :quarterly_rate, :semiannual_rate, :annual_rate].each do |rate| %>
+    <div class="form-group <%= 'has-error' if @room.errors[rate].any? %>">
+      <%= form.label rate, t(".#{rate}") %>
+      <%= form.number_field rate, step: 0.01, class: "form-control" %>
+      <% if @room.errors[rate].any? %>
+        <div class="text-danger">
+          <%= @room.errors[rate].first %>
         </div>
-        <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
-        <%= link_to 'Supprimer la photo statique', delete_static_photo_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo statique ?' }, class: "btn btn-danger btn-sm" %>
-
-      </div>
       <% end %>
     </div>
   <% end %>
 
-  <!-- Bouton de soumission -->
+  <!-- Photo principale -->
+  <div class="form-group <%= 'has-error' if @room.errors[:main_photo].any? %>">
+    <%= form.label :main_photo, "Photo principale" %>
+    <%= form.file_field :main_photo, class: "form-control-file" %>
+    <% if @room.errors[:main_photo].any? %>
+      <div class="text-danger">
+        <%= @room.errors[:main_photo].first %>
+      </div>
+    <% end %>
+
+    <!-- Affichage de la photo principale actuelle si elle existe -->
+    <% if @room.persisted? && @room.main_photo.attached? %>
+      <div class="mt-3">
+        <%= image_tag @room.main_photo, class: "img-thumbnail" %>
+        <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Photos supplémentaires -->
+  <div class="form-group <%= 'has-error' if @room.errors[:additional_photos].any? %>">
+    <%= form.label :additional_photos, "Photos supplémentaires" %>
+    <%= form.file_field :additional_photos, multiple: true, class: "form-control-file" %>
+    <% if @room.errors[:additional_photos].any? %>
+      <div class="text-danger">
+        <%= @room.errors[:additional_photos].first %>
+      </div>
+    <% end %>
+
+    <!-- Affichage des photos supplémentaires actuelles -->
+    <% if @room.persisted? && @room.additional_photos.attached? %>
+      <div class="row mt-3">
+        <% @room.additional_photos.each do |photo| %>
+          <div class="col-md-3 text-center">
+          <%= image_tag @room.main_photo, class: "img-thumbnail" %>
+          <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+       </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Soumission -->
   <div class="form-group">
     <%= form.submit "Enregistrer la salle", class: "btn btn-primary" %>
   </div>
@@ -240,9 +178,11 @@
 
 <script>
   function checkPhotos() {
-    const photosField = document.querySelector('input[type="file"]');
-    if (photosField && photosField.files.length === 0) {
-      alert("Veuillez sélectionner au moins une photo avant de soumettre le formulaire.");
+    const mainPhotoField = document.querySelector('input[name="room[main_photo]"]');
+    const additionalPhotosField = document.querySelector('input[name="room[additional_photos][]"]');
+    
+    if (!mainPhotoField.files.length && !additionalPhotosField.files.length) {
+      alert("Veuillez sélectionner au moins une photo.");
       return false;
     }
     return true;

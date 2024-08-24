@@ -1,7 +1,7 @@
-<!-- app/views/rooms/show.html.erb -->
 <div>
   <h2>Calendrier des réservations</h2>
   <% if @room %>
+    <!-- Affichage du calendrier -->
     <%= month_calendar(events: @bookings) do |date, bookings| %>
       <div class="day">
         <% if bookings.any? %>
@@ -13,19 +13,47 @@
         <% end %>
       </div>
     <% end %>
+
+    <!-- Détails de la salle -->
     <h1><%= @room.name %></h1>
-    <%= render 'photos' %>
+
+    <!-- Affichage de la photo principale de la salle -->
+    <% if @room.main_photo.attached? %>
+      <%= image_tag url_for(@room.main_photo), alt: "Photo principale de #{@room.name}", class: "room-photo" %>
+    <% else %>
+      <p>Aucune photo principale disponible pour cette salle.</p>
+    <% end %>
+
+    <!-- Affichage des photos supplémentaires de la salle -->
+    <% if @room.additional_photos.attached? %>
+      <div class="additional-photos row mt-3">
+        <% @room.additional_photos.each do |photo| %>
+          <div class="col-md-3 text-center">
+            <%= image_tag url_for(photo), alt: "Photo supplémentaire de #{@room.name}", class: "img-thumbnail mb-2" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p>Aucune photo supplémentaire disponible pour cette salle.</p>
+    <% end %>
+
+    <!-- Description et autres détails -->
     <p><%= @room.description %></p>
-    <p><%= @room.address %></p>
-    <p><strong>Capacité :</strong> <%= @room.capacity %></p>
+    <p><%= @room.address %>, <%= @room.city %>, <%= @room.department %></p>
+    <p><strong>Capacité :</strong> <%= @room.capacity %> personnes</p>
     <p><strong>Prix :</strong> <%= number_to_currency(@room.price) %></p>
+
+    <!-- Options pour le bailleur (propriétaire de la salle) -->
     <% if current_user.try(:bailleur?) && @room.user == current_user %>
       <%= link_to 'Modifier', edit_room_path(@room), class: "btn btn-warning" %>
-      <%= link_to 'Supprimer', room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' } %>
-      <%= link_to 'Retour à la liste', rooms_path, class: 'btn btn-secondary' %>
-      <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary' %>
-    <% else %>
-      <p>Cette salle n'existe pas ou a été supprimée.</p>
+      <%= link_to 'Supprimer', room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: "btn btn-danger" %>
     <% end %>
+
+    <!-- Liens de navigation -->
+    <%= link_to 'Retour à la liste', rooms_path, class: 'btn btn-secondary' %>
+    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary' %>
+    
+  <% else %>
+    <p>Cette salle n'existe pas ou a été supprimée.</p>
   <% end %>
 </div>

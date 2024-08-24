@@ -6,7 +6,8 @@
     <%= image_tag 'salle.jpg', alt: 'Logo du site', class: 'my-4' %>
   </div>
 </div>
-<!-- Exemple de formulaire de recherche dans app/views/pages/home.html.erb -->
+
+<!-- Formulaire de recherche -->
 <div class="search-section">
   <h2>Recherchez une salle par département ou ville sans inscription</h2>
   <%= form_with url: search_rooms_path, method: :get, local: true do |f| %>
@@ -19,7 +20,7 @@
 </div>
 
 <div class="container my-5">
-  <!-- Section pour les Bailleurs -->
+  <!-- Section pour les Bailleurs et Locataires -->
   <div class="row">
     <div class="col-md-6">
       <h2>Pour les Bailleurs</h2>
@@ -47,12 +48,17 @@
       <% @latest_rooms.each do |room| %>
         <div class="col-md-4">
           <div class="card mb-3">
-            <% if room.photos.attached? %>
-              <%= image_tag room.photos.first, alt: room.name, class: 'card-img-top' %>
+            <% if room.main_photo.attached? %>
+              <%= image_tag room.main_photo, alt: room.name, class: 'card-img-top' %>
+            <% elsif room.additional_photos.attached? %>
+              <%= image_tag room.additional_photos.first, alt: room.name, class: 'card-img-top' %>
+            <% else %>
+              <%= image_tag 'https://via.placeholder.com/150', alt: 'Image par défaut', class: 'card-img-top' %>
+
             <% end %>
             <div class="card-body">
               <h5 class="card-title"><%= room.name %></h5>
-              <p class="card-text"><%= room.description.truncate(100) %></p>
+              <p class="card-text"><%= truncate(room.description, length: 100) %></p>
               <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
             </div>
           </div>
@@ -81,7 +87,7 @@
       </a>
       <a class="carousel-control-next" href="#testimonialCarousel" role="button" data-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span the="sr-only">Suivant</span>
+        <span class="sr-only">Suivant</span>
       </a>
     </div>
   </section>

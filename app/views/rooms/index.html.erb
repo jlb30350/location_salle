@@ -1,4 +1,3 @@
-<!-- app/views/rooms/index.html.erb -->
 <h1>Toutes les salles</h1>
 
 <% if @rooms.any? %>
@@ -6,28 +5,50 @@
     <% @rooms.each do |room| %>
       <div class="col-md-4">
         <div class="card mb-4 shadow-sm">
-          <% if room.photos.attached? %>
-            <%= link_to url_for(room.photos.first), data: { lightbox: "rooms", title: room.name } do %>
-              <%= image_tag room.photos.first.variant(resize_to_limit: [100, 100]), class: "card-img-top" %>
+          <!-- Affichage de la photo principale ou des photos supplémentaires -->
+          <% if room.main_photo.attached? %>
+            <%= link_to url_for(room.main_photo), data: { lightbox: "rooms", title: room.name } do %>
+              <%= image_tag room.main_photo.variant(resize_to_limit: [300, 300]), class: "card-img-top" %>
+            <% end %>
+          <% elsif room.additional_photos.attached? %>
+            <%= link_to url_for(room.additional_photos.first), data: { lightbox: "rooms", title: room.name } do %>
+              <%= image_tag room.additional_photos.first.variant(resize_to_limit: [300, 300]), class: "card-img-top" %>
             <% end %>
           <% else %>
-            <%= image_tag 'default_image.png', class: "card-img-top", alt: "Default Image" %>
+            <%= image_tag 'https://via.placeholder.com/300', alt: 'Image par défaut', class: 'card-img-top' %>
           <% end %>
+
+          <!-- Détails de la salle -->
           <div class="card-body">
             <h5 class="card-title"><%= room.name %></h5>
             <p class="card-text"><%= room.description.truncate(80) %></p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <%= link_to 'Voir les détails', room_path(room), class: "btn btn-sm btn-outline-secondary" %>
-                <% if current_user.try(:bailleur?) && room.user == current_user %>
-                  <%= link_to 'Modifier', edit_room_path(room), class: "btn btn-warning" %>
-                  <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' } %>
-                  
 
-                <% end %>
+            <!-- Boutons de gestion disponibles pour le propriétaire -->
+            <% if current_user.try(:bailleur?) && room.user == current_user %>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <%= link_to 'Modifier', edit_room_path(room), class: "btn btn-sm btn-warning" %>
+                <%= link_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-sm btn-danger' %>
               </div>
-              <small class="text-muted"><%= room.price %> €</small>
-            </div>
+
+              <!-- Gestion des photos -->
+              <% if room.main_photo.attached? %>
+                <%= link_to 'Supprimer la photo principale', delete_main_photo_room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-sm btn-danger mt-2" %>
+              <% end %>
+
+              <% if room.additional_photos.attached? %>
+                <% room.additional_photos.each do |photo| %>
+                  <div class="mt-2">
+                    <%= image_tag photo.variant(resize_to_limit: [100, 100]), class: "img-thumbnail" %>
+                    <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-sm btn-danger mt-1" %>
+                  </div>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+
+          <!-- Affichage du prix -->
+          <div class="card-footer">
+            <small class="text-muted"><%= number_to_currency(room.price || 0, unit: "€") %></small>
           </div>
         </div>
       </div>
@@ -36,3 +57,22 @@
 <% else %>
   <p>Aucune salle n'a été trouvée.</p>
 <% end %>
+
+<!-- Gestion des photos pour une salle spécifique -->
+<div class="row">
+  <% if @room.main_photo.attached? %>
+    <div class="col-md-3 text-center">
+      <%= image_tag @room.main_photo, class: "img-thumbnail mb-2" %>
+      <%= link_to 'Supprimer la photo principale', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+    </div>
+  <% end %>
+
+  <% if @room.additional_photos.attached? %>
+    <% @room.additional_photos.each do |photo| %>
+      <div class="col-md-3 text-center">
+        <%= image_tag photo, class: "img-thumbnail mb-2" %>
+        <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

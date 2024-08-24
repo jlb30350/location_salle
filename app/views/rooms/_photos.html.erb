@@ -1,19 +1,30 @@
-<!-- app/views/rooms/_photos.html.erb -->
-
 <h3>Photos statiques</h3>
 <%= image_tag('salle fetes blanquefort.jpg', alt: 'Photo de la salle') %>
 
-<h3>Photos téléchargées</h3>
-<% if @room.persisted? && @room.photos.attached? %>
-  <div class="row">
-    <% @room.photos.each do |photo| %>
-      <div class="col-md-3 text-center">
-        <div class="mb-3">
-        <%= image_tag 'default_image.png', class: "card-img-top", alt: "Une image par défaut" %>
+<h3>Photo principale</h3>
+<% if @room.persisted? && @room.main_photo.attached? %>
+  <div class="text-center">
+    <!-- Affichage de la photo principale -->
+    <%= image_tag url_for(@room.main_photo), class: "card-img-top", alt: "Photo principale de la salle" %>
+    <!-- Lien pour supprimer la photo principale -->
+    <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo principale ?' }, class: "btn btn-danger btn-sm mt-2" %>
+  </div>
+<% else %>
+  <p>Aucune photo principale téléchargée pour cette salle.</p>
+<% end %>
 
-        </div>
-        <%= link_to 'Supprimer', delete_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
+<h3>Photos supplémentaires</h3>
+<% if @room.persisted? && @room.additional_photos.attached? %>
+  <div class="row">
+    <% @room.additional_photos.each do |photo| %>
+      <div class="col-md-3 text-center">
+        <!-- Affichage des photos supplémentaires -->
+        <%= image_tag photo, class: "img-thumbnail mb-2", alt: "Photo supplémentaire de la salle" %>
+        <!-- Lien pour supprimer une photo supplémentaire -->
+        <%= link_to 'Supprimer', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
       </div>
-    <% end %> <!-- Fin de la boucle each -->
-  </div> <!-- Fin de la div.row -->
-<% end %> <!-- Fin du if @room.persisted? && @room.photos.attached? -->
+    <% end %>
+  </div>
+<% else %>
+  <p>Aucune photo supplémentaire disponible pour cette salle.</p>
+<% end %>
