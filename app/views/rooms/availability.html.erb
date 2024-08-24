@@ -1,0 +1,15 @@
+<h1>Disponibilités pour <%= @room.name %></h1>
+
+<%= month_calendar(events: @bookings) do |date, bookings| %>
+    <div class="day">
+      <% if bookings.any? %>
+        <% bookings.each do |booking| %>
+          <span class="reserved"><%= booking.user.name %></span>
+        <% end %>
+      <% else %>
+        <!-- Transformer chaque jour en bouton cliquable -->
+        <button class="btn btn-success available-day" data-date="<%= date %>">Disponible</button>
+      <% end %>
+    </div>
+  <% end %>
+  

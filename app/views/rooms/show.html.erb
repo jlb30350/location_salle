@@ -37,6 +37,30 @@
       <p>Aucune photo supplémentaire disponible pour cette salle.</p>
     <% end %>
 
+    <!-- Gestion des photos pour une salle spécifique -->
+<% if @room.present? %>
+  <div class="row">
+    <% if @room.main_photo.attached? %>
+      <div class="col-md-3 text-center">
+        <%= image_tag @room.main_photo, class: "img-thumbnail mb-2" %>
+        <%= link_to 'Supprimer la photo principale', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+      </div>
+    <% end %>
+
+    <% if @room.additional_photos.attached? %>
+      <% @room.additional_photos.each do |photo| %>
+        <div class="col-md-3 text-center">
+          <%= image_tag photo, class: "img-thumbnail mb-2" %>
+          <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <p>Salle introuvable ou non définie.</p>
+<% end %>
+
+
     <!-- Description et autres détails -->
     <p><%= @room.description %></p>
     <p><%= @room.address %>, <%= @room.city %>, <%= @room.department %></p>

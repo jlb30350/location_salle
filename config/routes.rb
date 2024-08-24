@@ -24,6 +24,9 @@ Rails.application.routes.draw do
       delete 'photos/:photo_id', to: 'rooms#delete_photo', as: 'delete_photo' # Suppression d'une photo
       delete 'delete_static_photo', to: 'rooms#delete_static_photo', as: 'delete_static_photo'  # Suppression d'une photo statique
       delete 'delete_main_photo'
+      delete :delete_additional_photo
+      get 'availability'
+      post 'create_reservation'
 
     end
 

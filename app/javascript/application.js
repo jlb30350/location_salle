@@ -29,6 +29,59 @@ document.addEventListener('touchstart', (e) => {
   // Logique pour l'événement 'touchstart'
 }, { passive: true });
 
+
+document.addEventListener('DOMContentLoaded', function () {
+  let firstDate = null;
+  let lastDate = null;
+
+  document.querySelectorAll('.available-day').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const selectedDate = this.getAttribute('data-date');
+
+      if (!firstDate) {
+        firstDate = selectedDate;
+        this.classList.add('btn-primary');
+      } else if (!lastDate) {
+        lastDate = selectedDate;
+        this.classList.add('btn-primary');
+
+        // Après avoir sélectionné la deuxième date, vous pouvez soumettre le formulaire
+        submitReservation(firstDate, lastDate);
+      }
+    });
+  });
+
+  function submitReservation(startDate, endDate) {
+    // Envoyer la demande de réservation avec les dates sélectionnées
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/path_to_reservation_creation'; // Remplacez par l'URL correcte
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'authenticity_token';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    const startDateInput = document.createElement('input');
+    startDateInput.type = 'hidden';
+    startDateInput.name = 'start_date';
+    startDateInput.value = startDate;
+    form.appendChild(startDateInput);
+
+    const endDateInput = document.createElement('input');
+    endDateInput.type = 'hidden';
+    endDateInput.name = 'end_date';
+    endDateInput.value = endDate;
+    form.appendChild(endDateInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+});
+
+
 // Initialisation de Lightbox avec des options
 function initializeLightbox() {
   Lightbox.option({

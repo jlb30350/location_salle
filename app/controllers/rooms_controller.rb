@@ -41,6 +41,12 @@ class RoomsController < ApplicationController
     # Code optionnel pour l'édition
   end
 
+  def availability
+    @room = Room.find(params[:id])
+    @bookings = @room.bookings
+  end
+  
+
   def update
     if @room.update(room_params)
       redirect_to @room, notice: 'Salle mise à jour avec succès.'
@@ -68,22 +74,34 @@ class RoomsController < ApplicationController
 
   def delete_main_photo
     @room = Room.find(params[:id])
-    
     if @room.main_photo.attached?
       @room.main_photo.purge
       redirect_to edit_room_path(@room), notice: 'Photo principale supprimée avec succès.'
     else
-      redirect_to edit_room_path(@room), alert: "Aucune photo principale à supprimer."
+      redirect_to edit_room_path(@room), alert: 'Aucune photo principale à supprimer.'
     end
   end
-
+  
+  def create_reservation
+    @room = Room.find(params[:room_id])
+    @booking = @room.bookings.new(user: current_user, start_date: params[:start_date], end_date: params[:end_date])
+  
+    if @booking.save
+      redirect_to @room, notice: 'Réservation effectuée avec succès.'
+    else
+      redirect_to availability_room_path(@room), alert: 'Erreur lors de la réservation.'
+    end
+  end
+  
 
   def delete_additional_photo
+    @room = Room.find(params[:id])
     photo = @room.additional_photos.find(params[:photo_id])
-    if photo&.purge
-      redirect_to edit_room_path(@room), notice: 'Photo supprimée avec succès.'
+    if photo.present?
+      photo.purge
+      redirect_to edit_room_path(@room), notice: 'Photo supplémentaire supprimée avec succès.'
     else
-      redirect_to edit_room_path(@room), alert: "La suppression de la photo a échoué."
+      redirect_to edit_room_path(@room), alert: 'Aucune photo à supprimer.'
     end
   end
 

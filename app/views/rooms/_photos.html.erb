@@ -1,27 +1,24 @@
-<h3>Photos statiques</h3>
-<%= image_tag('salle fetes blanquefort.jpg', alt: 'Photo de la salle') %>
-
 <h3>Photo principale</h3>
-<% if @room.persisted? && @room.main_photo.attached? %>
+<% if room.persisted? && room.main_photo.attached? %>
   <div class="text-center">
     <!-- Affichage de la photo principale -->
-    <%= image_tag url_for(@room.main_photo), class: "card-img-top", alt: "Photo principale de la salle" %>
+    <%= image_tag url_for(room.main_photo), class: "card-img-top", alt: "Photo principale de la salle" %>
     <!-- Lien pour supprimer la photo principale -->
-    <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo principale ?' }, class: "btn btn-danger btn-sm mt-2" %>
+    <%= link_to 'Supprimer', delete_main_photo_room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo principale ?' }, class: "btn btn-danger btn-sm mt-2" %>
   </div>
 <% else %>
   <p>Aucune photo principale téléchargée pour cette salle.</p>
 <% end %>
 
 <h3>Photos supplémentaires</h3>
-<% if @room.persisted? && @room.additional_photos.attached? %>
+<% if room.persisted? && room.additional_photos.attached? %>
   <div class="row">
-    <% @room.additional_photos.each do |photo| %>
+    <% room.additional_photos.each do |photo| %>
       <div class="col-md-3 text-center">
         <!-- Affichage des photos supplémentaires -->
         <%= image_tag photo, class: "img-thumbnail mb-2", alt: "Photo supplémentaire de la salle" %>
         <!-- Lien pour supprimer une photo supplémentaire -->
-        <%= link_to 'Supprimer', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm" %>
+        <%= link_to 'Supprimer', delete_additional_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
       </div>
     <% end %>
   </div>

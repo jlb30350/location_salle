@@ -1,6 +1,11 @@
-# app/views/rooms/edit.html.erb
 <h1>Modifier la salle</h1>
 
+<!-- Formulaire de modification de la salle -->
 <%= render 'form' %>
 
-<%= render 'photos' %>
+<!-- Affichage des photos principales et supplémentaires de la salle -->
+<%= render 'photos', room: @room %>
+
+<!-- Photo statique -->
+<h3>Photos statiques</h3>
+<%= image_tag('salle fetes blanquefort.jpg', alt: 'Photo de la salle') %>
