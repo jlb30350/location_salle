@@ -1,4 +1,4 @@
-<div>
+<div class="room-details-section">
   <h2>Calendrier des réservations</h2>
   <% if @room %>
     <!-- Affichage du calendrier -->
@@ -15,68 +15,90 @@
     <% end %>
 
     <!-- Détails de la salle -->
-    <h1><%= @room.name %></h1>
+    <div class="room-info">
+      <h1><%= @room.name %></h1>
+      <p><strong>Adresse :</strong> <%= @room.city %>, <%= @room.department %></p>
+      <p><strong>Capacité :</strong> <%= @room.capacity %> personnes</p>
+    </div>
 
-    <!-- Affichage de la photo principale de la salle -->
-    <% if @room.main_photo.attached? %>
-      <%= image_tag url_for(@room.main_photo), alt: "Photo principale de #{@room.name}", class: "room-photo" %>
-    <% else %>
-      <p>Aucune photo principale disponible pour cette salle.</p>
-    <% end %>
+    <% if user_signed_in? && current_user.loueur? %>
+    <!-- Bouton de réservation -->
+    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
+  <% elsif !user_signed_in? %>
+    <!-- Invitation à se connecter -->
+    <p class="text-danger font-weight-bold">Veuillez vous connecter pour réserver cette salle.</p>
+    <%= link_to 'Se connecter', new_user_session_path, class: 'btn btn-secondary' %>
+  <% end %>
 
-    <!-- Affichage des photos supplémentaires de la salle -->
-    <% if @room.additional_photos.attached? %>
-      <div class="additional-photos row mt-3">
-        <% @room.additional_photos.each do |photo| %>
-          <div class="col-md-3 text-center">
-            <%= image_tag url_for(photo), alt: "Photo supplémentaire de #{@room.name}", class: "img-thumbnail mb-2" %>
-          </div>
+
+
+
+      <!-- Tarification -->
+
+      <% if user_signed_in? %>
+      <h3>Tarifs</h3>
+      <ul>
+        <% if @room.hourly_rate.present? %>
+          <li><strong>Tarif horaire :</strong> <%= number_to_currency(@room.hourly_rate, unit: "€") %></li>
         <% end %>
-      </div>
-    <% else %>
-      <p>Aucune photo supplémentaire disponible pour cette salle.</p>
-    <% end %>
+        <% if @room.daily_rate.present? %>
+          <li><strong>Tarif journalier :</strong> <%= number_to_currency(@room.daily_rate, unit: "€") %></li>
+        <% end %>
+        <% if @room.weekly_rate.present? %>
+          <li><strong>Tarif hebdomadaire :</strong> <%= number_to_currency(@room.weekly_rate, unit: "€") %></li>
+        <% end %>
+        <% if @room.monthly_rate.present? %>
+          <li><strong>Tarif mensuel :</strong> <%= number_to_currency(@room.monthly_rate, unit: "€") %></li>
+        <% end %>
+        <% if @room.weekend_rate.present? %>
+          <li><strong>Tarif de week-end :</strong> <%= number_to_currency(@room.weekend_rate, unit: "€") %></li>
+        <% end %>
+        <% if @room.quarterly_rate.present? %>
+          <li><strong>Tarif trimestriel :</strong> <%= number_to_currency(@room.quarterly_rate, unit: "€") %></li>
+        <% end %>
+        <% if @room.semiannual_rate.present? %>
+          <li><strong>Tarif semestriel :</strong> <%= number_to_currency(@room.semiannual_rate, unit: "€") %></li>
+        <% end %>
+        <% if @room.annual_rate.present? %>
+          <li><strong>Tarif annuel :</strong> <%= number_to_currency(@room.annual_rate, unit: "€") %></li>
+        <% end %>
+      </ul>
 
-    <!-- Gestion des photos pour une salle spécifique -->
-<% if @room.present? %>
-  <div class="row">
-    <% if @room.main_photo.attached? %>
-      <div class="col-md-3 text-center">
-        <%= image_tag @room.main_photo, class: "img-thumbnail mb-2" %>
-        <%= link_to 'Supprimer la photo principale', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
-      </div>
-    <% end %>
-
-    <% if @room.additional_photos.attached? %>
-      <% @room.additional_photos.each do |photo| %>
-        <div class="col-md-3 text-center">
-          <%= image_tag photo, class: "img-thumbnail mb-2" %>
-          <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
-        </div>
+      <!-- Bouton pour afficher les photos dans un pop-up -->
+      <% if @room.main_photo.attached? || @room.additional_photos.attached? %>
+        <%= link_to 'Voir les photos de la salle', '#', class: 'btn btn-info my-3', data: { lightbox: 'room-photos', title: @room.name } %>
       <% end %>
-    <% end %>
-  </div>
-<% else %>
-  <p>Salle introuvable ou non définie.</p>
+
+      <!-- Bouton de réservation -->
+      <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
+<% unless user_signed_in? %>
+  <p class="text-danger font-weight-bold">Vous devez être connecté pour réserver cette salle.</p>
 <% end %>
 
+      <!-- Affichage des photos dans Lightbox -->
+      <div class="room-photos">
+        <% if @room.main_photo.attached? %>
+          <%= link_to image_tag(@room.main_photo.variant(resize_to_limit: [800, 600]), class: "img-thumbnail d-none"), url_for(@room.main_photo), data: { lightbox: 'room-photos', title: @room.name } %>
+        <% end %>
 
-    <!-- Description et autres détails -->
-    <p><%= @room.description %></p>
-    <p><%= @room.address %>, <%= @room.city %>, <%= @room.department %></p>
-    <p><strong>Capacité :</strong> <%= @room.capacity %> personnes</p>
-    <p><strong>Prix :</strong> <%= number_to_currency(@room.price) %></p>
+        <% if @room.additional_photos.attached? %>
+          <% @room.additional_photos.each do |photo| %>
+            <%= link_to image_tag(photo.variant(resize_to_limit: [800, 600]), class: "img-thumbnail d-none"), url_for(photo), data: { lightbox: 'room-photos', title: @room.name } %>
+          <% end %>
+        <% end %>
+      </div>
 
-    <!-- Options pour le bailleur (propriétaire de la salle) -->
-    <% if current_user.try(:bailleur?) && @room.user == current_user %>
-      <%= link_to 'Modifier', edit_room_path(@room), class: "btn btn-warning" %>
-      <%= link_to 'Supprimer', room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: "btn btn-danger" %>
+    <% else %>
+      <!-- Afficher un message pour les utilisateurs non connectés -->
+      <div class="alert alert-danger font-weight-bold">
+        Veuillez vous connecter pour accéder aux détails et réserver cette salle.
+      </div>
+      <%= link_to 'Se connecter pour réserver', new_user_session_path, class: 'btn btn-danger font-weight-bold' %>
     <% end %>
 
-    <!-- Liens de navigation -->
-    <%= link_to 'Retour à la liste', rooms_path, class: 'btn btn-secondary' %>
-    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary' %>
-    
+    <!-- Bouton pour inciter à devenir bailleur -->
+    <%= link_to 'Cliquez ici pour mettre en ligne une salle', new_room_path, class: 'btn btn-success my-3' %>
+
   <% else %>
     <p>Cette salle n'existe pas ou a été supprimée.</p>
   <% end %>

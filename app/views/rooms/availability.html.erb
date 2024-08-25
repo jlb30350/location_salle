@@ -1,15 +1,17 @@
-<h1>Disponibilités pour <%= @room.name %></h1>
+<!-- app/views/rooms/availability.html.erb -->
 
-<%= month_calendar(events: @bookings) do |date, bookings| %>
+<div id="reservation-section" data-room-id="<%= @room.id %>">
+  <h1>Disponibilités pour <%= @room.name %></h1>
+
+  <%= month_calendar(events: @bookings) do |date, bookings| %>
     <div class="day">
       <% if bookings.any? %>
-        <% bookings.each do |booking| %>
-          <span class="reserved"><%= booking.user.name %></span>
-        <% end %>
+        <!-- Affichage du jour réservé -->
+        <span class="reserved">Réservé</span>
       <% else %>
-        <!-- Transformer chaque jour en bouton cliquable -->
+        <!-- Transformer chaque jour disponible en bouton cliquable -->
         <button class="btn btn-success available-day" data-date="<%= date %>">Disponible</button>
       <% end %>
     </div>
   <% end %>
-  
+</div>

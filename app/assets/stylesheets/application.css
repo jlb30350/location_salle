@@ -1,31 +1,36 @@
-/* app/assets/stylesheets/application.css */
-
-/*
- *= require_tree .
- *= require_self
- */
-
-
-
-
- body {
-  font-family: Arial, sans-serif;
+/* Global Styles */
+body {
+  font-family: 'Roboto', sans-serif; /* Utilisation de Google Fonts pour une meilleure typographie */
   line-height: 1.6;
+  background-color: #f5f5f5;
   color: #333;
+  margin: 0;
+  padding: 0;
 }
 
+/* Header Section */
+header {
+  background-color: #333;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Navbar Styles */
 .navbar {
-  background-color: #f9f8fa;
-  padding: 10px;
+  background-color: #333;
+  padding: 15px;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  color: #fff;
 }
 
 .navbar-header {
-  color: #fff;
-  font-size: 18px;
-  margin-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .nav-list {
@@ -33,127 +38,132 @@
   margin: 0;
   padding: 0;
   display: flex;
-  justify-content: center;
 }
 
 .nav-item {
-  margin: 0 10px;
+  margin-left: 20px;
 }
 
 .nav-link {
   color: #fff;
   text-decoration: none;
   padding: 10px 15px;
-  border: 1px solid transparent;
   border-radius: 5px;
-  transition: background-color 0.3s, border-color 0.3s;
-  background-color: #ffc107;
+  transition: background-color 0.3s ease;
 }
 
 .nav-link:hover {
-  background-color: #555555;
-  border-color: #ccc;
+  background-color: #555;
 }
 
 .nav-link.btn {
-  color: #ffffff;
+  background-color: #ffc107;
+  color: #333;
 }
 
-.nav-link.btn.btn-danger {
+.nav-link.btn:hover {
+  background-color: #e0a800;
+}
+
+.nav-link.btn-danger {
   background-color: #dc3545;
-  border-color: #dc3545;
+  color: #fff;
 }
 
-.nav-link.btn.btn-danger:hover {
+.nav-link.btn-danger:hover {
   background-color: #c82333;
-  border-color: #bd2130;
 }
 
-
-/* app/assets/stylesheets/application.css */
-
+/* Hero Section */
 .hero-section {
-  background-image: url('hero-background.jpg');
+  background-image: url('<%= asset_path("hero-background.jpg") %>');
   background-size: cover;
   background-position: center;
   color: white;
-  padding: 150px 0;
+  padding: 100px 0;
   text-align: center;
 }
 
 .hero-content h1 {
   font-size: 48px;
   font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .hero-content p {
   font-size: 20px;
-  margin-bottom: 20px;
-}
-
-.search-section {
-  padding: 50px 0;
-  background-color: #f7f7f7;
-}
-
-.room-types-section .room-type-card {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 20px;
-  text-align: center;
-  border-radius: 5px;
-  margin-bottom: 20px;
-}
-
-.testimonials-section .testimonial-card {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.for-owners-section {
-  background-color: #007bff;
-  color: white;
-  padding: 50px 0;
-}
-
-.for-owners-section h2 {
-  margin-bottom: 20px;
-}
-
-.for-owners-section p {
   margin-bottom: 30px;
 }
 
-.day {
-  padding: 5px;
-  border: 1px solid #ddd;
-  text-align: center;
+/* Section Styles */
+section {
+  padding: 50px 20px;
+  background-color: white;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ajout d'une ombre pour la profondeur */
 }
 
-.reserved {
-  color: red;
-  font-weight: bold;
+section h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #007bff;
 }
 
-.available {
-  color: green;
-  font-weight: bold;
-}
-
-.testimonials {
-  background-color: #f8f9fa;
+/* Room Cards Section */
+.room-types-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
   padding: 50px 0;
 }
 
-.testimonials .testimonial {
+.room-type-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
   padding: 20px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
   border-radius: 5px;
+  flex: 1 1 calc(33.333% - 20px);
+}
+
+.room-type-card h4 {
+  margin-bottom: 15px;
+}
+
+.room-type-card p {
+  margin-bottom: 10px;
+}
+
+.room-type-card .btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.room-type-card .btn:hover {
+  background-color: #0056b3;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+  background-color: #f8f9fa;
+  padding: 50px 0;
+  text-align: center;
+}
+
+.testimonial-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  display: inline-block;
+  max-width: 300px;
+}
+
+.testimonials h2 {
+  margin-bottom: 30px;
 }
 
 .testimonials .carousel-control-prev-icon,
@@ -164,32 +174,37 @@
   height: 40px;
 }
 
-.testimonials h2 {
-  margin-bottom: 30px;
+/* For Owners Section */
+.for-owners-section {
+  background-color: #007bff;
+  color: white;
+  padding: 50px 0;
+  text-align: center;
 }
 
-.has-error .form-control {
-  border-color: #dc3545;
-  background-color: #f8d7da;
+.card {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s;
 }
 
-.text-danger {
-  color: #dc3545;
-  font-size: 0.875em;
-}
-
-/* app/assets/stylesheets/application.css */
-.card-img-top {
-  width: 100%; /* Responsive image */
-  border-radius: 0.25rem; /* Rounded corners for the image */
-}
-
-.lightbox {
-  cursor: pointer; /* Indicates that the image can be clicked */
+.card:hover {
+  transform: scale(1.03);
 }
 
 .card-img-top {
-  background-image: url('path_to_default_image_if_any.png');
-  background-color: #f0f0f0; /* Couleur de fond si l'image ne charge pas */
-  background-size: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.additional-photos .photo-wrapper {
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.additional-photos .img-thumbnail {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
 }

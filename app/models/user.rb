@@ -1,11 +1,6 @@
 class User < ApplicationRecord
   # Définition de l'enum pour le rôle de l'utilisateur
-  enum role: { client: 0, bailleur: 1 }
-
-  # Ajout de la méthode bailleur?
-  def bailleur?
-    role == 'bailleur'
-  end
+  enum role: { loueur: 0, bailleur: 1 }
 
   # Associations
   has_many :rooms, dependent: :destroy

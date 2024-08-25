@@ -1,32 +1,37 @@
-<!-- app/views/rooms/search.html.erb -->
-
 <h1>Résultats de la recherche</h1>
 
 <% if @rooms.any? %>
   <% @rooms.each do |room| %>
-    <div class="card mb-3">
-      <div class="card-header">
-        <h3><%= room.name %></h3>
-      </div>
-      <div class="card-body">
-        <p><%= room.description %></p>
-        <p><strong>Adresse :</strong> <%= room.address %>, <%= room.city %>, <%= room.department %></p>
-        <p><strong>Capacité :</strong> <%= room.capacity %> personnes</p>
-        <p><strong>Prix :</strong> <%= number_to_currency(room.price) %></p>
-      </div>
-      <div class="card-footer">
-        <%= link_to 'Voir les détails', room_path(room), class: 'btn btn-primary' %>
-        <% if user_signed_in? && current_user.client? %>
-        <%= link_to 'Réserver', availability_room_path(room), class: 'btn btn-success' %>
+    <div class="room-card">
+      <h2><%= room.name %></h2>
+      
+      <!-- Affichage minimal pour tous les utilisateurs -->
+      <p>Ville : <%= room.city %></p>
+      <p>Département : <%= room.department %></p>
+      <p>Capacité : <%= room.capacity %> personnes</p>
 
-        <% else %>
-          <p class="text-muted">Connectez-vous en tant que client pour réserver cet eroom.</p>
-        <% end %>
-      </div>
+      <% if user_signed_in? %>
+        <!-- Informations supplémentaires pour les utilisateurs connectés -->
+        <p>Adresse complète : <%= room.address %></p>
+        <p>Surface : <%= room.surface %> m²</p>
+        <p>Tarif horaire : <%= number_to_currency(room.hourly_rate) %></p>
+        <p>Tarif journalier : <%= number_to_currency(room.daily_rate) %></p>
+        <p>Tarif hebdomadaire : <%= number_to_currency(room.weekly_rate) %></p>
+        <p>Tarif mensuel : <%= number_to_currency(room.monthly_rate) %></p>
+        <p>Tarif week-end : <%= number_to_currency(room.weekend_rate) %></p>
+        <p>Tarif trimestriel : <%= number_to_currency(room.quarterly_rate) %></p>
+        <p>Tarif semestriel : <%= number_to_currency(room.semiannual_rate) %></p>
+        <p>Tarif annuel : <%= number_to_currency(room.annual_rate) %></p>
+        <%= link_to 'Voir les détails', room_path(room), class: "btn btn-primary" %>
+      <% else %>
+        <!-- Message pour les utilisateurs non connectés -->
+        <p class="text-danger">Connectez-vous ou créez un compte pour voir tous les détails et réserver cette salle.</p>
+        <%= link_to 'Voir les détails', new_user_session_path, class: "btn btn-primary" %>
+      <% end %>
     </div>
   <% end %>
 <% else %>
-  <p>Aucun eroom trouvé pour votre recherche.</p>
+  <p>Aucune salle trouvée pour cette recherche.</p>
 <% end %>
 
 <!-- Bouton Retour -->

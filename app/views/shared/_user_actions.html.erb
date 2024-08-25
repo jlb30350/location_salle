@@ -1,8 +1,8 @@
 <% if user_signed_in? %>
-  <% if current_user.client? %>
+  <% if current_user.loueur? %>
     <%= button_to 'Devenir bailleur', switch_role_path, method: :post, class: 'btn btn-secondary mt-3' %>
   <% elsif current_user.bailleur? %>
-    <%= button_to 'Devenir client', switch_role_path, method: :post, class: 'btn btn-secondary mt-3' %>
+    <%= button_to 'Devenir loueur', switch_role_path, method: :post, class: 'btn btn-secondary mt-3' %>
   <% end %>
   <%= button_to "Déconnexion", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: 'btn btn-outline-danger mt-3' %>
 <% else %>
@@ -10,6 +10,5 @@
   <%= link_to "Connexion", new_user_session_path, class: 'btn btn-primary mt-2' %>
   <%= link_to "Inscription", new_user_registration_path, class: 'btn btn-outline-primary mt-2' %>
   <!-- Exemple de bouton de suppression de compte -->
-<%= link_to 'Supprimer mon compte', delete_user_account_path, method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer votre compte ?' }, class: 'btn btn-danger' %>
-
+  <%= link_to 'Supprimer mon compte', delete_user_account_path, method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer votre compte ?' }, class: 'btn btn-danger mt-2' %>
 <% end %>

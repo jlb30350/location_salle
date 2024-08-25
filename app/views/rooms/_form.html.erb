@@ -87,9 +87,9 @@
     <% end %>
   </div>
 
-  <!-- Email -->
+  <!-- E-mail -->
   <div class="form-group <%= 'has-error' if @room.errors[:mail].any? %>">
-    <%= form.label :mail, "Email" %>
+    <%= form.label :mail, "E-mail" %>
     <%= form.email_field :mail, class: "form-control" %>
     <% if @room.errors[:mail].any? %>
       <div class="text-danger">
@@ -138,14 +138,14 @@
       </div>
     <% end %>
 
-    <!-- Affichage de la photo principale actuelle si elle existe -->
-    <% if @room.persisted? && @room.main_photo.attached? %>
-      <div class="mt-3">
-        <%= image_tag @room.main_photo, class: "img-thumbnail" %>
-        <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
-      </div>
-    <% end %>
+<!-- Vérifiez si la salle existe dans la base de données avant d'essayer d'afficher les photos -->
+<% if @room.persisted? && @room.main_photo.attached? %>
+  <div class="mt-3">
+    <%= link_to image_tag(url_for(@room.main_photo), class: "img-thumbnail"), url_for(@room.main_photo), data: { lightbox: 'room-photos', title: @room.name } %>
+    <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
   </div>
+<% end %>
+
 
   <!-- Photos supplémentaires -->
   <div class="form-group <%= 'has-error' if @room.errors[:additional_photos].any? %>">
@@ -162,9 +162,9 @@
       <div class="row mt-3">
         <% @room.additional_photos.each do |photo| %>
           <div class="col-md-3 text-center">
-          <%= image_tag @room.main_photo, class: "img-thumbnail" %>
-          <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
-       </div>
+            <%= link_to image_tag(url_for(photo), class: "img-thumbnail"), url_for(photo), data: { lightbox: 'room-photos', title: @room.name } %>
+            <%= link_to 'Supprimer', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
+          </div>
         <% end %>
       </div>
     <% end %>

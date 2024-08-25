@@ -16,7 +16,7 @@
         <%= link_to 'Gerer mes salle en tant que bailleur', my_rooms_rooms_path, class: 'btn btn-primary' %>
 
           <% else %>
-            <%= link_to "Chercher une salle", rooms_path, class: 'nav-link' %>
+            <%= link_to 'Chercher une salle', root_path(anchor: 'search'), class: 'btn btn-primary' %>
           <% end %>
         </li>
         <% if user_signed_in? %>

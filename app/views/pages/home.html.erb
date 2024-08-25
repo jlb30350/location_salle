@@ -1,4 +1,6 @@
 <!-- app/views/pages/home.html.erb -->
+
+<!-- Section de bienvenue -->
 <div class="hero-section text-center py-5" style="background-color: #333; color: white;">
   <div class="container">
     <h1 class="display-4">Bienvenue sur JeReserveMaSalle.com</h1>
@@ -8,7 +10,7 @@
 </div>
 
 <!-- Formulaire de recherche -->
-<div class="search-section">
+<div id="search" class="search-section">  <!-- Ajout de l'ID 'search' -->
   <h2>Recherchez une salle par département ou ville sans inscription</h2>
   <%= form_with url: search_rooms_path, method: :get, local: true do |f| %>
     <div class="form-group">

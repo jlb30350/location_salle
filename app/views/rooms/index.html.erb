@@ -1,4 +1,4 @@
-<h1>Toutes les salles</h1>
+<h1 class="mb-4">Toutes les salles</h1>
 
 <% if @rooms.any? %>
   <div class="row">
@@ -36,18 +36,20 @@
               <% end %>
 
               <% if room.additional_photos.attached? %>
-                <% room.additional_photos.each do |photo| %>
-                  <div class="mt-2">
-                    <%= image_tag photo.variant(resize_to_limit: [100, 100]), class: "img-thumbnail" %>
-                    <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-sm btn-danger mt-1" %>
-                  </div>
-                <% end %>
+                <div class="additional-photos mt-2">
+                  <% room.additional_photos.each do |photo| %>
+                    <div class="photo-wrapper">
+                      <%= image_tag photo.variant(resize_to_limit: [100, 100]), class: "img-thumbnail" %>
+                      <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-sm btn-danger mt-1" %>
+                    </div>
+                  <% end %>
+                </div>
               <% end %>
             <% end %>
           </div>
 
           <!-- Affichage du prix -->
-          <div class="card-footer">
+          <div class="card-footer text-center">
             <small class="text-muted"><%= number_to_currency(room.price || 0, unit: "€") %></small>
           </div>
         </div>

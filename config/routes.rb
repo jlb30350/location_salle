@@ -39,6 +39,8 @@ Rails.application.routes.draw do
       get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms  # Route pour les salles du propriétaire
       get 'confirmation'
       get 'search'
+      post '/rooms/:room_id/reservations', to: 'reservations#create'
+
     end
   end
 

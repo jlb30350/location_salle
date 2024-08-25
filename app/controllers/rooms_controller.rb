@@ -1,9 +1,18 @@
 class RoomsController < ApplicationController
+  
   before_action :authenticate_user!, except: [:index, :show, :search]
-  before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
   before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
+  
+  # Actions spécifiques au bailleur
+  before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
+
+  # Vérifie si l'utilisateur est propriétaire avant certaines actions
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo, :delete_additional_photo]
+
+  # Vérifie que l'utilisateur est soit bailleur, soit autorisé à voir la salle en fonction de sa visibilité
   before_action :ensure_bailleur_or_correct_visibility, only: [:show]
+
+  # Ajoutez ici vos actions (index, show, new, create, edit, update, destroy)
 
   def index
     if user_signed_in? && current_user.bailleur?
@@ -19,10 +28,38 @@ class RoomsController < ApplicationController
   end
 
   def show
-    return redirect_to rooms_path, alert: 'Salle non trouvée.' unless @room
-    @bookings = @room.bookings.where('start_date >= ? AND end_date <= ?', Date.today.beginning_of_month, Date.today.end_of_month)
+    if @room
+      # Informations de base accessibles à tous
+      @basic_info = {
+        name: @room.name,
+        city: @room.city,
+        department: @room.department,
+        capacity: @room.capacity
+      }
+
+      if user_signed_in?
+        # Informations supplémentaires pour les utilisateurs connectés
+        @detailed_info = {
+          address: @room.address,
+          surface: @room.surface,
+          hourly_rate: @room.hourly_rate,
+          daily_rate: @room.daily_rate,
+          weekly_rate: @room.weekly_rate,
+          monthly_rate: @room.monthly_rate,
+          weekend_rate: @room.weekend_rate,
+          quarterly_rate: @room.quarterly_rate,
+          semiannual_rate: @room.semiannual_rate,
+          annual_rate: @room.annual_rate
+        }
+      end
+
+      # Récupération des réservations pour le calendrier
+      @bookings = @room.bookings.where('start_date >= ? AND end_date <= ?', Date.today.beginning_of_month, Date.today.end_of_month)
+    else
+      redirect_to rooms_path, alert: 'Salle non trouvée.'
+    end
   end
-  
+
   def new
     @room = Room.new
   end
@@ -38,17 +75,20 @@ class RoomsController < ApplicationController
   end
   
   def edit
-    # Code optionnel pour l'édition
   end
 
   def availability
     @room = Room.find(params[:id])
     @bookings = @room.bookings
   end
-  
 
   def update
+    @room = Room.find(params[:id])
     if @room.update(room_params)
+      # Assurez-vous que les photos sont attachées correctement après la mise à jour
+      if params[:room][:main_photo].present?
+        @room.main_photo.attach(params[:room][:main_photo])
+      end
       redirect_to @room, notice: 'Salle mise à jour avec succès.'
     else
       render :edit
@@ -73,7 +113,6 @@ class RoomsController < ApplicationController
   end
 
   def delete_main_photo
-    @room = Room.find(params[:id])
     if @room.main_photo.attached?
       @room.main_photo.purge
       redirect_to edit_room_path(@room), notice: 'Photo principale supprimée avec succès.'
@@ -81,7 +120,7 @@ class RoomsController < ApplicationController
       redirect_to edit_room_path(@room), alert: 'Aucune photo principale à supprimer.'
     end
   end
-  
+
   def create_reservation
     @room = Room.find(params[:room_id])
     @booking = @room.bookings.new(user: current_user, start_date: params[:start_date], end_date: params[:end_date])
@@ -92,10 +131,8 @@ class RoomsController < ApplicationController
       redirect_to availability_room_path(@room), alert: 'Erreur lors de la réservation.'
     end
   end
-  
 
   def delete_additional_photo
-    @room = Room.find(params[:id])
     photo = @room.additional_photos.find(params[:photo_id])
     if photo.present?
       photo.purge
@@ -137,8 +174,9 @@ class RoomsController < ApplicationController
   end
 
   def set_room
-    @room = Room.find_by(id: params[:id])
-    redirect_to rooms_path, alert: 'Salle non trouvée.' unless @room
+    @room = Room.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to rooms_path, alert: "Salle non trouvée."
   end
 
   def ensure_owner
@@ -146,10 +184,12 @@ class RoomsController < ApplicationController
   end
 
   def ensure_bailleur_or_correct_visibility
-    redirect_to root_path, alert: "Accès non autorisé" unless room_visible_to_current_user?(@room)
+    # Autoriser l'accès si la salle est publique ou si l'utilisateur est un bailleur ou un loueur
+    unless room_visible_to_current_user?(@room)
+      redirect_to root_path, alert: "Accès non autorisé"
+    end
   end
-
   def room_visible_to_current_user?(room)
-    room.is_public || (user_signed_in? && current_user.bailleur? && room.user_id == current_user.id)
+    room.is_public || (user_signed_in? && (current_user.bailleur? || current_user.loueur?))
   end
 end

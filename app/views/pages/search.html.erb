@@ -1,9 +1,13 @@
-<h1>Résultats de recherche</h1>
+<!-- Résultats de recherche -->
 
-<% if @rooms.any? %>
-  <% @rooms.each do |room| %>
-    <%= render 'rooms/room_card', room: room %>
+<div id="results">
+  <h1>Résultats de recherche</h1>
+
+  <% if @rooms.any? %>
+    <% @rooms.each do |room| %>
+      <%= render 'rooms/room_card', room: room %>
+    <% end %>
+  <% else %>
+    <p>Aucune salle trouvée pour cette recherche.</p>
   <% end %>
-<% else %>
-  <p>Aucune salle trouvée pour cette recherche.</p>
-<% end %>
+</div>

@@ -12,11 +12,17 @@ class BookingsController < ApplicationController
     @booking.user = current_user
     @booking.status = 'pending'  # ou 'confirmed', selon votre logique
 
-    if @booking.save
-      BookingMailer.confirmation_email(@booking).deliver_later
-      redirect_to new_payment_path(booking_id: @booking.id), notice: 'Réservation créée avec succès. Veuillez procéder au paiement.'
+    # Vérification de la validité des dates et de la disponibilité de la salle
+    if dates_available?(@booking.start_date, @booking.end_date)
+      if @booking.save
+        BookingMailer.confirmation_email(@booking).deliver_later
+        redirect_to new_payment_path(booking_id: @booking.id), notice: 'Réservation créée avec succès. Veuillez procéder au paiement.'
+      else
+        flash.now[:alert] = 'Il y a eu des erreurs lors de la création de votre réservation.'
+        render :new
+      end
     else
-      flash.now[:alert] = 'Il y a eu des erreurs lors de la création de votre réservation.'
+      flash.now[:alert] = 'Les dates sélectionnées ne sont pas disponibles.'
       render :new
     end
   end
@@ -57,6 +63,11 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:start_date, :start_time, :duration, :email, :phone, :address, :hour_count, :day_count, :week_count, :month_count, :year_count)
+    params.require(:booking).permit(:start_date, :end_date, :email, :phone, :address)
+  end
+
+  # Méthode pour vérifier la disponibilité des dates
+  def dates_available?(start_date, end_date)
+    @room.bookings.where("start_date <= ? AND end_date >= ?", end_date, start_date).none?
   end
 end
