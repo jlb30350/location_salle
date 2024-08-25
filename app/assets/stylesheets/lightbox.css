@@ -1,3 +1,10 @@
+/*
+ *= require lightbox
+ */
+
+
+
+
 body.lb-disable-scrolling {
     overflow: hidden;
   }

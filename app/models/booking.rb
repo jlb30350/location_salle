@@ -18,6 +18,7 @@ class Booking < ApplicationRecord
   validate :email_format
   validate :start_date_in_future
   validate :no_overlap_with_existing_bookings
+  validate :duration_must_be_valid
 
   # Scope pour les réservations confirmées
   scope :confirmed, -> { where(status: 'confirmed') }
@@ -61,6 +62,12 @@ class Booking < ApplicationRecord
   end
 
   private
+
+  def duration_must_be_valid
+    if duration.nil?
+      errors.add(:duration, "doit être spécifiée")
+    end
+  end
 
   # Validation pour s'assurer que la date de fin est après la date de début
   def end_date_after_start_date

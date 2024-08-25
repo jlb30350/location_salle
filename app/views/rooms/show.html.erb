@@ -3,13 +3,13 @@
   <% if @room %>
     <!-- Affichage du calendrier -->
     <%= month_calendar(events: @bookings) do |date, bookings| %>
-      <div class="day">
+      <div class="day <%= 'reserved' if bookings.any? %>">
         <% if bookings.any? %>
           <% bookings.each do |booking| %>
             <span class="reserved"><%= booking.user.name %></span>
           <% end %>
         <% else %>
-          <span class="available">Disponible</span>
+          <%= link_to 'Disponible', new_room_booking_path(@room, start_date: date), class: 'available' %>
         <% end %>
       </div>
     <% end %>
@@ -21,83 +21,23 @@
       <p><strong>Capacité :</strong> <%= @room.capacity %> personnes</p>
     </div>
 
-    <% if user_signed_in? && current_user.loueur? %>
-    <!-- Bouton de réservation -->
-    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
-  <% elsif !user_signed_in? %>
-    <!-- Invitation à se connecter -->
-    <p class="text-danger font-weight-bold">Veuillez vous connecter pour réserver cette salle.</p>
-    <%= link_to 'Se connecter', new_user_session_path, class: 'btn btn-secondary' %>
-  <% end %>
-
-
-
-
-      <!-- Tarification -->
-
-      <% if user_signed_in? %>
-      <h3>Tarifs</h3>
-      <ul>
-        <% if @room.hourly_rate.present? %>
-          <li><strong>Tarif horaire :</strong> <%= number_to_currency(@room.hourly_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.daily_rate.present? %>
-          <li><strong>Tarif journalier :</strong> <%= number_to_currency(@room.daily_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.weekly_rate.present? %>
-          <li><strong>Tarif hebdomadaire :</strong> <%= number_to_currency(@room.weekly_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.monthly_rate.present? %>
-          <li><strong>Tarif mensuel :</strong> <%= number_to_currency(@room.monthly_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.weekend_rate.present? %>
-          <li><strong>Tarif de week-end :</strong> <%= number_to_currency(@room.weekend_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.quarterly_rate.present? %>
-          <li><strong>Tarif trimestriel :</strong> <%= number_to_currency(@room.quarterly_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.semiannual_rate.present? %>
-          <li><strong>Tarif semestriel :</strong> <%= number_to_currency(@room.semiannual_rate, unit: "€") %></li>
-        <% end %>
-        <% if @room.annual_rate.present? %>
-          <li><strong>Tarif annuel :</strong> <%= number_to_currency(@room.annual_rate, unit: "€") %></li>
-        <% end %>
-      </ul>
-
-      <!-- Bouton pour afficher les photos dans un pop-up -->
-      <% if @room.main_photo.attached? || @room.additional_photos.attached? %>
-        <%= link_to 'Voir les photos de la salle', '#', class: 'btn btn-info my-3', data: { lightbox: 'room-photos', title: @room.name } %>
-      <% end %>
-
-      <!-- Bouton de réservation -->
-      <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
-<% unless user_signed_in? %>
-  <p class="text-danger font-weight-bold">Vous devez être connecté pour réserver cette salle.</p>
-<% end %>
-
-      <!-- Affichage des photos dans Lightbox -->
-      <div class="room-photos">
-        <% if @room.main_photo.attached? %>
-          <%= link_to image_tag(@room.main_photo.variant(resize_to_limit: [800, 600]), class: "img-thumbnail d-none"), url_for(@room.main_photo), data: { lightbox: 'room-photos', title: @room.name } %>
-        <% end %>
-
-        <% if @room.additional_photos.attached? %>
-          <% @room.additional_photos.each do |photo| %>
-            <%= link_to image_tag(photo.variant(resize_to_limit: [800, 600]), class: "img-thumbnail d-none"), url_for(photo), data: { lightbox: 'room-photos', title: @room.name } %>
-          <% end %>
-        <% end %>
-      </div>
-
-    <% else %>
-      <!-- Afficher un message pour les utilisateurs non connectés -->
-      <div class="alert alert-danger font-weight-bold">
-        Veuillez vous connecter pour accéder aux détails et réserver cette salle.
-      </div>
-      <%= link_to 'Se connecter pour réserver', new_user_session_path, class: 'btn btn-danger font-weight-bold' %>
-    <% end %>
-
     <!-- Bouton pour inciter à devenir bailleur -->
     <%= link_to 'Cliquez ici pour mettre en ligne une salle', new_room_path, class: 'btn btn-success my-3' %>
+
+    <!-- Bouton de réservation -->
+    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
+
+    <!-- Tarification -->
+    <h3>Tarifs</h3>
+    <ul>
+      <% if @room.hourly_rate.present? %>
+        <li><strong>Tarif horaire :</strong> <%= number_to_currency(@room.hourly_rate, unit: "€") %></li>
+      <% end %>
+      <% if @room.daily_rate.present? %>
+        <li><strong>Tarif journalier :</strong> <%= number_to_currency(@room.daily_rate, unit: "€") %></li>
+      <% end %>
+      <!-- Ajoutez les autres tarifs ici -->
+    </ul>
 
   <% else %>
     <p>Cette salle n'existe pas ou a été supprimée.</p>

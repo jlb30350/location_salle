@@ -2,11 +2,11 @@
 // Importation de Rails UJS et démarrage
 //= require lightbox
 //= require jquery
-//= require rails-ujs
+//require rails-ujs
 //= require activestorage
 //= require_tree .
 
-import Rails from "@rails/ujs";
+//=import Rails from "node_modules/@rails/ujs";
 Rails.start();
 
 // Démarrage d'ActiveStorage et des canaux ActionCable
@@ -842,3 +842,7 @@ lightbox.option({
   'resizeDuration': 200,
   'wrapAround': true
 });
+
+
+
+

@@ -49,7 +49,9 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   
   <!-- JavaScript de l'application -->
-  <script type="module" src="<%= 'application' %>" data-turbo-track="reload"></script>
+  <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+
 
   <script>
     let map;
@@ -99,5 +101,4 @@
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap&libraries=places"></script>
 
 </body>
-
 </html>

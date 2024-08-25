@@ -1,18 +1,16 @@
 // Importation de Rails UJS et démarrage
-import Rails from "@rails/ujs";
-Rails.start();
+//= require jquery
+//= require rails-ujs
+//= require activestorage
+//= require lightbox
+//= require_tree .
 
-// Démarrage d'ActiveStorage et des canaux ActionCable
-import { start as startActiveStorage } from "@rails/activestorage";
-import "channels";
+// Démarrage de Rails UJS et ActiveStorage
+Rails.start();
 startActiveStorage();
 
 // Turbo configuration
-import { Turbo } from "@hotwired/turbo-rails";
 Turbo.session.drive = false; // Désactiver Turbo pour certaines pages si nécessaire
-
-// Importation de Lightbox (assurez-vous que le chemin est correct)
-import Lightbox from "lightbox2";
 
 // Initialisation de Lightbox avec des options
 function initializeLightbox() {
