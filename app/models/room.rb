@@ -22,6 +22,39 @@ class Room < ApplicationRecord
 
   validate :at_least_one_rate_present
 
+  # Méthodes pour récupérer les tarifs
+  def hourly_rate
+    self[:hourly_rate] || 0
+  end
+
+  def daily_rate
+    self[:daily_rate] || 0
+  end
+
+  def weekly_rate
+    self[:weekly_rate] || 0
+  end
+
+  def monthly_rate
+    self[:monthly_rate] || 0
+  end
+
+  def weekend_rate
+    self[:weekend_rate] || 0
+  end
+
+  def quarterly_rate
+    self[:quarterly_rate] || 0
+  end
+
+  def semiannual_rate
+    self[:semiannual_rate] || 0
+  end
+
+  def annual_rate
+    self[:annual_rate] || 0
+  end
+
   private
 
   def at_least_one_rate_present

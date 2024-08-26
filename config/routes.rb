@@ -1,8 +1,4 @@
 Rails.application.routes.draw do
-  root 'pages#home'
-  
-  devise_for :users, controllers: { registrations: 'users/registrations' }
-
   # Routes pour les pages statiques
   get 'about', to: 'pages#about'
   get 'contact', to: 'pages#contact'
@@ -13,37 +9,34 @@ Rails.application.routes.draw do
   get 'load_google_maps', to: 'google_maps#load_script'
   get 'rooms/:room_id/photos/:id', to: 'rooms#show_photo', as: 'room_photo'
 
+  # Configuration Devise
+  devise_for :users
+  
   # Suppression de compte
   devise_scope :user do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
   end
 
+  # Routes pour les avis et les réservations
+  resources :reviews, only: [:create]
+  resources :reservations, only: [:index, :show, :edit, :update, :destroy]
+
+  # Routes pour les chambres, réservations et paiements
   resources :rooms do
-    member do
-      delete 'delete', to: 'rooms#destroy', as: 'destroy_room'  # Action conventionnelle de suppression d'une salle
-      delete 'photos/:photo_id', to: 'rooms#delete_photo', as: 'delete_photo' # Suppression d'une photo
-      delete 'delete_static_photo', to: 'rooms#delete_static_photo', as: 'delete_static_photo'  # Suppression d'une photo statique
-      delete 'delete_main_photo'
-      delete :delete_additional_photo
-      get 'availability'
-      post 'create_reservation'
-
-    end
-
-    resources :bookings, only: [:new, :create]
-    resources :payments, only: [:new, :create]
-    resources :reviews, only: [:create]
-    resources :reservations, only: [:index, :show, :edit, :update, :destroy]
-
     collection do
-      get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms  # Route pour les salles du propriétaire
+      get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
       get 'confirmation'
       get 'search'
-      post '/rooms/:room_id/reservations', to: 'reservations#create'
+    end
 
+    resources :bookings do
+      resources :payments, only: [:new, :create]
     end
   end
 
   # Route pour le changement de rôle utilisateur
   post 'switch_role', to: 'users#switch_role', as: :switch_role
+
+  # Page d'accueil par défaut
+  root to: 'pages#home'
 end

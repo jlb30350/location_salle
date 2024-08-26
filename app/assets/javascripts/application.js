@@ -1,10 +1,4 @@
 // Importation de Rails UJS et démarrage
-//= require jquery_ujs
-//= require activestorage
-//= require lightbox
-//= require_tree .
-
-// Importation de Rails UJS et démarrage
 import Rails from "@rails/ujs";
 Rails.start();
 
@@ -18,16 +12,19 @@ ActiveStorage.start();
 
 // Initialisation de Lightbox
 function initializeLightbox() {
-  Lightbox.option({
-    'resizeDuration': 200,
-    'wrapAround': true
-  });
+  if (typeof Lightbox !== 'undefined') {
+    Lightbox.option({
+      'resizeDuration': 200,
+      'wrapAround': true
+    });
+  }
 }
 
 // Gestion des événements de chargement Turbo
 document.addEventListener("turbo:load", () => {
   initializeLightbox();
   setupLogoutLinks();
+  setupDateSelection(); // Initialisation de la sélection de dates
 });
 
 // Gestion des événements tactiles avec `passive: true`
@@ -72,60 +69,33 @@ function submitDeleteForm(action) {
   form.submit();
 }
 
-// Gestion de la soumission de réservation avec sélection de dates
-document.addEventListener('DOMContentLoaded', function() {
-  var calendar = document.getElementById('calendar');
-  if (calendar) {
-    calendar.addEventListener('click', function(event) {
-      var target = event.target;
-      if (target.classList.contains('available-date')) {
-        var startDate = target.dataset.startDate;
-        var endDate = target.dataset.endDate;
-        window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+// Gestion de la sélection de dates pour les réservations
+function setupDateSelection() {
+  let startDate = null;
+  let endDate = null;
+
+  document.querySelectorAll('.available-day').forEach(function(button) {
+    button.addEventListener('click', function(event) {
+      event.preventDefault();
+
+      const selectedDate = this.dataset.date;
+
+      if (!startDate) {
+        // Première sélection : début de la réservation
+        startDate = selectedDate;
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
+      } else if (!endDate) {
+        // Deuxième sélection : fin de la réservation
+        endDate = selectedDate;
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
+
+        // Redirection vers la page de création de réservation
+        const roomId = document.getElementById('reservation-section').dataset.roomId;
+        const url = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+        window.location.href = url;
       }
     });
-  }
-});
-
-document.querySelectorAll('.available-day').forEach(function(button) {
-  button.addEventListener('click', function() {
-    const selectedDate = this.getAttribute('data-date');
-
-    if (!firstDate) {
-      firstDate = selectedDate;
-      this.classList.add('btn-primary');
-    } else if (!lastDate) {
-      lastDate = selectedDate;
-      this.classList.add('btn-primary');
-      submitReservation(firstDate, lastDate);
-    }
   });
-});
-
-function submitReservation(startDate, endDate) {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '/create_reservation';
-
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  const csrfInput = document.createElement('input');
-  csrfInput.type = 'hidden';
-  csrfInput.name = 'authenticity_token';
-  csrfInput.value = csrfToken;
-  form.appendChild(csrfInput);
-
-  const startDateInput = document.createElement('input');
-  startDateInput.type = 'hidden';
-  startDateInput.name = 'start_date';
-  startDateInput.value = startDate;
-  form.appendChild(startDateInput);
-
-  const endDateInput = document.createElement('input');
-  endDateInput.type = 'hidden';
-  endDateInput.name = 'end_date';
-  endDateInput.value = endDate;
-  form.appendChild(endDateInput);
-
-  document.body.appendChild(form);
-  form.submit();
 }

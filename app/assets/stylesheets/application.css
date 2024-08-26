@@ -1,4 +1,12 @@
 /* Global Styles */
+
+/*
+ *= require_self
+ *= require calendar
+ *= require_tree .
+*/
+
+
 body {
   font-family: 'Roboto', sans-serif; /* Utilisation de Google Fonts pour une meilleure typographie */
   line-height: 1.6;

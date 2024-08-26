@@ -8,7 +8,6 @@ class Availability < ApplicationRecord
   geocoded_by :address
   after_validation :geocode, if: :address_changed?
 
-
   private
 
   def end_time_after_start_time

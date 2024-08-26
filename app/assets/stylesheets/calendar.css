@@ -1,0 +1,65 @@
+/* app/assets/stylesheets/calendar.css */
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 colonnes pour les 7 jours de la semaine */
+    gap: 10px;
+    margin: 20px 0;
+  }
+  
+  .day {
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    text-align: center;
+    position: relative;
+  }
+  
+  .day strong {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .day.available {
+    background-color: #d4edda;
+    cursor: pointer;
+  }
+  
+  .day.reserved {
+    background-color: #f8d7da;
+    cursor: not-allowed;
+  }
+  
+  .day.reserved span {
+    color: #721c24;
+    font-weight: bold;
+  }
+  
+  .btn-success.available-day {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-success.available-day:hover {
+    background-color: #218838;
+  }
+  
+  .btn-primary.selected-day {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .calendar-navigation .btn-secondary {
+    margin: 0 5px;
+  }
+  

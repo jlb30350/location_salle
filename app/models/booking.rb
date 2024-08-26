@@ -39,17 +39,28 @@ class Booking < ApplicationRecord
     end
   end
 
-  private
-
-  # Validation pour éviter les chevauchements avec les réservations existantes
-  def no_overlap_with_existing_bookings
-    overlapping_bookings = room.bookings.where.not(id: id)
-                                        .where("start_date < ? AND end_date > ?", end_date, start_date)
-    if overlapping_bookings.exists?
-      Rails.logger.info "Chevauchement détecté avec les réservations suivantes : #{overlapping_bookings.pluck(:id)}"
-      errors.add(:base, "Cette période chevauche une réservation existante")
+  # Méthode pour calculer le montant total de la réservation en fonction de la durée
+  def total_amount
+    case duration
+    when 'hour'
+      room.hourly_rate * (hour_count || 1)  # Utiliser 1 heure par défaut si `hour_count` est nil
+    when 'day'
+      room.daily_rate * (day_count || 1)  # Utiliser 1 jour par défaut si `day_count` est nil
+    when 'week'
+      room.weekly_rate * (week_count || 1)  # Utiliser 1 semaine par défaut si `week_count` est nil
+    when 'month'
+      room.monthly_rate * (month_count || 1)  # Utiliser 1 mois par défaut si `month_count` est nil
+    when 'year'
+      room.yearly_rate * (year_count || 1)  # Utiliser 1 an par défaut si `year_count` est nil
+    else
+      0  # Retourner 0 si la durée n'est pas reconnue
     end
   end
+
+
+  
+
+  private
 
   # Validation pour s'assurer que la date de fin est après la date de début
   def end_date_after_start_date
@@ -69,6 +80,15 @@ class Booking < ApplicationRecord
   def start_date_in_future
     if start_date.present? && start_date < Date.today
       errors.add(:start_date, "doit être dans le futur")
+    end
+  end
+
+  # Validation pour éviter les chevauchements avec les réservations existantes
+  def no_overlap_with_existing_bookings
+    overlapping_bookings = room.bookings.where.not(id: id)
+                                        .where("start_date < ? AND end_date > ?", end_date, start_date)
+    if overlapping_bookings.exists?
+      errors.add(:base, "Cette période chevauche une réservation existante")
     end
   end
 

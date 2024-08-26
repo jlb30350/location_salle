@@ -26,6 +26,13 @@ gem 'fullcalendar-rails'
 gem 'image_processing', '~> 1.2'
 gem "tzinfo-data", platforms: %i[mswin mswin64 mingw x64_mingw jruby]
 gem "bootsnap", require: false
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
+
+
+
+
+
 
 group :development, :test do
   gem "debug", platforms: %i[mri mswin mswin64 mingw x64_mingw]

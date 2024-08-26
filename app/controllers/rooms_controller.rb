@@ -1,7 +1,7 @@
 class RoomsController < ApplicationController
   
   before_action :authenticate_user!, except: [:index, :show, :search]
-  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
+  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo, :delete_additional_photo, :availability]
   
   # Actions spécifiques au bailleur
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
@@ -36,7 +36,7 @@ class RoomsController < ApplicationController
         department: @room.department,
         capacity: @room.capacity
       }
-
+  
       if user_signed_in?
         # Informations supplémentaires pour les utilisateurs connectés
         @detailed_info = {
@@ -52,13 +52,21 @@ class RoomsController < ApplicationController
           annual_rate: @room.annual_rate
         }
       end
-
-      # Récupération des réservations pour le calendrier
-      @bookings = @room.bookings.where('start_date >= ? AND end_date <= ?', Date.today.beginning_of_month, Date.today.end_of_month)
+  
+      # Gestion des mois pour le calendrier
+      @year = params[:year] ? params[:year].to_i : Date.today.year
+      @month = params[:month] ? params[:month].to_i : Date.today.month
+  
+      first_day_of_month = Date.new(@year, @month, 1)
+      last_day_of_month = first_day_of_month.end_of_month
+  
+      # Récupération des réservations pour le calendrier sur le mois affiché
+      @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
     else
       redirect_to rooms_path, alert: 'Salle non trouvée.'
     end
   end
+  
 
   def new
     @room = Room.new
@@ -77,13 +85,7 @@ class RoomsController < ApplicationController
   def edit
   end
 
-  def availability
-    @room = Room.find(params[:id])
-    @bookings = @room.bookings
-  end
-
   def update
-    @room = Room.find(params[:id])
     if @room.update(room_params)
       # Assurez-vous que les photos sont attachées correctement après la mise à jour
       if params[:room][:main_photo].present?
@@ -156,6 +158,16 @@ class RoomsController < ApplicationController
     render :search
   end
 
+  def availability
+    @year = params[:year] ? params[:year].to_i : Date.today.year
+    @month = params[:month] ? params[:month].to_i : Date.today.month
+
+    first_day_of_month = Date.new(@year, @month, 1)
+    last_day_of_month = first_day_of_month.end_of_month
+
+    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+  end
+
   private
 
   def room_params
@@ -189,6 +201,7 @@ class RoomsController < ApplicationController
       redirect_to root_path, alert: "Accès non autorisé"
     end
   end
+
   def room_visible_to_current_user?(room)
     room.is_public || (user_signed_in? && (current_user.bailleur? || current_user.loueur?))
   end
