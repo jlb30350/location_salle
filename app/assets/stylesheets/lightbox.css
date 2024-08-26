@@ -3,6 +3,22 @@
  */
 
 
+ .lb-close {
+  background: url('<%= asset_path("lightbox/close.png") %>') top right no-repeat;
+}
+
+.lb-cancel {
+  background: url('<%= asset_path("lightbox/loading.gif") %>') no-repeat;
+}
+
+.lb-nav a.lb-prev {
+  background: url('<%= asset_path("lightbox/prev.png") %>') left 48% no-repeat;
+}
+
+.lb-nav a.lb-next {
+  background: url('<%= asset_path("lightbox/next.png") %>') right 48% no-repeat;
+}
+
 
 
 body.lb-disable-scrolling {

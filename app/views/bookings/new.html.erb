@@ -1,5 +1,54 @@
-<h1>Bookings#new</h1>
-<p>Find me in app/views/bookings/new.html.erb</p>
-<div class="d-flex justify-content-between">
-  <%= button_to "Retour", "#", onclick: "window.history.back(); return false;", class: "btn btn-secondary" %>
-</div>
+<h1>Réserver une salle</h1>
+
+
+
+
+<%= form_with model: @booking, url: room_bookings_path(@room), local: true do |f| %>
+  <div class="form-group">
+    <%= f.label :start_date, "Date de début" %>
+    <%= f.date_select :start_date, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :end_date, "Date de fin" %>
+    <%= f.date_select :end_date, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :email, "Email" %>
+    <%= f.email_field :email, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :phone, "Téléphone" %>
+    <%= f.text_field :phone, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :address, "Adresse" %>
+    <%= f.text_field :address, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :duration, "Durée" %>
+    <%= f.select :duration, Booking.durations.keys.map { |w| [w.humanize, w] }, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.submit "Réserver", class: 'btn btn-primary' %>
+  </div>
+<% end %>
+
+
+<% if @booking.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@booking.errors.count, "erreur") %> empêchent cette réservation d'être enregistrée :</h2>
+    <ul>
+      <% @booking.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+

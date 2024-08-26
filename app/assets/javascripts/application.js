@@ -1,18 +1,22 @@
 // Importation de Rails UJS et démarrage
-//= require jquery
-//= require rails-ujs
+//= require jquery_ujs
 //= require activestorage
 //= require lightbox
 //= require_tree .
 
-// Démarrage de Rails UJS et ActiveStorage
+// Importation de Rails UJS et démarrage
+import Rails from "@rails/ujs";
 Rails.start();
-startActiveStorage();
 
-// Turbo configuration
-Turbo.session.drive = false; // Désactiver Turbo pour certaines pages si nécessaire
+// Désactiver Turbo pour certaines pages si nécessaire
+import { Turbo } from "@hotwired/turbo-rails";
+Turbo.session.drive = false;
 
-// Initialisation de Lightbox avec des options
+// ActiveStorage
+import * as ActiveStorage from "@rails/activestorage";
+ActiveStorage.start();
+
+// Initialisation de Lightbox
 function initializeLightbox() {
   Lightbox.option({
     'resizeDuration': 200,
@@ -27,13 +31,8 @@ document.addEventListener("turbo:load", () => {
 });
 
 // Gestion des événements tactiles avec `passive: true`
-document.addEventListener('touchmove', (e) => {
-  // Logique pour l'événement 'touchmove'
-}, { passive: true });
-
-document.addEventListener('touchstart', (e) => {
-  // Logique pour l'événement 'touchstart'
-}, { passive: true });
+document.addEventListener('touchmove', (e) => {}, { passive: true });
+document.addEventListener('touchstart', (e) => {}, { passive: true });
 
 // Configuration des liens de déconnexion avec confirmation
 function setupLogoutLinks() {
@@ -74,58 +73,59 @@ function submitDeleteForm(action) {
 }
 
 // Gestion de la soumission de réservation avec sélection de dates
-document.addEventListener('DOMContentLoaded', function () {
-  let firstDate = null;
-  let lastDate = null;
-
-  document.querySelectorAll('.available-day').forEach(function(button) {
-    button.addEventListener('click', function() {
-      const selectedDate = this.getAttribute('data-date');
-      console.log('Date sélectionnée :', selectedDate);
-
-      if (!firstDate) {
-        firstDate = selectedDate;
-        this.classList.add('btn-primary');
-        console.log('Date de début sélectionnée :', firstDate);
-      } else if (!lastDate) {
-        lastDate = selectedDate;
-        this.classList.add('btn-primary');
-        console.log('Date de fin sélectionnée :', lastDate);
-
-        // Soumettre la réservation après avoir sélectionné la deuxième date
-        submitReservation(firstDate, lastDate);
+document.addEventListener('DOMContentLoaded', function() {
+  var calendar = document.getElementById('calendar');
+  if (calendar) {
+    calendar.addEventListener('click', function(event) {
+      var target = event.target;
+      if (target.classList.contains('available-date')) {
+        var startDate = target.dataset.startDate;
+        var endDate = target.dataset.endDate;
+        window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
       }
     });
-  });
-
-  function submitReservation(startDate, endDate) {
-    console.log('Soumission de la réservation avec les dates :', startDate, endDate);
-
-    // Envoyer la demande de réservation avec les dates sélectionnées
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/create_reservation';  // Assurez-vous que cette URL correspond à votre route
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = 'authenticity_token';
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
-
-    const startDateInput = document.createElement('input');
-    startDateInput.type = 'hidden';
-    startDateInput.name = 'start_date';
-    startDateInput.value = startDate;
-    form.appendChild(startDateInput);
-
-    const endDateInput = document.createElement('input');
-    endDateInput.type = 'hidden';
-    endDateInput.name = 'end_date';
-    endDateInput.value = endDate;
-    form.appendChild(endDateInput);
-
-    document.body.appendChild(form);
-    form.submit();
   }
 });
+
+document.querySelectorAll('.available-day').forEach(function(button) {
+  button.addEventListener('click', function() {
+    const selectedDate = this.getAttribute('data-date');
+
+    if (!firstDate) {
+      firstDate = selectedDate;
+      this.classList.add('btn-primary');
+    } else if (!lastDate) {
+      lastDate = selectedDate;
+      this.classList.add('btn-primary');
+      submitReservation(firstDate, lastDate);
+    }
+  });
+});
+
+function submitReservation(startDate, endDate) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/create_reservation';
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const csrfInput = document.createElement('input');
+  csrfInput.type = 'hidden';
+  csrfInput.name = 'authenticity_token';
+  csrfInput.value = csrfToken;
+  form.appendChild(csrfInput);
+
+  const startDateInput = document.createElement('input');
+  startDateInput.type = 'hidden';
+  startDateInput.name = 'start_date';
+  startDateInput.value = startDate;
+  form.appendChild(startDateInput);
+
+  const endDateInput = document.createElement('input');
+  endDateInput.type = 'hidden';
+  endDateInput.name = 'end_date';
+  endDateInput.value = endDate;
+  form.appendChild(endDateInput);
+
+  document.body.appendChild(form);
+  form.submit();
+}

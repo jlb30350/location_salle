@@ -4,15 +4,15 @@ class BookingsController < ApplicationController
   before_action :set_booking, only: [:edit, :update, :destroy]
 
   def new
-    @booking = @room.bookings.new
+    @booking = @room.bookings.new(start_date: params[:start_date], end_date: params[:end_date])
   end
 
   def create
     @booking = @room.bookings.new(booking_params)
     @booking.user = current_user
-    @booking.status = 'pending'  # ou 'confirmed', selon votre logique
+    @booking.status = 'pending'  # Définir le statut initial à "en attente"
 
-    # Vérification de la validité des dates et de la disponibilité de la salle
+    # Vérification de la disponibilité des dates
     if dates_available?(@booking.start_date, @booking.end_date)
       if @booking.save
         BookingMailer.confirmation_email(@booking).deliver_later
@@ -63,11 +63,11 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:start_date, :end_date, :email, :phone, :address)
+    params.require(:booking).permit(:start_date, :end_date, :email, :phone, :address, :duration)
   end
 
-  # Méthode pour vérifier la disponibilité des dates
   def dates_available?(start_date, end_date)
-    @room.bookings.where("start_date <= ? AND end_date >= ?", end_date, start_date).none?
+    overlapping_bookings = @room.bookings.where("start_date <= ? AND end_date >= ?", end_date, start_date)
+    overlapping_bookings.none?
   end
 end

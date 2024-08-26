@@ -15,3 +15,31 @@
     </div>
   <% end %>
 </div>
+
+<script>
+  let startDate = null;
+  let endDate = null;
+
+  document.querySelectorAll('.available-day').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const selectedDate = this.getAttribute('data-date');
+      
+      if (!startDate) {
+        // Première sélection : début de la réservation
+        startDate = selectedDate;
+        this.classList.add('btn-primary');  // Ajout de style pour indiquer la sélection
+        this.classList.remove('btn-success'); // Supprimer le style de disponibilité
+      } else if (!endDate) {
+        // Deuxième sélection : fin de la réservation
+        endDate = selectedDate;
+        this.classList.add('btn-primary');  // Ajout de style pour indiquer la sélection
+        this.classList.remove('btn-success'); // Supprimer le style de disponibilité
+
+        // Redirection vers la page de création de réservation
+        const roomId = document.getElementById('reservation-section').getAttribute('data-room-id');
+        const url = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+        window.location.href = url;
+      }
+    });
+  });
+</script>
