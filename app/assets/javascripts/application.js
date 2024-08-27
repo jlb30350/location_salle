@@ -1,21 +1,17 @@
-// Importation de Rails UJS et démarrage
-import Rails from "@rails/ujs";
-Rails.start();
-
-// Désactiver Turbo pour certaines pages si nécessaire
-import { Turbo } from "@hotwired/turbo-rails";
-Turbo.session.drive = false;
-
-// ActiveStorage
-import * as ActiveStorage from "@rails/activestorage";
-ActiveStorage.start();
+//= require rails-ujs
+//= require activestorage
+//= require_tree .
 
 // Initialisation de Lightbox
 function initializeLightbox() {
   if (typeof Lightbox !== 'undefined') {
     Lightbox.option({
       'resizeDuration': 200,
-      'wrapAround': true
+      'wrapAround': true,
+      'previousImage': '<%= asset_path("lightbox/prev.png") %>',
+      'nextImage': '<%= asset_path("lightbox/next.png") %>',
+      'closeImage': '<%= asset_path("lightbox/close.png") %>',
+      'loadingImage': '<%= asset_path("lightbox/loading.gif") %>'
     });
   }
 }
@@ -71,6 +67,7 @@ function submitDeleteForm(action) {
 
 // Gestion de la sélection de dates pour les réservations
 function setupDateSelection() {
+console.log("Initialisation de la sélection de dates"); 
   let startDate = null;
   let endDate = null;
 

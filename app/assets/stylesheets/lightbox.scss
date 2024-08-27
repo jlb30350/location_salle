@@ -1,0 +1,15 @@
+.lightbox-loading {
+  background: url('/assets/lightbox/loading.gif") %>') no-repeat center;
+}
+
+.lb-close {
+  background: url('/assets/lightbox/close.png") %>') top right no-repeat;
+}
+
+.lb-nav a.lb-prev {
+  background: url('/assets/lightbox/prev.png") %>') left 48% no-repeat;
+}
+
+.lb-nav a.lb-next {
+  background: url('/assets/lightbox/next.png") %>') right 48% no-repeat;
+}

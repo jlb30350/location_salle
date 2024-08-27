@@ -11,12 +11,13 @@
   <!-- Stylesheets -->
   <%= stylesheet_link_tag 'custom_styles', media: 'all', 'data-turbo-track': 'reload' %>
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
+  <%= stylesheet_link_tag 'calendar', media: 'all', 'data-turbo-track': 'reload' %>
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 
   <!-- Custom Styles -->
   <style>
@@ -50,9 +51,7 @@
   
   <!-- JavaScript de l'application -->
   <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>
-<%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
-<%= javascript_include_tag 'lightbox', 'data-turbo-track': 'reload' %>
-
+  <%= javascript_include_tag 'lightbox', 'data-turbo-track': 'reload' %>
 
   <script>
     let map;

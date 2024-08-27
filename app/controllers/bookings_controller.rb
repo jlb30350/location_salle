@@ -1,4 +1,10 @@
 class BookingsController < ApplicationController
+  before_action :set_room
+
+  def new
+    @booking = @room.bookings.new
+  end
+
   def create
     @booking = @room.bookings.new(booking_params)
     @booking.user = current_user
@@ -16,5 +22,20 @@ class BookingsController < ApplicationController
       flash.now[:alert] = 'Les dates sélectionnées ne sont pas disponibles.'
       render :new
     end
+  end
+
+  private
+
+  def set_room
+    @room = Room.find(params[:room_id])
+  end
+
+  def booking_params
+    params.require(:booking).permit(:start_date, :end_date, :number_of_guests)
+  end
+
+  def dates_available?(start_date, end_date)
+    # Logique pour vérifier la disponibilité des dates
+    # Vous devez implémenter cette méthode
   end
 end
