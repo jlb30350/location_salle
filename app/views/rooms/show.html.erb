@@ -1,21 +1,62 @@
 <div class="room-details-section">
   <h2>Calendrier des réservations</h2>
+
   <% if @room %>
-    <!-- Affichage du calendrier -->
-    <div class="calendar-container">
-      <%= generate_calendar(@year, @month) do |date| %>
-        <div class="day <%= 'reserved' if @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>">
-          <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
-          <% if bookings_on_date.any? %>
-            <% bookings_on_date.each do |booking| %>
-              <span class="reserved"><%= booking.user.name %></span>
-            <% end %>
-          <% else %>
-            <%= link_to 'Disponible', new_room_booking_path(@room, start_date: date), class: 'available' %>
-          <% end %>
-        </div>
-      <% end %>
+    <!-- Navigation du calendrier -->
+    <div class="calendar-navigation mb-3">
+      <%= link_to "Année précédente", availability_room_path(@room, year: @year - 1, month: @month), class: "btn btn-secondary" %>
+      <%= link_to "Mois précédent", availability_room_path(@room, year: @year, month: @month - 1), class: "btn btn-secondary" %>
+      <%= link_to "Mois suivant", availability_room_path(@room, year: @year, month: @month + 1), class: "btn btn-secondary" %>
+      <%= link_to "Année suivante", availability_room_path(@room, year: @year + 1, month: @month), class: "btn btn-secondary" %>
     </div>
+
+    <!-- Affichage du mois et de l'année -->
+    <h3><%= Date::MONTHNAMES[@month] %> <%= @year %></h3>
+
+    <!-- Affichage du calendrier sous forme de tableau -->
+    <table class="table calendar-table">
+      <thead>
+        <tr>
+          <% Date::ABBR_DAYNAMES.each do |day_name| %>
+            <th><%= day_name %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% first_day_of_month = Date.new(@year, @month, 1) %>
+        <% last_day_of_month = Date.new(@year, @month, -1) %>
+        <% start_day_of_week = first_day_of_month.wday %>
+
+        <tr>
+          <!-- Remplissage des cellules vides avant le premier jour du mois -->
+          <% start_day_of_week.times do %>
+            <td></td>
+          <% end %>
+
+          <% (first_day_of_month..last_day_of_month).each do |date| %>
+            <td class="<%= 'reserved' if @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>">
+              <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
+              <% if bookings_on_date.any? %>
+                <% bookings_on_date.each do |booking| %>
+                  <span class="reserved"><%= booking.user.name %></span>
+                <% end %>
+              <% else %>
+                <button class="btn btn-success available-day" data-date="<%= date %>"><%= date.day %></button>
+              <% end %>
+            </td>
+
+            <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
+              </tr><tr>
+            <% end %>
+          <% end %>
+
+          <!-- Remplissage des cellules vides après le dernier jour du mois -->
+          <% (6 - last_day_of_month.wday).times do %>
+            <td></td>
+          <% end %>
+        </tr>
+      </tbody>
+    </table>
 
     <!-- Détails de la salle -->
     <div class="room-info">

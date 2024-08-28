@@ -1,6 +1,6 @@
 //= require rails-ujs
 //= require activestorage
-//= require_tree .
+//= require_tree
 
 // Initialisation de Lightbox
 function initializeLightbox() {
@@ -16,20 +16,9 @@ function initializeLightbox() {
   }
 }
 
-// Gestion des événements de chargement Turbo
-document.addEventListener("turbo:load", () => {
-  initializeLightbox();
-  setupLogoutLinks();
-  setupDateSelection(); // Initialisation de la sélection de dates
-});
-
-// Gestion des événements tactiles avec `passive: true`
-document.addEventListener('touchmove', (e) => {}, { passive: true });
-document.addEventListener('touchstart', (e) => {}, { passive: true });
-
 // Configuration des liens de déconnexion avec confirmation
 function setupLogoutLinks() {
-  const logoutLinks = document.querySelectorAll("a[data-turbo-method='delete']");
+  const logoutLinks = document.querySelectorAll("a[data-method='delete']");
   logoutLinks.forEach(link => {
     link.addEventListener("click", (e) => {
       if (!confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
@@ -67,13 +56,15 @@ function submitDeleteForm(action) {
 
 // Gestion de la sélection de dates pour les réservations
 function setupDateSelection() {
-console.log("Initialisation de la sélection de dates"); 
+  console.log("Initialisation de la sélection de dates"); // Aide au débogage
   let startDate = null;
   let endDate = null;
 
+  // Assurez-vous que `.available-day` correspond aux jours disponibles dans votre HTML
   document.querySelectorAll('.available-day').forEach(function(button) {
     button.addEventListener('click', function(event) {
       event.preventDefault();
+      console.log("Date sélectionnée :", this.dataset.date); // Aide au débogage
 
       const selectedDate = this.dataset.date;
 
@@ -96,3 +87,12 @@ console.log("Initialisation de la sélection de dates");
     });
   });
 }
+
+// Vérifiez si les éléments .available-day existent dans le DOM après le chargement complet du DOM
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("DOM chargé");
+
+  initializeLightbox();
+  setupLogoutLinks();
+  setupDateSelection(); // Initialisation de la sélection de dates
+});

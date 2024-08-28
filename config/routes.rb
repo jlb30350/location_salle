@@ -29,6 +29,11 @@ Rails.application.routes.draw do
       get 'search'
     end
 
+    member do
+      get 'availability'  # Route spécifique pour une instance de room
+    end
+
+
     resources :bookings do
       resources :payments, only: [:new, :create]
     end

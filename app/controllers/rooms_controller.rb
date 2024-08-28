@@ -157,16 +157,20 @@ class RoomsController < ApplicationController
              end
     render :search
   end
-
   def availability
-    @year = params[:year] ? params[:year].to_i : Date.today.year
-    @month = params[:month] ? params[:month].to_i : Date.today.month
-
-    first_day_of_month = Date.new(@year, @month, 1)
-    last_day_of_month = first_day_of_month.end_of_month
-
-    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+    @year = params[:year].to_i
+    @month = params[:month].to_i
+  
+    # Validation pour s'assurer que le mois est entre 1 et 12
+    if @month < 1 || @month > 12
+      redirect_to availability_room_path(@room, year: @year, month: Date.today.month), alert: "Mois invalide"
+      return
+    end
+  
+    # Récupérer les réservations pour le mois et l'année donnés
+    @bookings = @room.bookings.where("start_date >= ? AND end_date <= ?", Date.new(@year, @month, 1), Date.new(@year, @month, -1))
   end
+  
 
   private
 

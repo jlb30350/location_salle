@@ -1,6 +1,6 @@
 /* app/assets/stylesheets/calendar.css */
 
-..calendar {
+.calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;

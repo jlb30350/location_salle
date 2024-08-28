@@ -2,56 +2,52 @@
 
 <h2>Calendrier des réservations</h2>
 
-<div class="calendar-navigation mb-3">
-  <%= link_to "Année précédente", availability_room_path(@room, year: @year - 1, month: @month), class: "btn btn-secondary" %>
-  <%= link_to "Mois précédent", availability_room_path(@room, year: @year, month: @month - 1), class: "btn btn-secondary" %>
-  <%= link_to "Mois suivant", availability_room_path(@room, year: @year, month: @month + 1), class: "btn btn-secondary" %>
-  <%= link_to "Année suivante", availability_room_path(@room, year: @year + 1, month: @month), class: "btn btn-secondary" %>
-</div>
-
-<div id="reservation-section" data-room-id="<%= @room.id %>">
-  <div class="calendar">
-    <%= month_calendar(events: @bookings) do |date, bookings| %>
-      <div class="day <%= 'reserved' if bookings.any? %>">
-        <strong><%= date.day %></strong> <!-- Affiche le numéro du jour -->
-        <% if bookings.any? %>
-          <% bookings.each do |booking| %>
-            <span class="reserved"><%= booking.user.name %></span>
-          <% end %>
-        <% else %>
-          <button id="day-<%= date %>" class="btn btn-success available-day" data-date="<%= date %>">Disponible</button>
-        <% end %>
-      </div>
-    <% end %>
+<div class="calendar">
+  <div class="day">
+    <strong>1</strong>
+    <button class="btn btn-success available-day" data-date="2024-09-01">Disponible</button>
+  </div>
+  <div class="day">
+    <strong>2</strong>
+    <button class="btn btn-success available-day" data-date="2024-09-02">Disponible</button>
   </div>
 </div>
 
+
+<div class="day">
+  <strong>1</strong>
+  <button class="btn btn-success available-day" data-date="2024-09-01">Disponible</button>
+</div>
+
+
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    let startDate = null;
-    let endDate = null;
+document.addEventListener("turbo:load", function() {
+  let startDate = null;
+  let endDate = null;
 
-    document.querySelectorAll('.available-day').forEach(function(button) {
-      button.addEventListener('click', function() {
-        const selectedDate = this.getAttribute('data-date');
-        
-        if (!startDate) {
-          // Première sélection : début de la réservation
-          startDate = selectedDate;
-          this.classList.add('btn-primary');  // Ajout de style pour indiquer la sélection
-          this.classList.remove('btn-success'); // Supprimer le style de disponibilité
-        } else if (!endDate) {
-          // Deuxième sélection : fin de la réservation
-          endDate = selectedDate;
-          this.classList.add('btn-primary');  // Ajout de style pour indiquer la sélection
-          this.classList.remove('btn-success'); // Supprimer le style de disponibilité
+  // Sélectionner tous les boutons avec la classe .available-day
+  document.querySelectorAll('.available-day').forEach(function(button) {
+    console.log("Button found:", button);  // Vérifiez si les boutons sont trouvés
+    button.addEventListener('click', function() {
+      console.log("Button clicked:", this);  // Vérifiez si les clics sont détectés
+      const selectedDate = this.getAttribute('data-date');
+      
+      if (!startDate) {
+        // Première sélection : début de la réservation
+        startDate = selectedDate;
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
+      } else if (!endDate) {
+        // Deuxième sélection : fin de la réservation
+        endDate = selectedDate;
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
 
-          // Redirection vers la page de création de réservation
-          const roomId = document.getElementById('reservation-section').getAttribute('data-room-id');
-          const url = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
-          window.location.href = url;
-        }
-      });
+        // Redirection vers la page de création de réservation
+        const roomId = document.getElementById('reservation-section').getAttribute('data-room-id');
+        window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+      }
     });
   });
+});
 </script>
