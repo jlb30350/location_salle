@@ -1,7 +1,7 @@
 class RoomsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :search, :bookings]
   before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo, :delete_additional_photo, :availability, :bookings]
-  
+
   # Actions spécifiques au bailleur
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
 
@@ -90,7 +90,7 @@ class RoomsController < ApplicationController
 
   # Crée ou met à jour une réservation
   def create_or_update_booking
-    booking = params[:id] ? Booking.find(params[:id]) : Booking.new(room: @room, user: current_user)
+    booking = params[:id] ? Booking.find(params[:id]) : @room.bookings.new(user: current_user)
     booking.assign_attributes(start_date: params[:start_date], end_date: params[:end_date])
 
     if booking.save

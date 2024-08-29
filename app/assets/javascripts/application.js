@@ -1,3 +1,4 @@
+//= require jquery
 //= require rails-ujs
 //= require activestorage
 //= require_tree .
@@ -9,10 +10,10 @@ function initializeLightbox() {
     Lightbox.option({
       'resizeDuration': 200,
       'wrapAround': true,
-      'previousImage': '<%= asset_path("lightbox/prev.png") %>',
-      'nextImage': '<%= asset_path("lightbox/next.png") %>',
-      'closeImage': '<%= asset_path("lightbox/close.png") %>',
-      'loadingImage': '<%= asset_path("lightbox/loading.gif") %>'
+      'previousImage': '/path/to/lightbox/prev.png',
+      'nextImage': '/path/to/lightbox/next.png',
+      'closeImage': '/path/to/lightbox/close.png',
+      'loadingImage': '/path/to/lightbox/loading.gif'
     });
   }
 }
@@ -25,7 +26,6 @@ function setupLogoutLinks() {
       if (!confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
         e.preventDefault();
       } else {
-        e.preventDefault();
         submitDeleteForm(link.href);
       }
     });
@@ -93,24 +93,27 @@ document.addEventListener("DOMContentLoaded", function() {
   setupLogoutLinks();
   setupDateSelection();  // Initialisation de la sélection de dates
 
-  // Initialisation du calendrier
   const calendarEl = document.getElementById('calendar');
+  
   if (calendarEl) {
-    var calendar = new FullCalendar.Calendar(calendarEl, {  // Utiliser l'élément DOM directement
+    const roomId = calendarEl.dataset.roomId;
+    
+    // Initialise le calendrier FullCalendar
+    var calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
-      events: `/rooms/${calendarEl.dataset.roomId}/bookings.json`,
+      events: `/rooms/${roomId}/bookings/events`, // Chemin pour récupérer les événements
+
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
-      eventColor: '#FF0000', // Par défaut, rouge pour "Réservé"
+      eventColor: '#FF0000', // Couleur par défaut pour "Réservé"
       dateClick: function(info) {
-        if (!info.dateStr) return; // Ignore clicks without dateStr
+        if (!info.dateStr) return;
 
         const reservationSection = document.getElementById('reservation-section');
         if (reservationSection) {
-          const roomId = reservationSection.dataset.roomId;
           window.location.href = `/rooms/${roomId}/bookings/new?start_date=${info.dateStr}&end_date=${info.dateStr}`;
         }
       },
