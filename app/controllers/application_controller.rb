@@ -13,6 +13,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def test_bootstrap
+    # Vous pouvez ajouter une logique ici si nécessaire
+    render 'layouts/test_bootstrap'
+  end
+
+  def simple_test
+    render plain: "Ceci est un simple test."
+  end
+
   private
 
   def store_location

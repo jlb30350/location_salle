@@ -1,3 +1,4 @@
+<!-- app/views/bookings/new.html.erb -->
 <h2><%= @booking.persisted? ? 'Modifier' : 'Nouvelle' %> Réservation</h2>
 
 <%= form_with(model: [@room, @booking]) do |f| %>
@@ -18,5 +19,5 @@
   </div>
 <% end %>
 
-<%= link_to 'Annuler', availability_room_path(@room), class: 'btn btn-secondary' %>
+<%= link_to 'Annuler', room_availability_path(@room), class: 'btn btn-secondary' %>
 <%= link_to 'Supprimer', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr ?' }, class: 'btn btn-danger' if @booking.persisted? %>

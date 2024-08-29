@@ -1,2 +1,49 @@
-<h1>Bookings#create</h1>
-<p>Find me in app/views/bookings/create.html.erb</p>
+<h1>Réserver une salle</h1>
+
+<%= form_with model: [@room, @booking], local: true do |f| %>
+  <div class="form-group">
+    <%= f.label :start_date, "Date de début" %>
+    <%= f.date_select :start_date, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :end_date, "Date de fin" %>
+    <%= f.date_select :end_date, class: 'form-control' %>
+  </div>
+
+  <%# Champs additionnels si ces attributs existent dans le modèle Booking %>
+  <div class="form-group">
+    <%= f.label :email, "Email" %>
+    <%= f.email_field :email, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :phone, "Téléphone" %>
+    <%= f.text_field :phone, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :address, "Adresse" %>
+    <%= f.text_field :address, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :duration, "Durée" %>
+    <%= f.select :duration, Booking.durations.keys.map { |w| [w.humanize, w] }, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.submit "Réserver", class: 'btn btn-primary' %>
+  </div>
+<% end %>
+
+<% if @booking.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@booking.errors.count, "erreur") %> empêchent cette réservation d'être enregistrée :</h2>
+    <ul>
+      <% @booking.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

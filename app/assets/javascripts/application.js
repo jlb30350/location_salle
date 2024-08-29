@@ -1,6 +1,7 @@
 //= require rails-ujs
 //= require activestorage
-//= require_tree
+//= require_tree .
+//= require fullcalendar
 
 // Initialisation de Lightbox
 function initializeLightbox() {
@@ -54,45 +55,75 @@ function submitDeleteForm(action) {
   form.submit();
 }
 
-// Gestion de la sélection de dates pour les réservations
+// Fonction pour initialiser la sélection de dates
 function setupDateSelection() {
-  console.log("Initialisation de la sélection de dates"); // Aide au débogage
   let startDate = null;
   let endDate = null;
 
-  // Assurez-vous que `.available-day` correspond aux jours disponibles dans votre HTML
   document.querySelectorAll('.available-day').forEach(function(button) {
-    button.addEventListener('click', function(event) {
-      event.preventDefault();
-      console.log("Date sélectionnée :", this.dataset.date); // Aide au débogage
-
-      const selectedDate = this.dataset.date;
+    button.addEventListener('click', function() {
+      const selectedDate = this.getAttribute('data-date');
+      console.log("Date sélectionnée :", selectedDate);
 
       if (!startDate) {
-        // Première sélection : début de la réservation
         startDate = selectedDate;
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
       } else if (!endDate) {
-        // Deuxième sélection : fin de la réservation
         endDate = selectedDate;
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
 
-        // Redirection vers la page de création de réservation
-        const roomId = document.getElementById('reservation-section').dataset.roomId;
-        const url = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
-        window.location.href = url;
+        const reservationSection = document.getElementById('reservation-section');
+        if (reservationSection) {
+          const roomId = reservationSection.dataset.roomId;
+          window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+        } else {
+          console.error("L'élément avec l'ID 'reservation-section' n'existe pas.");
+        }
       }
     });
   });
 }
 
-// Vérifiez si les éléments .available-day existent dans le DOM après le chargement complet du DOM
+// Initialisation après le chargement de la page
 document.addEventListener("DOMContentLoaded", function() {
-  console.log("DOM chargé");
-
+  console.log("DOM chargé - Initialisation du calendrier");
   initializeLightbox();
   setupLogoutLinks();
-  setupDateSelection(); // Initialisation de la sélection de dates
+  setupDateSelection();  // Initialisation de la sélection de dates
+
+  // Initialisation du calendrier
+  const calendarEl = document.getElementById('calendar');
+  if (calendarEl) {
+    var calendar = new FullCalendar.Calendar(calendarEl, {  // Utiliser l'élément DOM directement
+      initialView: 'dayGridMonth',
+      events: `/rooms/${calendarEl.dataset.roomId}/bookings.json`,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      eventColor: '#FF0000', // Par défaut, rouge pour "Réservé"
+      dateClick: function(info) {
+        if (!info.dateStr) return; // Ignore clicks without dateStr
+
+        const reservationSection = document.getElementById('reservation-section');
+        if (reservationSection) {
+          const roomId = reservationSection.dataset.roomId;
+          window.location.href = `/rooms/${roomId}/bookings/new?start_date=${info.dateStr}&end_date=${info.dateStr}`;
+        }
+      },
+      eventsSet: function(events) {
+        events.forEach(function(event) {
+          if (event.title === 'Disponible') {
+            event.setProp('backgroundColor', '#00FF00');  // Vert pour "Disponible"
+            event.setProp('borderColor', '#00FF00');
+          }
+        });
+      }
+    });
+
+    calendar.render();
+  }
 });

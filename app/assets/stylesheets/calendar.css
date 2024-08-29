@@ -1,57 +1,47 @@
 /* app/assets/stylesheets/calendar.css */
 
-.calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-}
+/*
+ *= require_self
+ *= require calendar
+ *= require_tree 
+*/
+
+
 
 .day {
   padding: 10px;
-  border: 1px solid #ddd;
+  margin: 2px;
   text-align: center;
-  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 50px;
+  min-height: 50px;
 }
 
-.day.reserved {
-  background-color: #ffc107;
+.reserved {
+  background-color: #dc3545; /* Couleur rouge pour les jours réservés */
+  color: white;
 }
 
-.day.available-day {
-  background-color: #28a745;
-  cursor: pointer;
+.available-day {
+  background-color: #28a745; /* Couleur verte pour les jours disponibles */
+  color: white;
 }
 
-.day.available-day:hover {
-  background-color: #218838;
+.btn-primary {
+  background-color: #007bff; /* Couleur bleue pour les boutons sélectionnés */
+  color: white;
 }
 
-  
-  .btn-success.available-day {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .btn-success.available-day:hover {
-    background-color: #218838;
-  }
-  
-  .btn-primary.selected-day {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .calendar-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  
-  .calendar-navigation .btn-secondary {
-    margin: 0 5px;
-  }
-  
+.calendar-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.calendar-container .day {
+  flex: 1 0 14%; /* Pour répartir les jours sur 7 colonnes */
+  box-sizing: border-box;
+}

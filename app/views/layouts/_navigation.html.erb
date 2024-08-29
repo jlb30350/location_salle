@@ -11,6 +11,15 @@
       <%= link_to "Acceuil", root_path, class: 'nav-link' %>
         </li>
 
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- Autres éléments de navigation -->
+      
+        <% if @room.present? %>
+          <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
+        <% else %>
+          <%= link_to 'Voir les salles disponibles', rooms_path, class: 'btn btn-primary' %>
+        <% end %>
+      </nav>
       <li class="nav-item">
       <% if user_signed_in? && current_user.bailleur? %>
         <%= link_to 'Gerer mes salle en tant que bailleur', my_rooms_rooms_path, class: 'btn btn-primary' %>

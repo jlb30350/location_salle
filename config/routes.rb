@@ -9,6 +9,9 @@ Rails.application.routes.draw do
   get 'load_google_maps', to: 'google_maps#load_script'
   get 'rooms/:room_id/photos/:id', to: 'rooms#show_photo', as: 'room_photo'
 
+  # Route pour tester Bootstrap
+  get 'test_bootstrap', to: 'application#test_bootstrap'
+
   # Configuration Devise
   devise_for :users
   
@@ -30,11 +33,14 @@ Rails.application.routes.draw do
     end
 
     member do
-      get 'availability'  # Route spécifique pour une instance de room
+      get 'availability'  # Route spécifique pour afficher la disponibilité d'une chambre
+      get 'bookings', to: 'rooms#bookings' # Nouvelle route pour charger les événements dans FullCalendar
     end
 
-
-    resources :bookings do
+    resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
+      collection do
+        get 'availability', to: 'bookings#availability'
+      end
       resources :payments, only: [:new, :create]
     end
   end

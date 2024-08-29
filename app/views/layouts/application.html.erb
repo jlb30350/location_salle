@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= content_for?(:meta_title) ? yield(:meta_title) : "Location de salles" %></title>
+  <title>Location de salles</title>
 
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
@@ -15,12 +15,16 @@
 
   <!-- Bootstrap -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  
+
+  <!-- FullCalendar CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" rel="stylesheet">
+
   <!-- Custom Styles -->
   <style>
     #map { height: 400px; width: 100%; margin-top: 40px; }
     #search-container { margin: 30px 0; }
     #results-container { margin-top: 30px; }
+    #calendar { margin-top: 40px; }
   </style>
 </head>
 
@@ -37,30 +41,39 @@
     <div id="map"></div>
     <div id="results-container"></div>
 
+    <!-- Conteneur pour FullCalendar -->
+    <div id="calendar"></div>
+
     <%= render 'shared/user_actions' %>
     <%= yield %>
   </div>
 
-  <!-- Bootstrap JS & dependencies -->
+  <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Bootstrap JS & dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
-
-
+  <!-- FullCalendar JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
 
   <!-- JavaScript de l'application -->
   <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>
   <%= javascript_include_tag 'lightbox', 'data-turbo-track': 'reload' %>
 
+  <!-- Google Maps Script -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap&libraries=places"></script>
+
   <script>
+    // Initialisation de la carte
     let map;
     let currentMarker = null;
 
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 46.603354, lng: 1.888334 }, // Coordonnées initiales centrées sur la France
+        center: { lat: 46.603354, lng: 1.888334 },
         zoom: 6
       });
     }
@@ -71,16 +84,14 @@
         if (status == 'OK') {
           map.setCenter(results[0].geometry.location);
 
-          // Supprimez l'ancien marqueur si un existe
           if (currentMarker) {
             currentMarker.setMap(null);
           }
 
-          // Créez et placez le nouveau marqueur
           currentMarker = new google.maps.Marker({
             map: map,
             position: results[0].geometry.location,
-            title: 'Nouvelle Position'  // Optionnel: ajoutez un titre au marqueur
+            title: 'Nouvelle Position'
           });
         } else {
           alert('Geocode was not successful for the following reason: ' + status);
@@ -88,7 +99,6 @@
       });
     }
 
-    // Événement pour gérer la soumission du formulaire
     document.getElementById('locationForm').addEventListener('submit', function(event) {
       event.preventDefault();
       var location = document.getElementById('locationInput').value;
@@ -96,10 +106,15 @@
         centerMapOnLocation(location);
       }
     });
-  </script>
 
-  <!-- Utilisation de async et defer pour l'API Google Maps -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA4aUHK_Zd40CQFJLr5VYF_HOfTT-hSGM&callback=initMap&libraries=places"></script>
+    // Initialisation de FullCalendar
+    $(document).ready(function() {
+      $('#calendar').fullCalendar({
+        locale: 'fr',
+        events: '/your_events_endpoint',
+      });
+    });
+  </script>
 
 </body>
 </html>

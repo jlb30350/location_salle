@@ -2,61 +2,63 @@
   <h2>Calendrier des réservations</h2>
 
   <% if @room %>
-    <!-- Navigation du calendrier -->
-    <div class="calendar-navigation mb-3">
-      <%= link_to "Année précédente", availability_room_path(@room, year: @year - 1, month: @month), class: "btn btn-secondary" %>
-      <%= link_to "Mois précédent", availability_room_path(@room, year: @year, month: @month - 1), class: "btn btn-secondary" %>
-      <%= link_to "Mois suivant", availability_room_path(@room, year: @year, month: @month + 1), class: "btn btn-secondary" %>
-      <%= link_to "Année suivante", availability_room_path(@room, year: @year + 1, month: @month), class: "btn btn-secondary" %>
-    </div>
+    <!-- Ajout de l'élément avec l'ID reservation-section -->
+    <div id="reservation-section" data-room-id="<%= @room.id %>">
+      
+      <!-- Navigation du calendrier -->
+      <div class="calendar-navigation mb-3">
+        <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
+        <%= link_to "Mois précédent", availability_room_path(@room, year: @year, month: @month.to_i - 1), class: "btn btn-secondary" %>
+        <%= link_to "Mois suivant", availability_room_path(@room, year: @year, month: @month.to_i + 1), class: "btn btn-secondary" %>
+        <%= link_to "Année suivante", availability_room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
+      </div>
 
-    <!-- Affichage du mois et de l'année -->
-    <h3><%= Date::MONTHNAMES[@month] %> <%= @year %></h3>
+      <!-- Affichage du mois et de l'année -->
+      <h3><%= Date::MONTHNAMES[@month.to_i] %> <%= @year %></h3>
 
-    <!-- Affichage du calendrier sous forme de tableau -->
-    <table class="table calendar-table">
-      <thead>
-        <tr>
-          <% Date::ABBR_DAYNAMES.each do |day_name| %>
-            <th><%= day_name %></th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% first_day_of_month = Date.new(@year, @month, 1) %>
-        <% last_day_of_month = Date.new(@year, @month, -1) %>
-        <% start_day_of_week = first_day_of_month.wday %>
-
-        <tr>
-          <!-- Remplissage des cellules vides avant le premier jour du mois -->
-          <% start_day_of_week.times do %>
-            <td></td>
-          <% end %>
-
-          <% (first_day_of_month..last_day_of_month).each do |date| %>
-            <td class="<%= 'reserved' if @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>">
-              <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
-              <% if bookings_on_date.any? %>
-                <% bookings_on_date.each do |booking| %>
-                  <span class="reserved"><%= booking.user.name %></span>
-                <% end %>
-              <% else %>
-                <button class="btn btn-success available-day" data-date="<%= date %>"><%= date.day %></button>
-              <% end %>
-            </td>
-
-            <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
-              </tr><tr>
+      <!-- Affichage du calendrier sous forme de tableau -->
+      <table class="table calendar-table">
+        <thead>
+          <tr>
+            <% Date::ABBR_DAYNAMES.each do |day_name| %>
+              <th><%= day_name %></th>
             <% end %>
-          <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% first_day_of_month = Date.new(@year.to_i, @month.to_i, 1) %>
+          <% last_day_of_month = Date.new(@year.to_i, @month.to_i, -1) %>
+          <% start_day_of_week = first_day_of_month.wday %>
 
-          <!-- Remplissage des cellules vides après le dernier jour du mois -->
-          <% (6 - last_day_of_month.wday).times do %>
-            <td></td>
-          <% end %>
-        </tr>
-      </tbody>
-    </table>
+          <tr>
+            <!-- Remplissage des cellules vides avant le premier jour du mois -->
+            <% start_day_of_week.times do %>
+              <td></td>
+            <% end %>
+
+            <% (first_day_of_month..last_day_of_month).each do |date| %>
+              <td class="<%= 'reserved' if @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>">
+                <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
+                <% if bookings_on_date.any? %>
+                  <span class="reserved"><%= bookings_on_date.map(&:user).map(&:name).join(", ") %></span>
+                <% else %>
+                  <button class="btn btn-success available-day" data-date="<%= date %>"><%= date.day %></button>
+                <% end %>
+              </td>
+
+              <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
+                </tr><tr>
+              <% end %>
+            <% end %>
+
+            <!-- Remplissage des cellules vides après le dernier jour du mois -->
+            <% (6 - last_day_of_month.wday).times do %>
+              <td></td>
+            <% end %>
+          </tr>
+        </tbody>
+      </table>
+    </div> <!-- Fin de reservation-section -->
 
     <!-- Détails de la salle -->
     <div class="room-info">
@@ -70,6 +72,13 @@
 
     <!-- Bouton de réservation -->
     <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
+
+    <h1>Réservations pour <%= @room.name %></h1>
+
+<%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
+
+<!-- Ici, le code pour afficher les réservations existantes -->
+
 
     <!-- Tarification -->
     <h3>Tarifs</h3>
@@ -86,3 +95,37 @@
     <p>Cette salle n'existe pas ou a été supprimée.</p>
   <% end %>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  let startDate = null;
+  let endDate = null;
+
+  document.querySelectorAll('.available-day').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const selectedDate = this.getAttribute('data-date');
+      console.log("Date sélectionnée :", selectedDate);
+
+      if (!startDate) {
+        startDate = selectedDate;
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
+      } else if (!endDate) {
+        endDate = selectedDate;
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-success');
+
+        // Assurez-vous que l'élément avec l'ID 'reservation-section' existe
+        const reservationSection = document.getElementById('reservation-section');
+        if (reservationSection) {
+          const roomId = reservationSection.dataset.roomId;
+          console.log(`Redirection vers la page de création de réservation pour la chambre ${roomId}, dates : ${startDate} à ${endDate}`);
+          window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+        } else {
+          console.error("L'élément avec l'ID 'reservation-section' n'existe pas.");
+        }
+      }
+    });
+  });
+});
+</script>

@@ -1,53 +1,58 @@
-<!-- app/views/rooms/availability.html.erb -->
+<div class="room-details-section">
+  <h2>Calendrier des réservations</h2>
 
-<h2>Calendrier des réservations</h2>
+  <% if @room %>
+    <div id="reservation-section" data-room-id="<%= @room.id %>">
 
-<div class="calendar">
-  <div class="day">
-    <strong>1</strong>
-    <button class="btn btn-success available-day" data-date="2024-09-01">Disponible</button>
-  </div>
-  <div class="day">
-    <strong>2</strong>
-    <button class="btn btn-success available-day" data-date="2024-09-02">Disponible</button>
-  </div>
+      <!-- Conteneur pour FullCalendar -->
+      <div id="calendar"></div>
+    </div> <!-- Fin de reservation-section -->
+
+    <!-- Détails de la salle -->
+    <div class="room-info">
+      <h1><%= @room.name %></h1>
+      <p><strong>Adresse :</strong> <%= @room.city %>, <%= @room.department %></p>
+      <p><strong>Capacité :</strong> <%= @room.capacity %> personnes</p>
+    </div>
+
+    <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
+
+  <% else %>
+    <p>Cette salle n'existe pas ou a été supprimée.</p>
+  <% end %>
 </div>
-
-
-<div class="day">
-  <strong>1</strong>
-  <button class="btn btn-success available-day" data-date="2024-09-01">Disponible</button>
-</div>
-
 
 <script>
-document.addEventListener("turbo:load", function() {
-  let startDate = null;
-  let endDate = null;
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
 
-  // Sélectionner tous les boutons avec la classe .available-day
-  document.querySelectorAll('.available-day').forEach(function(button) {
-    console.log("Button found:", button);  // Vérifiez si les boutons sont trouvés
-    button.addEventListener('click', function() {
-      console.log("Button clicked:", this);  // Vérifiez si les clics sont détectés
-      const selectedDate = this.getAttribute('data-date');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    events: '/rooms/<%= @room.id %>/bookings.json',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    selectable: true,
+    select: function(info) {
+      const startDate = info.startStr;
+      const endDate = info.endStr;
       
-      if (!startDate) {
-        // Première sélection : début de la réservation
-        startDate = selectedDate;
-        this.classList.add('btn-primary');
-        this.classList.remove('btn-success');
-      } else if (!endDate) {
-        // Deuxième sélection : fin de la réservation
-        endDate = selectedDate;
-        this.classList.add('btn-primary');
-        this.classList.remove('btn-success');
-
-        // Redirection vers la page de création de réservation
-        const roomId = document.getElementById('reservation-section').getAttribute('data-room-id');
-        window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+      // Redirige vers le formulaire de création avec les dates sélectionnées
+      window.location.href = `/rooms/<%= @room.id %>/bookings/new?start_date=${startDate}&end_date=${endDate}`;
+    },
+    eventClick: function(info) {
+      // Affiche une fenêtre pour éditer ou supprimer la réservation
+      if (confirm("Voulez-vous modifier ou supprimer cette réservation ?")) {
+        const bookingId = info.event.id;
+        const editUrl = `/rooms/<%= @room.id %>/bookings/${bookingId}/edit`;
+        window.location.href = editUrl;
       }
-    });
+    },
   });
+
+  calendar.render();
 });
 </script>
+

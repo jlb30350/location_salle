@@ -1,2 +1,7 @@
 <h1>Bookings#index</h1>
 <p>Find me in app/views/bookings/index.html.erb</p>
+<h1>Réservations pour <%= @room.name %></h1>
+
+<%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
+
+<!-- Ici, le code pour afficher les réservations existantes -->
