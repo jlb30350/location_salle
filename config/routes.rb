@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
   # Configuration Devise
   devise_for :users
-  
+
   # Suppression de compte
   devise_scope :user do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
@@ -40,7 +40,7 @@ Rails.application.routes.draw do
     resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
       collection do
         get 'availability', to: 'bookings#availability'
-        get 'events', to: 'bookings#events'  # Si vous préférez gérer cela dans le BookingController
+        get 'events', to: 'bookings#events'
       end
       resources :payments, only: [:new, :create]
     end

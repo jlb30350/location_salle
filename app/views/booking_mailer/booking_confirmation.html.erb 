@@ -1,0 +1,10 @@
+<!-- app/views/booking_mailer/booking_confirmation.html.erb -->
+
+<h1>Confirmation de Réservation</h1>
+
+<p>Bonjour <%= @user.email %>,</p>
+
+<p>Nous vous confirmons que votre réservation pour la salle <strong><%= @booking.room.name %></strong> du <strong><%= @booking.start_date %></strong> au <strong><%= @booking.end_date %></strong> a été acceptée.</p>
+
+<p>Merci,<br>
+Votre équipe</p>

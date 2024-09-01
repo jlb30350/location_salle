@@ -58,7 +58,9 @@ class BookingsController < ApplicationController
 
     if dates_available?(@booking.start_date, @booking.end_date)
       if @booking.save
+        BookingMailer.booking_confirmation(@booking).deliver_now
         redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Réservation créée avec succès. Veuillez vérifier votre email pour le devis et procéder au paiement.'
+        return # Assurez-vous que l'action se termine après la redirection
       else
         Rails.logger.debug @booking.errors.full_messages.join(", ")
         flash.now[:alert] = 'Il y a eu des erreurs lors de la création de votre réservation.'
@@ -93,6 +95,18 @@ class BookingsController < ApplicationController
   def destroy
     @booking.destroy
     redirect_to room_availability_path(@room), notice: 'Réservation supprimée avec succès.'
+  end
+
+  # Afficher une réservation
+  def show
+    @booking = Booking.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.pdf do
+        pdf = DevisPdfGenerator.new(@booking).render
+        send_data pdf, filename: "devis_#{@booking.id}.pdf", type: 'application/pdf', disposition: 'inline'
+      end
+    end
   end
 
   private
