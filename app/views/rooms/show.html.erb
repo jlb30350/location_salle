@@ -2,9 +2,7 @@
   <h2>Calendrier des réservations</h2>
 
   <% if @room %>
-    <!-- Ajout de l'élément avec l'ID reservation-section -->
     <div id="reservation-section" data-room-id="<%= @room.id %>">
-      
       <!-- Navigation du calendrier -->
       <div class="calendar-navigation mb-3">
         <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
@@ -37,10 +35,10 @@
             <% end %>
 
             <% (first_day_of_month..last_day_of_month).each do |date| %>
-              <td class="<%= 'reserved' if @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>">
-                <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
+              <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
+              <td class="<%= 'reserved' if bookings_on_date.any? %>" title="<%= bookings_on_date.map(&:user).map(&:email).join(", ") %>">
                 <% if bookings_on_date.any? %>
-                  <span class="reserved"><%= bookings_on_date.map(&:user).map(&:name).join(", ") %></span>
+                  <span class="reserved-date"><%= date.day %></span>
                 <% else %>
                   <button class="btn btn-success available-day" data-date="<%= date %>"><%= date.day %></button>
                 <% end %>
@@ -56,6 +54,36 @@
               <td></td>
             <% end %>
           </tr>
+
+          <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            // Fonction pour faire défiler jusqu'à la section du calendrier
+            function scrollToCalendarSection() {
+              const calendarSection = document.getElementById('reservation-section');
+              if (calendarSection) {
+                // On utilise scrollIntoView pour faire défiler jusqu'à la section
+                calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }
+          
+            // Vérifiez si un paramètre 'scroll' est présent dans l'URL pour déclencher le défilement
+            if (window.location.search.includes('scroll=true')) {
+              scrollToCalendarSection();
+            }
+          
+            // Ajoutez l'événement de clic aux boutons de navigation pour inclure le paramètre 'scroll' dans l'URL
+            document.querySelectorAll('.calendar-navigation a').forEach(function(link) {
+              link.addEventListener('click', function(event) {
+                event.preventDefault(); // Empêche le comportement par défaut du lien
+                const url = new URL(link.href);
+                url.searchParams.set('scroll', 'true'); // Ajoute le paramètre 'scroll=true'
+                window.location.href = url; // Redirige vers la nouvelle URL avec le paramètre ajouté
+              });
+            });
+          });
+          </script>
+          
+
         </tbody>
       </table>
     </div> <!-- Fin de reservation-section -->
@@ -73,21 +101,19 @@
     <!-- Bouton de réservation -->
     <%= link_to 'Réserver cette salle', new_room_booking_path(@room), class: 'btn btn-primary my-3' %>
 
-    <h1>Réservations pour <%= @room.name %></h1>
+    <!-- Boutons Accueil et Nouvelle recherche -->
+    <div class="search-buttons text-center mt-4">
+      <%= link_to 'Accueil', root_path, class: 'btn btn-secondary mx-2' %>
+      <%= link_to 'Nouvelle recherche', root_path(anchor: 'search-section'), class: 'btn btn-primary mx-2' %>
+    </div>
 
-<%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
-
-<!-- Ici, le code pour afficher les réservations existantes -->
-
-
-    <!-- Tarification -->
-    <h3>Tarifs</h3>
+    <!-- Résumé des réservations pour le mois -->
+    <h4>Réservations pour <%= Date::MONTHNAMES[@month.to_i] %> <%= @year %></h4>
     <ul>
-      <% if @room.hourly_rate.present? %>
-        <li><strong>Tarif horaire :</strong> <%= number_to_currency(@room.hourly_rate, unit: "€") %></li>
-      <% end %>
-      <% if @room.daily_rate.present? %>
-        <li><strong>Tarif journalier :</strong> <%= number_to_currency(@room.daily_rate, unit: "€") %></li>
+      <% @bookings.each do |booking| %>
+        <li>
+          Du <%= booking.start_date.strftime("%d %b %Y") %> au <%= booking.end_date.strftime("%d %b %Y") %> - Réservé par <%= booking.user.email %>
+        </li>
       <% end %>
     </ul>
 
@@ -96,6 +122,7 @@
   <% end %>
 </div>
 
+<!-- Placez ici le code JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   let startDate = null;
@@ -122,6 +149,7 @@ document.addEventListener("DOMContentLoaded", function() {
           console.log(`Redirection vers la page de création de réservation pour la chambre ${roomId}, dates : ${startDate} à ${endDate}`);
           window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
         } else {
+          alert("Erreur : la section de réservation est introuvable.");
           console.error("L'élément avec l'ID 'reservation-section' n'existe pas.");
         }
       }

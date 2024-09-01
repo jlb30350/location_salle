@@ -3,8 +3,15 @@
 <% if @rooms.any? %>
   <% @rooms.each do |room| %>
     <div class="room-card">
+      <!-- Affichage de la photo principale -->
+      <% if room.main_photo.attached? %>
+        <%= image_tag room.main_photo.variant(resize_to_fit: [150, 150]), class: 'main-photo' %>
+      <% else %>
+        <img src="placeholder-image.jpg" alt="Pas de photo disponible" class="main-photo">
+      <% end %>
+
       <h2><%= room.name %></h2>
-      
+
       <!-- Affichage minimal pour tous les utilisateurs -->
       <p>Ville : <%= room.city %></p>
       <p>Département : <%= room.department %></p>
@@ -22,11 +29,11 @@
         <p>Tarif trimestriel : <%= number_to_currency(room.quarterly_rate) %></p>
         <p>Tarif semestriel : <%= number_to_currency(room.semiannual_rate) %></p>
         <p>Tarif annuel : <%= number_to_currency(room.annual_rate) %></p>
-        <%= link_to 'Voir les détails', room_path(room), class: "btn btn-primary" %>
+        <%= link_to 'Voir les disponibilités', room_path(room), class: "btn btn-primary" %>
       <% else %>
         <!-- Message pour les utilisateurs non connectés -->
         <p class="text-danger">Connectez-vous ou créez un compte pour voir tous les détails et réserver cette salle.</p>
-        <%= link_to 'Voir les détails', new_user_session_path, class: "btn btn-primary" %>
+        <%= link_to 'Voir les disponibilités', new_user_session_path, class: "btn btn-primary" %>
       <% end %>
     </div>
   <% end %>

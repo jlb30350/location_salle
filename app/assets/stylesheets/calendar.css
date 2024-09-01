@@ -2,11 +2,41 @@
 
 /*
  *= require_self
- *= require calendar
- *= require_tree 
+ *= require_tree .
 */
 
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
 
+.reserved {
+  background-color: #dc3545; /* Couleur rouge pour les jours réservés */
+  color: white;
+}
+
+.calendar-navigation .btn {
+  margin-right: 5px;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545;
+  color: #fff;
+  padding: 0.4em 0.6em;
+  border-radius: 0.25em;
+  font-weight: bold;
+}
+
+.reserved-date {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.4em;
+  border-radius: 50%;
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+}
 
 .day {
   padding: 10px;
@@ -16,16 +46,6 @@
   border-radius: 4px;
   min-width: 50px;
   min-height: 50px;
-}
-
-.reserved {
-  background-color: #dc3545; /* Couleur rouge pour les jours réservés */
-  color: white;
-}
-
-.available-day {
-  background-color: #28a745; /* Couleur verte pour les jours disponibles */
-  color: white;
 }
 
 .btn-primary {

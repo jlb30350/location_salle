@@ -67,27 +67,7 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Affiche la disponibilité de la salle sous forme de calendrier FullCalendar
-  def availability
-  end
-
-  # Récupère les réservations au format JSON pour FullCalendar
-  def bookings
-    @bookings = @room.bookings
-
-    events = @bookings.map do |booking|
-      {
-        id: booking.id,
-        title: 'Réservé',
-        start: booking.start_date.iso8601,
-        end: (booking.end_date + 1.day).iso8601, # FullCalendar exclut la fin
-        color: '#FF0000' # Rouge pour "Réservé"
-      }
-    end
-
-    render json: events
-  end
-
+  
   # Crée ou met à jour une réservation
   def create_or_update_booking
     booking = params[:id] ? Booking.find(params[:id]) : @room.bookings.new(user: current_user)
@@ -98,6 +78,25 @@ class RoomsController < ApplicationController
     else
       render json: { success: false, errors: booking.errors.full_messages }
     end
+  end
+
+  def bookings
+    @bookings = @room.bookings
+    respond_to do |format|
+      format.html # Rendu de la vue HTML par défaut
+      format.json { render json: @bookings }
+    end
+  end
+  
+  def availability
+    @year = params[:year] ? params[:year].to_i : Date.today.year
+    @month = params[:month] ? params[:month].to_i : Date.today.month
+
+    first_day_of_month = Date.new(@year, @month, 1)
+    last_day_of_month = first_day_of_month.end_of_month
+
+    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+    render :show
   end
 
   # Supprime une réservation

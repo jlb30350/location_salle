@@ -1,8 +1,25 @@
+
+
+
+
+//= application.js
 //= require jquery
 //= require rails-ujs
 //= require activestorage
-//= require_tree .
-//= require fullcalendar
+//= require_tree 
+
+
+
+
+
+
+if (typeof jQuery === 'undefined') {
+  console.error("jQuery is not loaded. Please ensure jQuery is included.");
+} else {
+  console.log("jQuery is loaded correctly.");
+}
+
+
 
 // Initialisation de Lightbox
 function initializeLightbox() {
@@ -98,35 +115,39 @@ document.addEventListener("DOMContentLoaded", function() {
   if (calendarEl) {
     const roomId = calendarEl.dataset.roomId;
     
-    // Initialise le calendrier FullCalendar
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      events: `/rooms/${roomId}/bookings/events`, // Chemin pour récupérer les événements
+   
 
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      },
-      eventColor: '#FF0000', // Couleur par défaut pour "Réservé"
-      dateClick: function(info) {
-        if (!info.dateStr) return;
-
-        const reservationSection = document.getElementById('reservation-section');
-        if (reservationSection) {
-          window.location.href = `/rooms/${roomId}/bookings/new?start_date=${info.dateStr}&end_date=${info.dateStr}`;
-        }
-      },
-      eventsSet: function(events) {
-        events.forEach(function(event) {
-          if (event.title === 'Disponible') {
-            event.setProp('backgroundColor', '#00FF00');  // Vert pour "Disponible"
-            event.setProp('borderColor', '#00FF00');
-          }
-        });
-      }
-    });
-
-    calendar.render();
+Calendar.prototype.initialRender = function () {
+  var _this = this;
+  
+  if (!this.el) {
+      console.error("Element 'el' is undefined or null. Ensure that 'el' is properly initialized.");
+      return;
   }
-});
+
+  var el = this.el;  // Utilisation de l'élément natif
+
+  // Ajout de la classe 'fc' sans jQuery
+  el.classList.add('fc');
+
+  // Délégation des événements pour les liens de navigation
+  el.addEventListener('click', function (ev) {
+      if (ev.target.matches('a[data-goto]')) {
+          var anchorEl = ev.target;
+          var gotoOptions = JSON.parse(anchorEl.getAttribute('data-goto'));  // Parse manuellement le JSON
+          var date = _this.moment(gotoOptions.date);
+          var viewType = gotoOptions.type;
+
+          // Propriété comme "navLinkDayClick". Peut être une chaîne ou une fonction
+          var customAction = _this.view.opt('navLink' + util_1.capitaliseFirstLetter(viewType) + 'Click');
+          if (typeof customAction === 'function') {
+              customAction(date, ev);  // Appelle la fonction de personnalisation
+          } else {
+              if (typeof customAction === 'string') {
+                  viewType = customAction;
+              }
+              _this.zoomTo(date, viewType);  // Effectue un zoom sur la vue appropriée
+          }
+      }
+  }, false);
+};

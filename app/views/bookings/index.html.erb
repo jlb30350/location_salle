@@ -3,5 +3,7 @@
 <h1>Réservations pour <%= @room.name %></h1>
 
 <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
+<%= link_to 'Nouvelle recherche de salle', '#', class: 'btn btn-primary mx-2', onclick: "scrollToSearchSection()" %>
+
 
 <!-- Ici, le code pour afficher les réservations existantes -->

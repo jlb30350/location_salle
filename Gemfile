@@ -4,15 +4,18 @@ ruby "3.2.2"
 
 gem "rails", "~> 7.1.3", ">= 7.1.3.4"
 gem "sprockets-rails"
+gem 'sprockets', '~> 4.2.0'
+
 gem "sqlite3", "~> 1.4"
 gem "puma", ">= 5.0"
+gem 'simple_calendar', '~> 3.0'
 
 gem "stimulus-rails"
 gem "jbuilder"
 gem "redis", ">= 4.0.1"
 gem 'devise'
 gem 'geocoder'
-gem 'simple_calendar'
+
 gem 'groupdate'
 gem 'chartkick'
 gem 'sass-rails', '>= 6'
@@ -22,7 +25,8 @@ gem 'will_paginate'
 gem 'dotenv-rails', groups: [:development, :test]
 gem 'bootstrap', '~> 5.1.3'
 gem 'popper_js', '~> 2.0'
-gem 'fullcalendar-rails'
+
+
 gem 'image_processing', '~> 1.2'
 gem "tzinfo-data", platforms: %i[mswin mswin64 mingw x64_mingw jruby]
 gem "bootsnap", require: false

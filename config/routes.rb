@@ -34,7 +34,7 @@ Rails.application.routes.draw do
 
     member do
       get 'availability'  # Route spécifique pour afficher la disponibilité d'une chambre
-      get 'bookings/events', to: 'rooms#bookings'  # Route pour charger les événements dans FullCalendar
+      get 'bookings'
     end
 
     resources :bookings, only: [:new, :create, :edit, :update, :destroy] do

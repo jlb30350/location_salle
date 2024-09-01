@@ -3,7 +3,7 @@
  *= require lightbox
  *= require calendar
  *= require_tree 
- *= require fullcalendar
+
 */
 
 
@@ -295,3 +295,109 @@ body.lb-disable-scrolling {
   background: url('<%= asset_path("lightbox/close.png") %>') top right no-repeat;
 }
 
+.room-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.room-card .main-photo {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.room-card h2 {
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.room-card p {
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  margin-top: 15px;
+}
+
+.text-danger {
+  margin-top: 10px;
+}
+
+.search-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.search-buttons .btn {
+  margin: 0 10px; /* Espacement horizontal entre les boutons */
+}
+/* Styles généraux pour les boutons */
+.btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Styles spécifiques pour différents types de boutons */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: scale(1.05);
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+/* Alignement et espacement des boutons */
+.search-buttons .btn {
+  margin: 0 10px;
+}
+
+/* Style pour les titres et sous-titres */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+p, li {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+}

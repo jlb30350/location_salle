@@ -4,9 +4,7 @@
   <% if @room %>
     <div id="reservation-section" data-room-id="<%= @room.id %>">
 
-      <!-- Conteneur pour FullCalendar -->
-      <div id="calendar"></div>
-    </div> <!-- Fin de reservation-section -->
+   
 
     <!-- Détails de la salle -->
     <div class="room-info">
@@ -22,37 +20,4 @@
   <% end %>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var calendarEl = document.getElementById('calendar');
-
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    events: '/rooms/<%= @room.id %>/bookings.json',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
-    },
-    selectable: true,
-    select: function(info) {
-      const startDate = info.startStr;
-      const endDate = info.endStr;
-      
-      // Redirige vers le formulaire de création avec les dates sélectionnées
-      window.location.href = `/rooms/<%= @room.id %>/bookings/new?start_date=${startDate}&end_date=${endDate}`;
-    },
-    eventClick: function(info) {
-      // Affiche une fenêtre pour éditer ou supprimer la réservation
-      if (confirm("Voulez-vous modifier ou supprimer cette réservation ?")) {
-        const bookingId = info.event.id;
-        const editUrl = `/rooms/<%= @room.id %>/bookings/${bookingId}/edit`;
-        window.location.href = editUrl;
-      }
-    },
-  });
-
-  calendar.render();
-});
-</script>
 
