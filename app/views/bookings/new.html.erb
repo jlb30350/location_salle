@@ -1,6 +1,7 @@
 <h2><%= @booking.persisted? ? 'Modifier' : 'Nouvelle' %> Réservation</h2>
 
 <%= form_with(model: [@room, @booking]) do |f| %>
+  
   <div class="form-group">
     <%= f.label :start_date, 'Date de début' %>
     <%= f.date_field :start_date, class: 'form-control', value: params[:start_date] || @booking.start_date %>
@@ -9,9 +10,26 @@
     <%= f.label :end_date, 'Date de fin' %>
     <%= f.date_field :end_date, class: 'form-control', value: params[:end_date] || @booking.end_date %>
   </div>
+
   <div class="form-group">
     <%= f.label :number_of_guests, 'Nombre de participants' %>
-    <%= f.number_field :number_of_guests, class: 'form-control', min: 1 %>
+    <%= f.number_field :number_of_guests, class: 'form-control', min: 1, value: @booking.number_of_guests || params[:number_of_guests] %>
+  </div>
+  <div class="form-group">
+    <%= f.label :address, 'Adresse' %>
+    <%= f.text_field :address, class: 'form-control', value: @booking.address || params[:address] %>
+  </div>
+  <div class="form-group">
+    <%= f.label :phone, 'Téléphone' %>
+    <%= f.telephone_field :phone, class: 'form-control', value: @booking.phone || params[:phone] %>
+  </div>
+  <div class="form-group">
+    <%= f.label :email, 'E-mail' %>
+    <%= f.email_field :email, class: 'form-control', value: @booking.email || params[:email] %>
+  </div>
+  <div class="form-group">
+    <%= f.label :duration, 'Durée' %>
+    <%= f.select :duration, Booking.durations.keys.map { |d| [d.humanize, d] }, class: 'form-control', selected: @booking.duration || params[:duration] %>
   </div>
   <div class="form-group">
     <%= f.submit 'Enregistrer', class: 'btn btn-primary' %>

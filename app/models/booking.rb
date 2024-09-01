@@ -8,39 +8,41 @@ class Booking < ApplicationRecord
 
   # Validations
   validates :start_date, :email, :phone, :address, presence: true
-  validate :end_date_after_start_date, unless: -> { duration_hour? }
+  validate :end_date_after_start_date, unless: -> { duration == 'hour' }
   validate :email_format
   validate :start_date_in_future
   validate :no_overlap_with_existing_bookings
-  validate :duration_must_be_valid
+  validate :validate_duration_presence
 
   # Méthode pour calculer la date de fin en fonction de la durée
   def end_date
     return nil if start_date.nil?
-
+  
     case duration
     when 'hour'
-      hour_count = hour_count.present? ? hour_count : 1 # Valeur par défaut
+      hour_count ||= 1  # Utiliser 1 heure par défaut
       start_date + hour_count.hours
     when 'day'
-      day_count = day_count.present? ? day_count : 1 # Valeur par défaut
+      day_count ||= 1  # Utiliser 1 jour par défaut
       start_date + day_count.days
     when 'week'
-      week_count = week_count.present? ? week_count : 1 # Valeur par défaut
+      week_count ||= 1  # Utiliser 1 semaine par défaut
       start_date + week_count.weeks
     when 'month'
-      month_count = month_count.present? ? month_count : 1 # Valeur par défaut
+      month_count ||= 1  # Utiliser 1 mois par défaut
       start_date + month_count.months
     when 'year'
-      year_count = year_count.present? ? year_count : 1 # Valeur par défaut
+      year_count ||= 1  # Utiliser 1 an par défaut
       start_date + year_count.years
     else
       start_date
     end
   end
-
+  
   # Méthode pour calculer le montant total de la réservation en fonction de la durée
   def total_amount
+    return 0 if room.nil? || duration.nil?
+
     case duration
     when 'hour'
       room.hourly_rate * (hour_count || 1)  # Utiliser 1 heure par défaut si `hour_count` est nil
@@ -56,9 +58,6 @@ class Booking < ApplicationRecord
       0  # Retourner 0 si la durée n'est pas reconnue
     end
   end
-
-
-  
 
   private
 
@@ -86,13 +85,13 @@ class Booking < ApplicationRecord
   # Validation pour éviter les chevauchements avec les réservations existantes
   def no_overlap_with_existing_bookings
     overlapping_bookings = room.bookings.where.not(id: id)
-                                        .where("start_date < ? AND end_date > ?", end_date, start_date)
+                                         .where("start_date < ? AND end_date > ?", end_date, start_date)
     if overlapping_bookings.exists?
       errors.add(:base, "Cette période chevauche une réservation existante")
     end
   end
 
-  def duration_must_be_valid
-    errors.add(:duration, "doit être spécifiée") if duration.nil?
+  def validate_duration_presence
+    errors.add(:duration, "doit être spécifiée") if duration.blank?
   end
 end

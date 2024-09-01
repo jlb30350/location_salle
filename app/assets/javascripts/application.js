@@ -65,6 +65,8 @@ function setupDateSelection() {
   let startDate = null;
   let endDate = null;
 
+  console.log("Initialisation de la sélection de dates...");
+
   document.querySelectorAll('.available-day').forEach(function(button) {
     button.addEventListener('click', function() {
       const selectedDate = this.getAttribute('data-date');
@@ -74,14 +76,17 @@ function setupDateSelection() {
         startDate = selectedDate;
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
+        console.log("Start date:", startDate); // Vérifier la date de début
       } else if (!endDate) {
         endDate = selectedDate;
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
+        console.log("End date:", endDate); // Vérifier la date de fin
 
         const reservationSection = document.getElementById('reservation-section');
         if (reservationSection) {
           const roomId = reservationSection.dataset.roomId;
+          console.log("Redirection avec Start date:", startDate, "End date:", endDate); // Vérifier les dates avant redirection
           window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
         } else {
           console.error("L'élément avec l'ID 'reservation-section' n'existe pas.");
@@ -102,7 +107,8 @@ document.addEventListener("DOMContentLoaded", function() {
   
   if (calendarEl) {
     const roomId = calendarEl.dataset.roomId;
-
+    console.log("Calendar Element found for Room ID:", roomId); // Vérifier la présence de l'élément calendrier
+    
     // Initialisation du calendrier (vous pouvez remplacer cette partie par le code d'initialisation de votre calendrier si vous utilisez une bibliothèque spécifique)
     Calendar.prototype.initialRender = function () {
       var _this = this;
