@@ -3,13 +3,13 @@
 
   <% if @room %>
     <div id="reservation-section" data-room-id="<%= @room.id %>">
-      <!-- Navigation du calendrier -->
-      <div class="calendar-navigation mb-3">
-        <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
-        <%= link_to "Mois précédent", availability_room_path(@room, year: @year, month: @month.to_i - 1), class: "btn btn-secondary" %>
-        <%= link_to "Mois suivant", availability_room_path(@room, year: @year, month: @month.to_i + 1), class: "btn btn-secondary" %>
-        <%= link_to "Année suivante", availability_room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
-      </div>
+     <div class="calendar-navigation mb-3">
+  <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
+  <%= link_to "Mois précédent", availability_room_path(@room, year: @month == 1 ? @year.to_i - 1 : @year, month: @month == 1 ? 12 : @month.to_i - 1), class: "btn btn-secondary" %>
+  <%= link_to "Mois suivant", availability_room_path(@room, year: @month == 12 ? @year.to_i + 1 : @year, month: @month == 12 ? 1 : @month.to_i + 1), class: "btn btn-secondary" %>
+  <%= link_to "Année suivante", availability_room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
+</div>
+
 
       <!-- Affichage du mois et de l'année -->
       <h3><%= Date::MONTHNAMES[@month.to_i] %> <%= @year %></h3>
@@ -25,7 +25,7 @@
         </thead>
         <tbody>
           <% first_day_of_month = Date.new(@year.to_i, @month.to_i, 1) %>
-          <% last_day_of_month = Date.new(@year.to_i, @month.to_i, -1) %>
+          <% last_day_of_month = first_day_of_month.end_of_month %>
           <% start_day_of_week = first_day_of_month.wday %>
 
           <tr>
@@ -35,8 +35,8 @@
             <% end %>
 
             <% (first_day_of_month..last_day_of_month).each do |date| %>
-              <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
-              <td class="<%= 'reserved' if bookings_on_date.any? %>" title="<%= bookings_on_date.map(&:user).map(&:email).join(", ") %>">
+              <td class="<%= 'reserved' if @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>">
+                <% bookings_on_date = @bookings.select { |booking| booking.start_date <= date && booking.end_date >= date } %>
                 <% if bookings_on_date.any? %>
                   <span class="reserved-date"><%= date.day %></span>
                 <% else %>
@@ -54,39 +54,9 @@
               <td></td>
             <% end %>
           </tr>
-
-          <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            // Fonction pour faire défiler jusqu'à la section du calendrier
-            function scrollToCalendarSection() {
-              const calendarSection = document.getElementById('reservation-section');
-              if (calendarSection) {
-                // On utilise scrollIntoView pour faire défiler jusqu'à la section
-                calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }
-          
-            // Vérifiez si un paramètre 'scroll' est présent dans l'URL pour déclencher le défilement
-            if (window.location.search.includes('scroll=true')) {
-              scrollToCalendarSection();
-            }
-          
-            // Ajoutez l'événement de clic aux boutons de navigation pour inclure le paramètre 'scroll' dans l'URL
-            document.querySelectorAll('.calendar-navigation a').forEach(function(link) {
-              link.addEventListener('click', function(event) {
-                event.preventDefault(); // Empêche le comportement par défaut du lien
-                const url = new URL(link.href);
-                url.searchParams.set('scroll', 'true'); // Ajoute le paramètre 'scroll=true'
-                window.location.href = url; // Redirige vers la nouvelle URL avec le paramètre ajouté
-              });
-            });
-          });
-          </script>
-          
-
         </tbody>
       </table>
-    </div> <!-- Fin de reservation-section -->
+    </div>
 
     <!-- Détails de la salle -->
     <div class="room-info">
@@ -116,7 +86,6 @@
         </li>
       <% end %>
     </ul>
-
   <% else %>
     <p>Cette salle n'existe pas ou a été supprimée.</p>
   <% end %>
@@ -125,6 +94,25 @@
 <!-- Placez ici le code JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+  // Défilement automatique vers le calendrier si nécessaire
+  if (window.location.search.includes('scroll=true')) {
+    const calendarSection = document.getElementById('reservation-section');
+    if (calendarSection) {
+      calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // Ajout du paramètre 'scroll' dans les liens de navigation du calendrier
+  document.querySelectorAll('.calendar-navigation a').forEach(function(link) {
+    link.addEventListener('click', function(event) {
+      event.preventDefault();
+      const url = new URL(link.href);
+      url.searchParams.set('scroll', 'true');
+      window.location.href = url;
+    });
+  });
+
+  // Gestion de la sélection des dates
   let startDate = null;
   let endDate = null;
 
@@ -142,15 +130,12 @@ document.addEventListener("DOMContentLoaded", function() {
         this.classList.add('btn-primary');
         this.classList.remove('btn-success');
 
-        // Assurez-vous que l'élément avec l'ID 'reservation-section' existe
         const reservationSection = document.getElementById('reservation-section');
         if (reservationSection) {
           const roomId = reservationSection.dataset.roomId;
-          console.log(`Redirection vers la page de création de réservation pour la chambre ${roomId}, dates : ${startDate} à ${endDate}`);
           window.location.href = `/rooms/${roomId}/bookings/new?start_date=${startDate}&end_date=${endDate}`;
         } else {
           alert("Erreur : la section de réservation est introuvable.");
-          console.error("L'élément avec l'ID 'reservation-section' n'existe pas.");
         }
       }
     });
