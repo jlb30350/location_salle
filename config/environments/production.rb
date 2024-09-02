@@ -1,5 +1,3 @@
-# config/environments/production.rb
-
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
@@ -71,7 +69,7 @@ Rails.application.configure do
   }
 
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = true
 
   # Enable locale fallbacks for I18n.
   config.i18n.fallbacks = true

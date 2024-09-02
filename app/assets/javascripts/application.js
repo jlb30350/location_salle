@@ -1,7 +1,7 @@
 //= require jquery
 //= require rails-ujs
 //= require activestorage
-//= require_tree .
+//= require_tree 
 
 if (typeof jQuery === 'undefined') {
   console.error("jQuery is not loaded. Please ensure jQuery is included.");
