@@ -25,7 +25,6 @@ class RoomsController < ApplicationController
     if @room
       @booking = @room.bookings.new
 
-      # Informations supplémentaires pour les utilisateurs connectés
       if user_signed_in?
         @detailed_info = {
           address: @room.address,
@@ -41,7 +40,6 @@ class RoomsController < ApplicationController
         }
       end
 
-      # Gestion des mois pour le calendrier
       begin
         @year = params[:year] ? params[:year].to_i : Date.today.year
         @month = params[:month] ? params[:month].to_i : Date.today.month
@@ -49,7 +47,6 @@ class RoomsController < ApplicationController
         first_day_of_month = Date.new(@year, @month, 1)
         last_day_of_month = first_day_of_month.end_of_month
 
-        # Récupération des réservations pour le calendrier sur le mois affiché
         @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
       rescue ArgumentError => e
         flash[:alert] = "Date invalide"
@@ -75,18 +72,16 @@ class RoomsController < ApplicationController
     selected_time = params[:time]
     selected_date = params[:date]
 
-    # Calcule les heures avant et après l'heure sélectionnée
     time_before = (Time.parse(selected_time) - 1.hour).strftime('%H:%M')
     time_after = (Time.parse(selected_time) + 1.hour).strftime('%H:%M')
 
-    # Rends un formulaire avec les créneaux horaires avant et après
     render partial: 'time_slots_form', locals: { date: selected_date, time_before: time_before, time_after: time_after }
   end
 
   def bookings
     @bookings = @room.bookings
     respond_to do |format|
-      format.html # Rendu de la vue HTML par défaut
+      format.html
       format.json { render json: @bookings }
     end
   end
@@ -95,8 +90,6 @@ class RoomsController < ApplicationController
     duration = params[:duration]
     date = params[:date]
 
-    # Créer des variables selon la logique que vous souhaitez appliquer
-    # Par exemple : Si la durée est de 1 heure ou un jour, etc.
     case duration
     when 'hour'
       @message = "Formulaire pour une réservation d'une heure le #{date}"
@@ -116,10 +109,8 @@ class RoomsController < ApplicationController
       @message = "Formulaire par défaut"
     end
 
-    # Rendre un partial ou renvoyer du HTML en fonction de la durée et de la date
     render partial: 'form_partial', locals: { message: @message }
   end
-end
 
   def availability
     begin
@@ -130,8 +121,7 @@ end
       last_day_of_month = first_day_of_month.end_of_month
 
       @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
-
-      @booking = @room.bookings.new # Initialisation de la variable @booking pour le formulaire
+      @booking = @room.bookings.new
     rescue ArgumentError => e
       flash[:alert] = "Date invalide"
       redirect_to rooms_path
