@@ -4,7 +4,7 @@
   <!-- Menu déroulant pour choisir la durée -->
   <div class="form-group mt-4">
     <%= label_tag :duration, 'Choisissez la durée' %>
-    <%= select_tag :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], ['2 à 6 jours', 'multiple_days'], ['Week-end', 'weekend'], ['Semaine', 'week'], ['Mois', 'month'], ['Année', 'year']]), class: 'form-control', id: 'duration-select' %>
+    <%= select_tag :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], ['2 à 6 jours', 'multiple_days'], ['Week-End', 'weekend'], ['Semaine', 'week'], ['Mois', 'month'], ['Année', 'year']]), class: 'form-control', id: 'duration-select' %>
   </div>
 
   <!-- Navigation du calendrier -->
@@ -63,6 +63,14 @@
     </tbody>
   </table>
 
+  <!-- Conteneur pour afficher les informations de la sélection -->
+  <div class="mt-4">
+    <p id="message-formulaire"></p> <!-- Phrase affichée au-dessus des dates -->
+
+    <p>Date de début sélectionnée : <span id="start-date-display">Aucune</span></p>
+    <p>Date de fin sélectionnée : <span id="end-date-display">Aucune</span></p>
+  </div>
+
   <!-- Conteneur où le formulaire sera affiché en fonction de la sélection -->
   <div id="form-container" class="mt-4"></div>
 
@@ -72,19 +80,30 @@
   </div>
 </div>
 
+
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const durationSelect = document.getElementById('duration-select');
   const availableDays = document.querySelectorAll('.available-day');
   const formContainer = document.getElementById('form-container');
-  let selectedDate = null;
+  const startDateDisplay = document.getElementById('start-date-display');
+  const endDateDisplay = document.getElementById('end-date-display');
+  const messageFormulaire = document.getElementById('message-formulaire');
+  let selectedStartDate = null;
+  let selectedEndDate = null;
 
-  // Fonction pour afficher un formulaire en fonction de la durée et de la date
-  function displayForm(duration, date) {
-    if (!duration || !date) return;
+  // Fonction pour afficher un formulaire en fonction de la durée et des dates
 
-    // Afficher le formulaire pour la durée choisie
-    fetch(`/get_form?duration=${duration}&date=${date}`, {
+  function displayForm(duration, startDate, endDate) {
+    if (!duration || !startDate) return;
+
+    // Met à jour les informations du formulaire dans le conteneur de message (phrase unique)
+    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du ${startDate}`;
+
+    // Effectuer la requête AJAX pour récupérer le formulaire partiel sans inclure la phrase répétée
+    fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}`, {
       method: 'GET',
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -92,31 +111,105 @@ document.addEventListener("DOMContentLoaded", function() {
     })
     .then(response => response.text())
     .then(html => {
-      formContainer.innerHTML = html;
+      formContainer.innerHTML = html;  // Insère uniquement le formulaire, sans la phrase répétée
     })
     .catch(error => console.error('Erreur:', error));
+}
+
+
+  // Fonction pour générer le message de durée
+  function getDurationMessage(duration) {
+    switch (duration) {
+      case 'hour':
+        return "une réservation d'une heure";
+      case 'day':
+        return "une réservation d'un jour";
+      case 'multiple_days':
+        return "une réservation de plusieurs jours";
+      case 'weekend':
+        return "un week-end";
+      case 'week':
+        return "une semaine";
+      case 'month':
+        return "un mois";
+      case 'year':
+        return "un an";
+      default:
+        return "une réservation";
+    }
   }
 
   // Gérer le clic sur une date disponible
   availableDays.forEach(button => {
     button.addEventListener('click', function() {
-      selectedDate = this.getAttribute('data-date');
+      const selectedDate = this.getAttribute('data-date');
       const selectedDuration = durationSelect.value;
 
-      // Mettre à jour l'affichage du calendrier et marquer la date sélectionnée
-      availableDays.forEach(btn => btn.classList.remove('btn-primary'));
-      this.classList.add('btn-primary');
+      if (selectedDuration === 'multiple_days' && !selectedStartDate) {
+        selectedStartDate = selectedDate;
+        startDateDisplay.textContent = selectedStartDate;
+        endDateDisplay.textContent = 'Aucune';
+      } else if (selectedDuration === 'multiple_days' && selectedStartDate) {
+        selectedEndDate = selectedDate;
+
+        const startDateObj = new Date(selectedStartDate);
+        const endDateObj = new Date(selectedEndDate);
+        const diffTime = Math.abs(endDateObj - startDateObj);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 6) {
+          alert("Vous ne pouvez pas sélectionner une période de plus de 6 jours. Veuillez recommencer.");
+          selectedStartDate = null;
+          selectedEndDate = null;
+          startDateDisplay.textContent = 'Aucune';
+          endDateDisplay.textContent = 'Aucune';
+        } else {
+          endDateDisplay.textContent = selectedEndDate;
+        }
+      } else if (selectedDuration === 'week') {
+        selectedStartDate = selectedDate;
+        const startDateObj = new Date(selectedStartDate);
+        const endDateObj = new Date(startDateObj);
+        endDateObj.setDate(startDateObj.getDate() + 7); // Ajoute 7 jours pour une semaine
+        selectedEndDate = endDateObj.toISOString().split('T')[0];
+
+        startDateDisplay.textContent = selectedStartDate;
+        endDateDisplay.textContent = selectedEndDate;
+      } else if (selectedDuration === 'month') {
+        selectedStartDate = selectedDate;
+        const startDateObj = new Date(selectedStartDate);
+        const endDateObj = new Date(startDateObj);
+        endDateObj.setMonth(startDateObj.getMonth() + 1); // Ajoute 1 mois
+        selectedEndDate = endDateObj.toISOString().split('T')[0];
+
+        startDateDisplay.textContent = selectedStartDate;
+        endDateDisplay.textContent = selectedEndDate;
+      } else if (selectedDuration === 'year') {
+        selectedStartDate = selectedDate;
+        const startDateObj = new Date(selectedStartDate);
+        const endDateObj = new Date(startDateObj);
+        endDateObj.setFullYear(startDateObj.getFullYear() + 1); // Ajoute 1 an
+        selectedEndDate = endDateObj.toISOString().split('T')[0];
+
+        startDateDisplay.textContent = selectedStartDate;
+        endDateDisplay.textContent = selectedEndDate;
+      } else {
+        selectedStartDate = selectedDate;
+        selectedEndDate = null;
+        startDateDisplay.textContent = selectedStartDate;
+        endDateDisplay.textContent = 'Aucune';
+      }
 
       // Mettre à jour le formulaire en fonction de la date et de la durée choisies
-      displayForm(selectedDuration, selectedDate);
+      displayForm(selectedDuration, selectedStartDate, selectedEndDate);
     });
   });
 
   // Gérer la modification du choix de la durée
   durationSelect.addEventListener('change', function() {
     const selectedDuration = durationSelect.value;
-    if (selectedDate) {
-      displayForm(selectedDuration, selectedDate);
+    if (selectedStartDate) {
+      displayForm(selectedDuration, selectedStartDate, selectedEndDate);
     }
   });
 
@@ -124,10 +217,13 @@ document.addEventListener("DOMContentLoaded", function() {
   const resetButton = document.getElementById('reset-button');
   resetButton.addEventListener('click', function() {
     durationSelect.selectedIndex = 0;
-    selectedDate = null;
+    selectedStartDate = null;
+    selectedEndDate = null;
 
-    // Réinitialiser le formulaire
+    // Réinitialiser le formulaire et les dates affichées
     formContainer.innerHTML = '';
+    startDateDisplay.textContent = 'Aucune';
+    endDateDisplay.textContent = 'Aucune';
 
     // Réinitialiser les boutons du calendrier
     availableDays.forEach(button => {
@@ -136,4 +232,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+
+
 </script>
