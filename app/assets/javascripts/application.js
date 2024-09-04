@@ -110,6 +110,23 @@ function setupDateSelection() {
     const timeInput = document.getElementById('time-select');
     const formContainer = document.getElementById('form-container');
   
+    if (dateInput && timeInput) { // Vérifie que les éléments existent avant d'ajouter des événements
+      dateInput.addEventListener('change', function() {
+        const selectedDate = dateInput.value;
+        const selectedTime = timeInput.value;
+        fetchFormWithTimeSlots(selectedDate, selectedTime);
+      });
+  
+      timeInput.addEventListener('change', function() {
+        const selectedDate = dateInput.value;
+        const selectedTime = timeInput.value;
+        fetchFormWithTimeSlots(selectedDate, selectedTime);
+      });
+    } else {
+      console.error("L'élément avec l'ID 'date-select' ou 'time-select' est manquant dans le DOM.");
+    }
+  });
+  
     // Fonction pour récupérer les heures avant et après l'heure sélectionnée
     function fetchFormWithTimeSlots(date, time) {
       if (!date || !time) return;
@@ -139,7 +156,7 @@ function setupDateSelection() {
       const selectedTime = timeInput.value;
       fetchFormWithTimeSlots(selectedDate, selectedTime);
     });
-  });
+  
   
 
 

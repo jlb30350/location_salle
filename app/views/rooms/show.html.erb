@@ -44,7 +44,7 @@
               <span class="reserved-date"><%= date.day %></span>
             <% else %>
               <% if date >= Date.today %>
-                <button class="btn btn-success available-day" data-date="<%= date %>"><%= date.day %></button>
+                <button class="btn btn-success available-day" data-date="<%= date %>" data-day="<%= date.wday %>"><%= date.day %></button>
               <% else %>
                 <span><%= date.day %></span>
               <% end %>
@@ -80,9 +80,6 @@
   </div>
 </div>
 
-
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const durationSelect = document.getElementById('duration-select');
@@ -95,14 +92,11 @@ document.addEventListener("DOMContentLoaded", function() {
   let selectedEndDate = null;
 
   // Fonction pour afficher un formulaire en fonction de la durée et des dates
-
   function displayForm(duration, startDate, endDate) {
     if (!duration || !startDate) return;
 
-    // Met à jour les informations du formulaire dans le conteneur de message (phrase unique)
-    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du ${startDate}`;
+    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
 
-    // Effectuer la requête AJAX pour récupérer le formulaire partiel sans inclure la phrase répétée
     fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}`, {
       method: 'GET',
       headers: {
@@ -111,11 +105,10 @@ document.addEventListener("DOMContentLoaded", function() {
     })
     .then(response => response.text())
     .then(html => {
-      formContainer.innerHTML = html;  // Insère uniquement le formulaire, sans la phrase répétée
+      formContainer.innerHTML = html;
     })
     .catch(error => console.error('Erreur:', error));
-}
-
+  }
 
   // Fonction pour générer le message de durée
   function getDurationMessage(duration) {
@@ -144,61 +137,50 @@ document.addEventListener("DOMContentLoaded", function() {
     button.addEventListener('click', function() {
       const selectedDate = this.getAttribute('data-date');
       const selectedDuration = durationSelect.value;
+      const dayOfWeek = this.getAttribute('data-day'); // Récupère le jour de la semaine (0 = dimanche, 6 = samedi)
 
-      if (selectedDuration === 'multiple_days' && !selectedStartDate) {
+      // Gestion des différents types de durées
+      if (selectedDuration === 'weekend') {
+        if (dayOfWeek != 6) { // 6 correspond au samedi dans JavaScript
+          alert("Veuillez sélectionner un samedi pour réserver un week-end.");
+          return;
+        }
         selectedStartDate = selectedDate;
-        startDateDisplay.textContent = selectedStartDate;
-        endDateDisplay.textContent = 'Aucune';
-      } else if (selectedDuration === 'multiple_days' && selectedStartDate) {
-        selectedEndDate = selectedDate;
-
-        const startDateObj = new Date(selectedStartDate);
-        const endDateObj = new Date(selectedEndDate);
-        const diffTime = Math.abs(endDateObj - startDateObj);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays > 6) {
-          alert("Vous ne pouvez pas sélectionner une période de plus de 6 jours. Veuillez recommencer.");
-          selectedStartDate = null;
-          selectedEndDate = null;
-          startDateDisplay.textContent = 'Aucune';
+        selectedEndDate = new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() + 1)).toISOString().split('T')[0]; // Dimanche suivant
+      } else if (selectedDuration === 'multiple_days') {
+        if (!selectedStartDate) {
+          selectedStartDate = selectedDate;
+          startDateDisplay.textContent = selectedStartDate;
           endDateDisplay.textContent = 'Aucune';
         } else {
-          endDateDisplay.textContent = selectedEndDate;
+          selectedEndDate = selectedDate;
+          const startDateObj = new Date(selectedStartDate);
+          const endDateObj = new Date(selectedEndDate);
+          const diffDays = (endDateObj - startDateObj) / (1000 * 60 * 60 * 24);
+
+          if (diffDays > 6) {
+            alert("La sélection ne doit pas dépasser 6 jours. Veuillez recommencer.");
+            selectedStartDate = null;
+            selectedEndDate = null;
+          }
         }
       } else if (selectedDuration === 'week') {
         selectedStartDate = selectedDate;
-        const startDateObj = new Date(selectedStartDate);
-        const endDateObj = new Date(startDateObj);
-        endDateObj.setDate(startDateObj.getDate() + 7); // Ajoute 7 jours pour une semaine
-        selectedEndDate = endDateObj.toISOString().split('T')[0];
-
-        startDateDisplay.textContent = selectedStartDate;
-        endDateDisplay.textContent = selectedEndDate;
+        selectedEndDate = new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() + 6)).toISOString().split('T')[0];
       } else if (selectedDuration === 'month') {
         selectedStartDate = selectedDate;
-        const startDateObj = new Date(selectedStartDate);
-        const endDateObj = new Date(startDateObj);
-        endDateObj.setMonth(startDateObj.getMonth() + 1); // Ajoute 1 mois
-        selectedEndDate = endDateObj.toISOString().split('T')[0];
-
-        startDateDisplay.textContent = selectedStartDate;
-        endDateDisplay.textContent = selectedEndDate;
+        selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 1)).toISOString().split('T')[0];
       } else if (selectedDuration === 'year') {
         selectedStartDate = selectedDate;
-        const startDateObj = new Date(selectedStartDate);
-        const endDateObj = new Date(startDateObj);
-        endDateObj.setFullYear(startDateObj.getFullYear() + 1); // Ajoute 1 an
-        selectedEndDate = endDateObj.toISOString().split('T')[0];
-
-        startDateDisplay.textContent = selectedStartDate;
-        endDateDisplay.textContent = selectedEndDate;
+        selectedEndDate = new Date(new Date(selectedDate).setFullYear(new Date(selectedDate).getFullYear() + 1)).toISOString().split('T')[0];
       } else {
         selectedStartDate = selectedDate;
         selectedEndDate = null;
-        startDateDisplay.textContent = selectedStartDate;
-        endDateDisplay.textContent = 'Aucune';
       }
+
+      // Mettre à jour les affichages
+      startDateDisplay.textContent = selectedStartDate;
+      endDateDisplay.textContent = selectedEndDate || 'Aucune';
 
       // Mettre à jour le formulaire en fonction de la date et de la durée choisies
       displayForm(selectedDuration, selectedStartDate, selectedEndDate);
@@ -207,9 +189,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Gérer la modification du choix de la durée
   durationSelect.addEventListener('change', function() {
-    const selectedDuration = durationSelect.value;
     if (selectedStartDate) {
-      displayForm(selectedDuration, selectedStartDate, selectedEndDate);
+      displayForm(durationSelect.value, selectedStartDate, selectedEndDate);
     }
   });
 
@@ -220,18 +201,14 @@ document.addEventListener("DOMContentLoaded", function() {
     selectedStartDate = null;
     selectedEndDate = null;
 
-    // Réinitialiser le formulaire et les dates affichées
     formContainer.innerHTML = '';
     startDateDisplay.textContent = 'Aucune';
     endDateDisplay.textContent = 'Aucune';
 
-    // Réinitialiser les boutons du calendrier
     availableDays.forEach(button => {
       button.classList.remove('btn-primary');
       button.classList.add('btn-success');
     });
   });
 });
-
-
 </script>
