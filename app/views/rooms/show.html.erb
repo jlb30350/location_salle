@@ -92,24 +92,24 @@ document.addEventListener("DOMContentLoaded", function() {
   let selectedEndDate = null;
 
   // Fonction pour afficher un formulaire en fonction de la durée et des dates
-  function displayForm(duration, startDate, endDate) {
-    if (!duration || !startDate) return;
+function displayForm(duration, startDate, endDate) {
+  if (!duration || !startDate) return;
 
-    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
+  messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
 
-    fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}`, {
-      method: 'GET',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.text())
-    .then(html => {
-      formContainer.innerHTML = html;
-    })
-    .catch(error => console.error('Erreur:', error));
-  }
-
+  // Assurez-vous que l'ID de la salle est inclus dans la requête fetch
+  fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
+    method: 'GET',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.text())
+  .then(html => {
+    formContainer.innerHTML = html;
+  })
+  .catch(error => console.error('Erreur:', error));
+}
   // Fonction pour générer le message de durée
   function getDurationMessage(duration) {
     switch (duration) {
@@ -211,4 +211,29 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+
+
+  function displayForm(duration, startDate, endDate) {
+    if (!duration || !startDate) return;
+
+    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
+
+    // Modification pour inclure l'ID de la salle dans la requête
+    fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      formContainer.innerHTML = html;
+    })
+    .catch(error => console.error('Erreur:', error));
+  }
+
+
+
+
+
 </script>

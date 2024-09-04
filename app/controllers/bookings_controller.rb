@@ -12,7 +12,7 @@ class BookingsController < ApplicationController
       phone: params[:phone],
       email: params[:email],
       duration: params[:duration],
-      start_time: params[:start_time],   # Ajouter ces paramètres pour les réservations horaires
+      start_time: params[:start_time],
       end_time: params[:end_time]
     )
     Rails.logger.debug "New Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
@@ -22,16 +22,26 @@ class BookingsController < ApplicationController
   def create
     @booking = @room.bookings.new(booking_params)
     @booking.user = current_user
-  
-    if @booking.duration == 'one_day'
+
+    case @booking.duration
+    when 'one_day'
       @booking.end_date = @booking.start_date
-    elsif @booking.duration == 'multiple_days'
+    when 'multiple_days'
+      # Vérifier si la durée dépasse 6 jours
       if (@booking.end_date - @booking.start_date).to_i > 6
         flash.now[:alert] = "La durée maximale pour '2 à 6 jours' est de 6 jours."
         render :new and return
       end
+    when 'week'
+      # S'assurer que la date de fin correspond à 7 jours après la date de début
+      @booking.end_date = @booking.start_date + 6.days
+    when 'month'
+      @booking.end_date = @booking.start_date + 1.month
+    when 'year'
+      @booking.end_date = @booking.start_date + 1.year
     end
-  
+
+    # Vérifier les disponibilités des dates
     if dates_available?(@booking.start_date, @booking.end_date)
       if @booking.save
         redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Réservation créée avec succès.'
@@ -45,35 +55,7 @@ class BookingsController < ApplicationController
     end
   end
 
-  # Éditer une réservation existante
-  def edit
-    # Cette action rend le formulaire d'édition avec les détails actuels de la réservation.
-    Rails.logger.debug "Editing Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
-  end
-
-  # Mettre à jour une réservation existante
-  def update
-    Rails.logger.debug "Updating Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
-
-    if dates_available?(booking_params[:start_date], booking_params[:end_date])
-      if @booking.update(booking_params)
-        redirect_to room_path(@room), notice: 'Réservation mise à jour avec succès.'
-      else
-        flash.now[:alert] = 'Il y a eu des erreurs lors de la mise à jour de votre réservation.'
-        render :edit
-      end
-    else
-      flash.now[:alert] = "Les nouvelles dates choisies ne sont pas disponibles."
-      render :edit
-    end
-  end
-
-  # Supprimer une réservation
-  def destroy
-    @booking.destroy
-    redirect_to room_path(@room), notice: 'Réservation supprimée avec succès.'
-  end
-
+  # Méthodes privées
   private
 
   def set_room
@@ -89,7 +71,6 @@ class BookingsController < ApplicationController
   end
 
   def dates_available?(start_date, end_date)
-    # Rechercher des réservations qui chevauchent la période demandée
     overlapping_bookings = @room.bookings.where.not(id: @booking.try(:id))
                                          .where("start_date < ? AND end_date > ?", end_date, start_date)
     overlapping_bookings.empty?

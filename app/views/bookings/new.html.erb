@@ -54,8 +54,11 @@
 
 <%= link_to 'Annuler', availability_room_path(@room), class: 'btn btn-secondary' %>
 <%= link_to 'Supprimer', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr ?' }, class: 'btn btn-danger' if @booking.persisted? %>
+<%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' if @room.present? %>
 
-<script>
+
+
+
 document.addEventListener("DOMContentLoaded", function() {
   const durationSelect = document.getElementById('duration-select');
   const startDateField = document.getElementById('start-date');
@@ -65,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
   durationSelect.addEventListener('change', function() {
     const selectedDuration = durationSelect.value;
 
+    // Logique pour les réservations d'une heure
     if (selectedDuration === 'hour') {
       timeFields.style.display = 'block'; // Afficher les champs d'heure
       endDateField.style.display = 'none'; // Cacher les champs de date de fin
@@ -74,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
     } else if (['multiple_days', 'weekend', 'week', 'month', 'year'].includes(selectedDuration)) {
       timeFields.style.display = 'none'; // Cacher les champs d'heure
       endDateField.style.display = 'block'; // Afficher les champs de date de fin
-      
+
       // Calculer la date de fin automatiquement
       const startDate = new Date(startDateField.value);
       let endDate = new Date(startDate);
@@ -82,9 +86,9 @@ document.addEventListener("DOMContentLoaded", function() {
       if (selectedDuration === 'multiple_days') {
         endDate.setDate(startDate.getDate() + 5); // 2 à 6 jours
       } else if (selectedDuration === 'weekend') {
-        endDate.setDate(startDate.getDate() + 2); // Week-end : ajouter 2 jours
+        endDate.setDate(startDate.getDate() + 1); // Week-end : Dimanche (1 jour après Samedi)
       } else if (selectedDuration === 'week') {
-        endDate.setDate(startDate.getDate() + 7); // Semaine : ajouter 7 jours
+        endDate.setDate(startDate.getDate() + 6); // Semaine : ajouter 6 jours
       } else if (selectedDuration === 'month') {
         endDate.setMonth(startDate.getMonth() + 1); // Mois : ajouter 1 mois
       } else if (selectedDuration === 'year') {
@@ -95,5 +99,3 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 });
-
-</script>

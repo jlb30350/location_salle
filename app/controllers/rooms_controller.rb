@@ -87,9 +87,10 @@ class RoomsController < ApplicationController
   end
 
   def get_form
+    @room = Room.find(params[:room_id]) # Trouver la salle par ID
     duration = params[:duration]
-    date = params[:date]
-
+    date = params[:start_date]
+  
     case duration
     when 'hour'
       @message = "Formulaire pour une réservation d'une heure le #{date}"
@@ -108,9 +109,10 @@ class RoomsController < ApplicationController
     else
       @message = "Formulaire par défaut"
     end
-
+  
     render partial: 'form_partial', locals: { message: @message }
   end
+  
 
   def availability
     begin

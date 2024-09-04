@@ -1,10 +1,6 @@
-<!-- app/views/rooms/_form_partial.html.erb -->
 <div class="form-message">
-  <!-- Supprimer cette ligne -->
-  <!-- <p><%= message %></p> -->
-
   <!-- Ajoutez ici votre formulaire en fonction de la durée et de la date -->
-  <form action="/reservations/new" method="get">
+  <%= form_with url: new_room_booking_path(@room), method: :get do %>
     <input type="hidden" name="date" value="<%= params[:date] %>">
     <input type="hidden" name="duration" value="<%= params[:duration] %>">
     
@@ -15,5 +11,5 @@
     <% end %>
 
     <button type="submit" class="btn btn-primary">Réserver</button>
-  </form>
+  <% end %> <!-- Fermeture correcte de form_with -->
 </div>

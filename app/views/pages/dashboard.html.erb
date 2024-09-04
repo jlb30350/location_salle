@@ -14,7 +14,8 @@
 
 <!-- Vérifie si @room est défini avant d'afficher le lien -->
 <% if @room %>
-  <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
+  <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' if @room.present? %>
+
 <% else %>
   <%= link_to 'Chercher une salle', rooms_path, class: 'btn btn-primary' %>
 <% end %>

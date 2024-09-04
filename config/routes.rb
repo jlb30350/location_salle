@@ -20,9 +20,8 @@ Rails.application.routes.draw do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
   end
 
-  # Routes pour les avis et les réservations
+  # Routes pour les avis
   resources :reviews, only: [:create]
-  resources :reservations, only: [:index, :show, :edit, :update, :destroy]
 
   # Routes pour les chambres, réservations et paiements
   resources :rooms do
@@ -37,6 +36,7 @@ Rails.application.routes.draw do
       get 'bookings'
     end
 
+    # Imbrication des routes pour les réservations (bookings) et les paiements (payments)
     resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
       collection do
         get 'availability', to: 'bookings#availability'
