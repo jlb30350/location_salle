@@ -55,6 +55,31 @@ class BookingsController < ApplicationController
     end
   end
 
+  # Modifier une réservation
+  def edit
+    # Le rappel set_booking est exécuté avant cette action, donc @booking est déjà défini
+  end
+
+  # Mettre à jour une réservation
+  def update
+    if @booking.update(booking_params)
+      redirect_to room_path(@room), notice: 'Réservation mise à jour avec succès.'
+    else
+      flash.now[:alert] = 'Il y a eu des erreurs lors de la mise à jour de la réservation.'
+      render :edit
+    end
+  end
+
+  # Supprimer une réservation
+  def destroy
+    if @booking.destroy
+      redirect_to room_path(@room), notice: 'Réservation supprimée avec succès.'
+    else
+      flash[:alert] = 'La suppression de la réservation a échoué.'
+      redirect_to room_path(@room)
+    end
+  end
+
   # Méthodes privées
   private
 
