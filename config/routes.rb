@@ -40,11 +40,18 @@ Rails.application.routes.draw do
     resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
       collection do
         get 'availability', to: 'bookings#availability'
+        get 'rooms/:id/availability', to: 'rooms#availability', as: 'room_availability'
         get 'events', to: 'bookings#events'
       end
       resources :payments, only: [:new, :create]
     end
   end
+
+  # Route pour charger les créneaux horaires via une méthode AJAX
+  get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots
+
+  # Route pour charger dynamiquement un formulaire basé sur la durée et la date
+  get 'get_form', to: 'rooms#get_form', as: :get_form
 
   # Route pour le changement de rôle utilisateur
   post 'switch_role', to: 'users#switch_role', as: :switch_role

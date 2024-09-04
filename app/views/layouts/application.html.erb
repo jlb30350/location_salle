@@ -13,6 +13,17 @@
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
   <%= stylesheet_link_tag 'calendar', media: 'all', 'data-turbo-track': 'reload' %>
 
+   <style>
+    .unavailable {
+      background-color: #ffcccc; /* Rouge clair pour les jours non disponibles */
+      cursor: not-allowed;
+    }
+
+    .unavailable .reserved-date {
+      color: #ff0000; /* Rouge pour le texte */
+    }
+  </style>
+
   <!-- Bootstrap -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 

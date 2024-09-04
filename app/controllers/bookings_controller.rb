@@ -1,92 +1,69 @@
 class BookingsController < ApplicationController
-  before_action :set_room, only: [:availability, :new, :create, :edit, :update, :destroy]
+  before_action :set_room, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_booking, only: [:edit, :update, :destroy]
-
-  # Affiche le calendrier de disponibilité
-  def availability
-    @year = (params[:year] || Date.today.year).to_i
-    @month = (params[:month] || Date.today.month).to_i
-
-    # Récupération des réservations pour le mois donné
-    first_day_of_month = Date.new(@year, @month, 1)
-    last_day_of_month = first_day_of_month.end_of_month
-
-    @bookings = @room.bookings.where("start_date <= ? AND end_date >= ?", last_day_of_month, first_day_of_month)
-    Rails.logger.debug("Réservations récupérées pour #{@month}/#{@year} : #{@bookings.inspect}")
-  end
 
   # Nouvelle réservation
   def new
-    @room = Room.find(params[:room_id])
-  
-    # Log pour vérifier les valeurs de params
-    Rails.logger.debug "Params start date: #{params[:start_date]}, Params end date: #{params[:end_date]}"
-  
-    # Initialisation de la réservation
     @booking = @room.bookings.new(
+      start_date: params[:start_date],
+      end_date: params[:end_date],
       number_of_guests: params[:number_of_guests],
       address: params[:address],
       phone: params[:phone],
       email: params[:email],
-      duration: params[:duration]
+      duration: params[:duration],
+      start_time: params[:start_time],   # Ajouter ces paramètres pour les réservations horaires
+      end_time: params[:end_time]
     )
-
-    # Vérification que les dates sont présentes et les convertir
-    if params[:start_date].present? && params[:end_date].present?
-      begin
-        @booking.start_date = Date.parse(params[:start_date])
-        @booking.end_date = Date.parse(params[:end_date])
-      rescue ArgumentError => e
-        Rails.logger.debug "Erreur de conversion de date: #{e.message}"
-        flash.now[:alert] = "Les dates fournies ne sont pas valides."
-        render :new and return
-      end
-    else
-      Rails.logger.debug "Les dates ne sont pas présentes dans les paramètres"
-    end
-
-    # Log pour vérifier les dates après conversion
-    Rails.logger.debug "Booking start date: #{@booking.start_date}, Booking end date: #{@booking.end_date}"
+    Rails.logger.debug "New Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
   end
 
   # Créer une réservation
   def create
-    Rails.logger.debug "Start date: #{params[:booking][:start_date]}, End date: #{params[:booking][:end_date]}"
-
-    @booking = current_user.bookings.new(booking_params)
-    @booking.room = @room
-
+    @booking = @room.bookings.new(booking_params)
+    @booking.user = current_user
+  
+    if @booking.duration == 'one_day'
+      @booking.end_date = @booking.start_date
+    elsif @booking.duration == 'multiple_days'
+      if (@booking.end_date - @booking.start_date).to_i > 6
+        flash.now[:alert] = "La durée maximale pour '2 à 6 jours' est de 6 jours."
+        render :new and return
+      end
+    end
+  
     if dates_available?(@booking.start_date, @booking.end_date)
       if @booking.save
-        BookingMailer.booking_confirmation(@booking).deliver_now
-        redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Réservation créée avec succès. Veuillez vérifier votre email pour le devis et procéder au paiement.'
-        return # Assurez-vous que l'action se termine après la redirection
+        redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Réservation créée avec succès.'
       else
-        Rails.logger.debug @booking.errors.full_messages.join(", ")
         flash.now[:alert] = 'Il y a eu des erreurs lors de la création de votre réservation.'
         render :new
       end
     else
-      flash.now[:alert] = "Les dates choisies ne sont pas disponibles."
+      flash.now[:alert] = "Les dates choisies ne sont pas disponibles. Veuillez sélectionner une autre période."
       render :new
     end
   end
 
-  # Modifier une réservation
+  # Éditer une réservation existante
   def edit
+    # Cette action rend le formulaire d'édition avec les détails actuels de la réservation.
+    Rails.logger.debug "Editing Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
   end
 
-  # Mettre à jour une réservation
+  # Mettre à jour une réservation existante
   def update
-    if dates_available?(@booking.start_date, @booking.end_date) || (@booking.start_date == booking_params[:start_date] && @booking.end_date == booking_params[:end_date])
+    Rails.logger.debug "Updating Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
+
+    if dates_available?(booking_params[:start_date], booking_params[:end_date])
       if @booking.update(booking_params)
-        redirect_to room_availability_path(@room), notice: 'Réservation mise à jour avec succès.'
+        redirect_to room_path(@room), notice: 'Réservation mise à jour avec succès.'
       else
         flash.now[:alert] = 'Il y a eu des erreurs lors de la mise à jour de votre réservation.'
         render :edit
       end
     else
-      flash.now[:alert] = 'Les nouvelles dates sélectionnées ne sont pas disponibles.'
+      flash.now[:alert] = "Les nouvelles dates choisies ne sont pas disponibles."
       render :edit
     end
   end
@@ -94,25 +71,13 @@ class BookingsController < ApplicationController
   # Supprimer une réservation
   def destroy
     @booking.destroy
-    redirect_to room_availability_path(@room), notice: 'Réservation supprimée avec succès.'
-  end
-
-  # Afficher une réservation
-  def show
-    @booking = Booking.find(params[:id])
-    respond_to do |format|
-      format.html
-      format.pdf do
-        pdf = DevisPdfGenerator.new(@booking).render
-        send_data pdf, filename: "devis_#{@booking.id}.pdf", type: 'application/pdf', disposition: 'inline'
-      end
-    end
+    redirect_to room_path(@room), notice: 'Réservation supprimée avec succès.'
   end
 
   private
 
   def set_room
-    @room = Room.find(params[:room_id] || params[:id])
+    @room = Room.find(params[:room_id])
   end
 
   def set_booking
@@ -120,10 +85,13 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:start_date, :end_date, :number_of_guests, :address, :phone, :email, :duration)
+    params.require(:booking).permit(:start_date, :end_date, :start_time, :end_time, :number_of_guests, :duration, :total_amount, :address, :phone, :email)
   end
 
   def dates_available?(start_date, end_date)
-    @room.bookings.where.not(id: @booking.try(:id)).where("start_date <= ? AND end_date >= ?", end_date, start_date).empty?
+    # Rechercher des réservations qui chevauchent la période demandée
+    overlapping_bookings = @room.bookings.where.not(id: @booking.try(:id))
+                                         .where("start_date < ? AND end_date > ?", end_date, start_date)
+    overlapping_bookings.empty?
   end
 end

@@ -1,44 +1,32 @@
 class RoomsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :search, :bookings]
   before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo, :delete_additional_photo, :availability, :bookings]
-
-  # Actions spécifiques au bailleur
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
-
-  # Vérifie si l'utilisateur est propriétaire avant certaines actions
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo, :delete_additional_photo]
-
-  # Vérifie que l'utilisateur est soit bailleur, soit autorisé à voir la salle en fonction de sa visibilité
   before_action :ensure_bailleur_or_correct_visibility, only: [:show]
 
-  # Affiche la liste des salles
   def index
     @rooms = if user_signed_in? && current_user.bailleur?
-               current_user.rooms
-             else
-               Room.where(is_public: true)
-             end
+              current_user.rooms
+            else
+              Room.where(is_public: true)
+            end
   end
 
-  # Affiche les salles de l'utilisateur
   def my_rooms
     @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
     render :index
   end
 
-  # Affiche une salle en détail
   def show
-    if @room
-      # Informations de base accessibles à tous
-      @basic_info = {
-        name: @room.name,
-        city: @room.city,
-        department: @room.department,
-        capacity: @room.capacity
-      }
+    @room = Room.find(params[:id])
+    Rails.logger.debug "Room found: #{@room.inspect}"
 
+    if @room
+      @booking = @room.bookings.new
+
+      # Informations supplémentaires pour les utilisateurs connectés
       if user_signed_in?
-        # Informations supplémentaires pour les utilisateurs connectés
         @detailed_info = {
           address: @room.address,
           surface: @room.surface,
@@ -54,21 +42,24 @@ class RoomsController < ApplicationController
       end
 
       # Gestion des mois pour le calendrier
-      @year = params[:year] ? params[:year].to_i : Date.today.year
-      @month = params[:month] ? params[:month].to_i : Date.today.month
+      begin
+        @year = params[:year] ? params[:year].to_i : Date.today.year
+        @month = params[:month] ? params[:month].to_i : Date.today.month
 
-      first_day_of_month = Date.new(@year, @month, 1)
-      last_day_of_month = first_day_of_month.end_of_month
+        first_day_of_month = Date.new(@year, @month, 1)
+        last_day_of_month = first_day_of_month.end_of_month
 
-      # Récupération des réservations pour le calendrier sur le mois affiché
-      @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+        # Récupération des réservations pour le calendrier sur le mois affiché
+        @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+      rescue ArgumentError => e
+        flash[:alert] = "Date invalide"
+        redirect_to rooms_path and return
+      end
     else
-      redirect_to rooms_path, alert: 'Salle non trouvée.'
+      redirect_to rooms_path, alert: 'Salle non trouvée.' and return
     end
   end
 
-  
-  # Crée ou met à jour une réservation
   def create_or_update_booking
     booking = params[:id] ? Booking.find(params[:id]) : @room.bookings.new(user: current_user)
     booking.assign_attributes(start_date: params[:start_date], end_date: params[:end_date])
@@ -80,6 +71,18 @@ class RoomsController < ApplicationController
     end
   end
 
+  def get_time_slots
+    selected_time = params[:time]
+    selected_date = params[:date]
+
+    # Calcule les heures avant et après l'heure sélectionnée
+    time_before = (Time.parse(selected_time) - 1.hour).strftime('%H:%M')
+    time_after = (Time.parse(selected_time) + 1.hour).strftime('%H:%M')
+
+    # Rends un formulaire avec les créneaux horaires avant et après
+    render partial: 'time_slots_form', locals: { date: selected_date, time_before: time_before, time_after: time_after }
+  end
+
   def bookings
     @bookings = @room.bookings
     respond_to do |format|
@@ -87,31 +90,66 @@ class RoomsController < ApplicationController
       format.json { render json: @bookings }
     end
   end
-  
+
+  def get_form
+    duration = params[:duration]
+    date = params[:date]
+
+    # Créer des variables selon la logique que vous souhaitez appliquer
+    # Par exemple : Si la durée est de 1 heure ou un jour, etc.
+    case duration
+    when 'hour'
+      @message = "Formulaire pour une réservation d'une heure le #{date}"
+    when 'day'
+      @message = "Formulaire pour une réservation d'un jour le #{date}"
+    when 'multiple_days'
+      @message = "Formulaire pour une réservation de plusieurs jours à partir du #{date}"
+    when 'weekend'
+      @message = "Formulaire pour un week-end à partir du #{date}"
+    when 'week'
+      @message = "Formulaire pour une semaine à partir du #{date}"
+    when 'month'
+      @message = "Formulaire pour un mois à partir du #{date}"
+    when 'year'
+      @message = "Formulaire pour un an à partir du #{date}"
+    else
+      @message = "Formulaire par défaut"
+    end
+
+    # Rendre un partial ou renvoyer du HTML en fonction de la durée et de la date
+    render partial: 'form_partial', locals: { message: @message }
+  end
+end
+
   def availability
-    @year = params[:year] ? params[:year].to_i : Date.today.year
-    @month = params[:month] ? params[:month].to_i : Date.today.month
+    begin
+      @year = params[:year] ? params[:year].to_i : Date.today.year
+      @month = params[:month] ? params[:month].to_i : Date.today.month
 
-    first_day_of_month = Date.new(@year, @month, 1)
-    last_day_of_month = first_day_of_month.end_of_month
+      first_day_of_month = Date.new(@year, @month, 1)
+      last_day_of_month = first_day_of_month.end_of_month
 
-    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+      @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+
+      @booking = @room.bookings.new # Initialisation de la variable @booking pour le formulaire
+    rescue ArgumentError => e
+      flash[:alert] = "Date invalide"
+      redirect_to rooms_path
+    end
+
     render :show
   end
 
-  # Supprime une réservation
   def destroy_booking
     booking = Booking.find(params[:id])
     booking.destroy
     render json: { success: true }
   end
 
-  # Action pour créer une nouvelle salle
   def new
     @room = Room.new
   end
 
-  # Action pour enregistrer une nouvelle salle
   def create
     @room = current_user.rooms.new(room_params)
     if @room.save
@@ -122,11 +160,9 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Action pour éditer une salle
   def edit
   end
 
-  # Action pour mettre à jour une salle
   def update
     if @room.update(room_params)
       if params[:room][:main_photo].present?
@@ -138,7 +174,6 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Action pour supprimer une salle
   def destroy
     if @room.destroy
       redirect_to rooms_url, notice: 'La salle a été supprimée avec succès.'
@@ -147,7 +182,6 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Action pour supprimer une photo principale
   def delete_photo
     if @room.main_photo&.purge
       redirect_to edit_room_path(@room), notice: 'Photo supprimée avec succès.'
@@ -156,7 +190,6 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Action pour supprimer une photo supplémentaire
   def delete_additional_photo
     photo = @room.additional_photos.find(params[:photo_id])
     if photo.present?
@@ -167,18 +200,17 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Action pour rechercher des salles
   def search
     session[:search_query] = params[:query] if params[:query].present?
     @rooms = if params[:query].present?
-               if params[:query].match?(/^\d{5}$/)
-                 Room.where(department: params[:query])
-               else
-                 Room.where("LOWER(city) LIKE ?", "%#{params[:query].downcase}%")
-               end
-             else
-               Room.none
-             end
+              if params[:query].match?(/^\d{5}$/)
+                Room.where(department: params[:query])
+              else
+                Room.where("LOWER(city) LIKE ?", "%#{params[:query].downcase}%")
+              end
+            else
+              Room.none
+            end
     render :search
   end
 
@@ -210,9 +242,7 @@ class RoomsController < ApplicationController
   end
 
   def ensure_bailleur_or_correct_visibility
-    unless room_visible_to_current_user?(@room)
-      redirect_to root_path, alert: "Accès non autorisé"
-    end
+    redirect_to root_path, alert: "Accès non autorisé" unless room_visible_to_current_user?(@room)
   end
 
   def room_visible_to_current_user?(room)

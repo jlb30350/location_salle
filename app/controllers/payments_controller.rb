@@ -2,20 +2,26 @@ class PaymentsController < ApplicationController
   before_action :set_booking
 
   def new
+    if Rails.application.credentials.stripe.blank?
+      raise "Stripe credentials not found. Please check your credentials file."
+    end
+
     @amount = @booking.total_amount
-    @stripe_publishable_key = Rails.application.credentials.stripe[:publishable_key] # Utilisation de la clé Stripe publique
+    @stripe_publishable_key = Rails.application.credentials.stripe[:publishable_key]
   end
 
   def create
-    Stripe.api_key = Rails.application.credentials.stripe[:secret_key] # Utilisation de la clé Stripe secrète
-    # Code de paiement Stripe ici
-    # Assurez-vous que le stripeToken est présent dans les paramètres
+    if Rails.application.credentials.stripe[:secret_key].blank?
+      raise "Stripe secret key not set. Please check your credentials file."
+    end
+
+    Stripe.api_key = Rails.application.credentials.stripe[:secret_key]
+
     if params[:stripeToken].blank?
       flash[:error] = "Une erreur s'est produite avec votre carte, veuillez réessayer."
       return redirect_to new_room_booking_payment_path(@booking.room, @booking)
     end
 
-    # Traitement du paiement via Stripe
     begin
       charge = Stripe::Charge.create(
         amount: (@booking.total_amount * 100).to_i, # Montant en centimes
@@ -41,6 +47,6 @@ class PaymentsController < ApplicationController
 
   def set_booking
     @booking = Booking.find(params[:booking_id])
-    @room = @booking.room # Ajoutez cette ligne pour définir @room
+    @room = @booking.room
   end
 end

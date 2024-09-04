@@ -1,40 +1,99 @@
 <h2><%= @booking.persisted? ? 'Modifier' : 'Nouvelle' %> Réservation</h2>
 
-<%= form_with(model: [@room, @booking]) do |f| %>
-  
-  <div class="form-group">
-    <%= f.label :start_date, 'Date de début' %>
-    <%= f.date_field :start_date, class: 'form-control', value: params[:start_date] || @booking.start_date %>
+<% if @booking.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@booking.errors.count, "erreur") %> trouvée(s) :</h2>
+    <ul>
+      <% @booking.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
   </div>
-  <div class="form-group">
-    <%= f.label :end_date, 'Date de fin' %>
-    <%= f.date_field :end_date, class: 'form-control', value: params[:end_date] || @booking.end_date %>
-  </div>
+<% end %>
 
-  <div class="form-group">
-    <%= f.label :number_of_guests, 'Nombre de participants' %>
-    <%= f.number_field :number_of_guests, class: 'form-control', min: 1, value: @booking.number_of_guests || params[:number_of_guests] %>
-  </div>
-  <div class="form-group">
-    <%= f.label :address, 'Adresse' %>
-    <%= f.text_field :address, class: 'form-control', value: @booking.address || params[:address] %>
-  </div>
-  <div class="form-group">
-    <%= f.label :phone, 'Téléphone' %>
-    <%= f.telephone_field :phone, class: 'form-control', value: @booking.phone || params[:phone] %>
-  </div>
-  <div class="form-group">
-    <%= f.label :email, 'E-mail' %>
-    <%= f.email_field :email, class: 'form-control', value: @booking.email || params[:email] %>
-  </div>
-  <div class="form-group">
-    <%= f.label :duration, 'Durée' %>
-    <%= f.select :duration, Booking.durations.keys.map { |d| [d.humanize, d] }, class: 'form-control', selected: @booking.duration || params[:duration] %>
-  </div>
-  <div class="form-group">
-    <%= f.submit 'Enregistrer', class: 'btn btn-primary' %>
+<%= form_with(model: [@room, @booking]) do |f| %>
+  <div class="reservation-container">
+    <h2>Réserver une salle</h2>
+
+    <!-- Menu déroulant pour choisir la durée -->
+    <div class="form-group">
+      <%= f.label :duration, 'Choisissez la durée' %>
+      <%= f.select :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], ['Week-end', 'weekend'], ['Semaine', 'week'], ['Mois', 'month'], ['Année', 'year']]), class: 'form-control', id: 'duration-select' %>
+    </div>
+
+    <!-- Formulaire de réservation -->
+    <div id="booking-form">
+      <div class="form-group">
+        <%= f.label :start_date, 'Date de début' %>
+        <%= f.date_field :start_date, class: 'form-control', id: 'start-date' %>
+      </div>
+
+      <div class="form-group" id="end-date-field" style="display:none;">
+        <%= f.label :end_date, 'Date de fin' %>
+        <%= f.date_field :end_date, class: 'form-control', id: 'end-date' %>
+      </div>
+
+      <div class="form-group" id="time-fields" style="display:none;">
+        <%= f.label :start_time, 'Heure de début' %>
+        <%= f.time_field :start_time, class: 'form-control' %>
+        <%= f.label :end_time, 'Heure de fin' %>
+        <%= f.time_field :end_time, class: 'form-control' %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :number_of_guests, 'Nombre de participants' %>
+        <%= f.number_field :number_of_guests, class: 'form-control' %>
+      </div>
+
+      <div class="form-group">
+        <%= f.submit 'Réserver', class: 'btn btn-primary' %>
+      </div>
+    </div>
   </div>
 <% end %>
 
 <%= link_to 'Annuler', availability_room_path(@room), class: 'btn btn-secondary' %>
 <%= link_to 'Supprimer', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr ?' }, class: 'btn btn-danger' if @booking.persisted? %>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const durationSelect = document.getElementById('duration-select');
+  const startDateField = document.getElementById('start-date');
+  const endDateField = document.getElementById('end-date-field');
+  const timeFields = document.getElementById('time-fields');
+
+  durationSelect.addEventListener('change', function() {
+    const selectedDuration = durationSelect.value;
+
+    if (selectedDuration === 'hour') {
+      timeFields.style.display = 'block'; // Afficher les champs d'heure
+      endDateField.style.display = 'none'; // Cacher les champs de date de fin
+    } else if (selectedDuration === 'day') {
+      timeFields.style.display = 'none'; // Cacher les champs d'heure
+      endDateField.style.display = 'none'; // Cacher les champs de date de fin
+    } else if (['multiple_days', 'weekend', 'week', 'month', 'year'].includes(selectedDuration)) {
+      timeFields.style.display = 'none'; // Cacher les champs d'heure
+      endDateField.style.display = 'block'; // Afficher les champs de date de fin
+      
+      // Calculer la date de fin automatiquement
+      const startDate = new Date(startDateField.value);
+      let endDate = new Date(startDate);
+
+      if (selectedDuration === 'multiple_days') {
+        endDate.setDate(startDate.getDate() + 5); // 2 à 6 jours
+      } else if (selectedDuration === 'weekend') {
+        endDate.setDate(startDate.getDate() + 2); // Week-end : ajouter 2 jours
+      } else if (selectedDuration === 'week') {
+        endDate.setDate(startDate.getDate() + 7); // Semaine : ajouter 7 jours
+      } else if (selectedDuration === 'month') {
+        endDate.setMonth(startDate.getMonth() + 1); // Mois : ajouter 1 mois
+      } else if (selectedDuration === 'year') {
+        endDate.setFullYear(startDate.getFullYear() + 1); // Année : ajouter 1 an
+      }
+
+      document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
+    }
+  });
+});
+
+</script>

@@ -65,3 +65,10 @@
   flex: 1 0 14%; /* Pour répartir les jours sur 7 colonnes */
   box-sizing: border-box;
 }
+
+
+.past-day {
+  background-color: #d3d3d3; /* Gris clair pour les jours passés */
+  color: #888; /* Texte gris pour les jours passés */
+}
+

@@ -401,3 +401,16 @@ p, li {
   font-family: 'Poppins', sans-serif;
   font-weight: 400;
 }
+
+#error_explanation {
+  color: red;
+  background-color: #f8d7da;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid red;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}

@@ -1,4 +1,4 @@
-<h1>Tableau des reservations</h1>
+<h1>Tableau des réservations</h1>
 
 <p>Date de début : <%= @booking.start_date.strftime('%d/%m/%Y') %></p>
 <p>Date de fin : <%= @booking.end_date.strftime('%d/%m/%Y') %></p>
@@ -12,3 +12,11 @@
 <!-- Ajoutez un lien pour passer au paiement -->
 <%= link_to 'Procéder au paiement', new_room_booking_payment_path(room_id: @room.id, booking_id: @booking.id), class: 'btn btn-primary' %>
 
+<!-- Ajoutez le lien pour modifier la réservation -->
+<%= link_to 'Modifier la réservation', edit_room_booking_path(@room, @booking), class: 'btn btn-secondary' %>
+
+<!-- Ajoutez le lien pour supprimer la réservation -->
+<%= link_to 'Supprimer la réservation', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation?' }, class: 'btn btn-danger' %>
+
+<!-- Lien pour revenir à la liste des réservations ou à la salle -->
+<%= link_to 'Retour à la liste des réservations', room_path(@room), class: 'btn btn-secondary' %>

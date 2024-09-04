@@ -1,0 +1,18 @@
+<!-- app/views/rooms/_form_partial.html.erb -->
+<div class="form-message">
+  <p><%= message %></p>
+
+  <!-- Ajoutez ici votre formulaire en fonction de la durée et de la date -->
+  <form action="/reservations/new" method="get">
+    <input type="hidden" name="date" value="<%= params[:date] %>">
+    <input type="hidden" name="duration" value="<%= params[:duration] %>">
+    
+    <!-- Exemple d'un champ pour une heure de début si la durée est "hour" -->
+    <% if params[:duration] == 'hour' %>
+      <label for="start_time">Sélectionnez une heure de début :</label>
+      <input type="time" id="start_time" name="start_time" class="form-control">
+    <% end %>
+
+    <button type="submit" class="btn btn-primary">Réserver</button>
+  </form>
+</div>
