@@ -12,10 +12,8 @@ Rails.application.routes.draw do
   # Route pour tester Bootstrap
   get 'test_bootstrap', to: 'application#test_bootstrap'
 
-  # Configuration Devise
+  # Configuration Devise pour l'authentification des utilisateurs
   devise_for :users
-
-  # Suppression de compte
   devise_scope :user do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
   end
@@ -23,7 +21,12 @@ Rails.application.routes.draw do
   # Routes pour les avis
   resources :reviews, only: [:create]
 
-  # Routes pour les chambres, réservations et paiements
+  resources :rooms do
+    resources :bookings, only: [:new, :create, :edit, :update, :destroy]
+  end
+  
+
+  # Routes pour les chambres (rooms)
   resources :rooms do
     collection do
       get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
@@ -32,23 +35,16 @@ Rails.application.routes.draw do
     end
 
     member do
-      get 'availability'  # Route spécifique pour afficher la disponibilité d'une chambre
-      get 'bookings'
+      get 'availability'  # Affichage de la disponibilité d'une chambre
     end
 
-    # Imbrication des routes pour les réservations (bookings) et les paiements (payments)
-    resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
-      collection do
-        get 'availability', to: 'bookings#availability'
-        get 'rooms/:id/availability', to: 'rooms#availability', as: 'room_availability'
-        get 'events', to: 'bookings#events'
-      end
-      
+    # Routes imbriquées pour les réservations et les paiements
+    resources :bookings do
       member do
-        post 'finalize', to: 'bookings#finalize_booking', as: 'finalize'  # Nouvelle route pour finaliser la réservation
+        post 'finalize', to: 'bookings#finalize_booking', as: 'finalize'  # Finalisation de la réservation
       end
 
-      resources :payments, only: [:new, :create]
+      resources :payments, only: [:new, :create]  # Routes pour les paiements
     end
   end
 

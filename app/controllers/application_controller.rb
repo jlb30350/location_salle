@@ -3,6 +3,9 @@ class ApplicationController < ActionController::Base
   
   after_action :store_location
 
+  # Ajout de cette ligne pour que Devise permette les nouveaux champs
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   def after_sign_in_path_for(resource)
     # Vérifie s'il y a une recherche en cours dans la session
     if session[:search_query].present?
@@ -20,6 +23,14 @@ class ApplicationController < ActionController::Base
 
   def simple_test
     render plain: "Ceci est un simple test."
+  end
+
+  protected
+
+  # Permettre les paramètres supplémentaires pour Devise (comme first_name, last_name, phone)
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:first_name, :last_name, :phone, :role])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:first_name, :last_name, :phone, :role])
   end
 
   private

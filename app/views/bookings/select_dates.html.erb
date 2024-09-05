@@ -1,0 +1,15 @@
+<h1>Choisissez vos dates</h1>
+
+<%= form_with url: select_dates_room_bookings_path(@room.id), method: :get do %>
+  <div class="form-group">
+    <%= label_tag :start_date, "Date de début" %>
+    <%= date_field_tag :start_date %>
+  </div>
+  <div class="form-group">
+    <%= label_tag :end_date, "Date de fin" %>
+    <%= date_field_tag :end_date %>
+  </div>
+  <div class="form-group">
+    <%= submit_tag "Choisir les dates", class: "btn btn-primary" %>
+  </div>
+<% end %>
