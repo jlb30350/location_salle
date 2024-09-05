@@ -43,6 +43,11 @@ Rails.application.routes.draw do
         get 'rooms/:id/availability', to: 'rooms#availability', as: 'room_availability'
         get 'events', to: 'bookings#events'
       end
+      
+      member do
+        post 'finalize', to: 'bookings#finalize_booking', as: 'finalize'  # Nouvelle route pour finaliser la réservation
+      end
+
       resources :payments, only: [:new, :create]
     end
   end

@@ -1,6 +1,31 @@
 class BookingsController < ApplicationController
-  before_action :set_room, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_booking, only: [:edit, :update, :destroy]
+  before_action :set_room, only: [:new, :create, :edit, :update, :destroy, :finalize_booking]
+  before_action :set_booking, only: [:edit, :update, :destroy, :finalize_booking]
+
+  # Nouvelle méthode pour finaliser la réservation
+  def finalize_booking
+    # Récupération des informations supplémentaires du client (nom, prénom, email, etc.)
+    @booking.assign_attributes(booking_params)
+    
+    if params[:continue] # Si l'utilisateur clique sur "Continuer vers le paiement"
+      if @booking.save
+        redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Réservation créée avec succès. Procédez au paiement.'
+      else
+        flash.now[:alert] = 'Il y a eu des erreurs lors de la finalisation de votre réservation.'
+        render :new
+      end
+    elsif params[:quote] # Si l'utilisateur clique sur "Demander un devis"
+      if @booking.save
+        # Logique pour envoyer un devis par e-mail ou générer un devis
+        redirect_to room_path(@room), notice: 'Demande de devis envoyée avec succès.'
+      else
+        flash.now[:alert] = 'Il y a eu des erreurs lors de la création de votre demande de devis.'
+        render :new
+      end
+    end
+  end
+  
+ 
 
   # Nouvelle réservation
   def new
@@ -15,8 +40,15 @@ class BookingsController < ApplicationController
       start_time: params[:start_time],
       end_time: params[:end_time]
     )
-    Rails.logger.debug "New Booking - start_date: #{@booking.start_date}, end_date: #{@booking.end_date}, start_time: #{@booking.start_time}, end_time: #{@booking.end_time}"
+  
+    if @booking.start_date.present? && @booking.end_date.present?
+      Rails.logger.debug "Nouvelle réservation - start_date : #{@booking.start_date}, end_date : #{@booking.end_date}, start_time : #{@booking.start_time}, end_time : #{@booking.end_time}"
+    else
+      flash.now[:alert] = "Les dates de début et de fin sont obligatoires."
+      render :new and return
+    end
   end
+  
 
   # Créer une réservation
   def create
@@ -92,12 +124,15 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:start_date, :end_date, :start_time, :end_time, :number_of_guests, :duration, :total_amount, :address, :phone, :email)
+    params.require(:booking).permit(:first_name, :last_name, :address, :email, :phone, :number_of_guests, :start_date, :end_date, :duration, :start_time, :end_time, :request_quote)
   end
+  
 
   def dates_available?(start_date, end_date)
     overlapping_bookings = @room.bookings.where.not(id: @booking.try(:id))
-                                         .where("start_date < ? AND end_date > ?", end_date, start_date)
-    overlapping_bookings.empty?
+                                           .where("start_date < ? AND end_date > ?", end_date, start_date)
+    
+    # Cette ligne semble incorrecte. Correction :
+    overlapping_bookings.empty?  # Assurez-vous de renvoyer une valeur booléenne
   end
-end
+end 

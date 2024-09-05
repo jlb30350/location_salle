@@ -1,5 +1,6 @@
-<h2><%= @booking.persisted? ? 'Modifier' : 'Nouvelle' %> Réservation</h2>
+<h2>Finaliser la réservation</h2>
 
+<!-- Affichage des erreurs -->
 <% if @booking.errors.any? %>
   <div id="error_explanation">
     <h2><%= pluralize(@booking.errors.count, "erreur") %> trouvée(s) :</h2>
@@ -11,91 +12,53 @@
   </div>
 <% end %>
 
+<!-- Formulaire pour finaliser la réservation -->
 <%= form_with(model: [@room, @booking]) do |f| %>
-  <div class="reservation-container">
-    <h2>Réserver une salle</h2>
+  <div class="conteneur-de-réservation-finale">
+    <h3>Finaliser la réservation</h3>
 
-    <!-- Menu déroulant pour choisir la durée -->
+    <!-- Récapitulatif des détails de la réservation -->
+    <p>Date de début : <%= @booking.start_date.present? ? @booking.start_date.strftime("%d/%m/%Y") : 'Non spécifiée' %></p>
+    <p>Date de fin : <%= @booking.end_date.present? ? @booking.end_date.strftime("%d/%m/%Y") : 'Non spécifiée' %></p>
+    <p>Durée : <%= @booking.duration %></p>
+    <p>Nombre de participants : <%= @booking.number_of_guests %></p>
+
+    <!-- Informations du client -->
+    <h4>Informations du client</h4>
+
     <div class="form-group">
-      <%= f.label :duration, 'Choisissez la durée' %>
-      <%= f.select :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], ['Week-end', 'weekend'], ['Semaine', 'week'], ['Mois', 'month'], ['Année', 'year']]), class: 'form-control', id: 'duration-select' %>
+      <%= f.label :first_name, 'Prénom' %>
+      <%= f.text_field :first_name, class: 'form-control' %>
     </div>
 
-    <!-- Formulaire de réservation -->
-    <div id="booking-form">
-      <div class="form-group">
-        <%= f.label :start_date, 'Date de début' %>
-        <%= f.date_field :start_date, class: 'form-control', id: 'start-date' %>
-      </div>
+    <div class="form-group">
+      <%= f.label :last_name, 'Nom' %>
+      <%= f.text_field :last_name, class: 'form-control' %>
+    </div>
 
-      <div class="form-group" id="end-date-field" style="display:none;">
-        <%= f.label :end_date, 'Date de fin' %>
-        <%= f.date_field :end_date, class: 'form-control', id: 'end-date' %>
-      </div>
+    <div class="form-group">
+      <%= f.label :email, 'Adresse Email' %>
+      <%= f.email_field :email, class: 'form-control' %>
+    </div>
 
-      <div class="form-group" id="time-fields" style="display:none;">
-        <%= f.label :start_time, 'Heure de début' %>
-        <%= f.time_field :start_time, class: 'form-control' %>
-        <%= f.label :end_time, 'Heure de fin' %>
-        <%= f.time_field :end_time, class: 'form-control' %>
-      </div>
+    <div class="form-group">
+      <%= f.label :phone, 'Numéro de téléphone' %>
+      <%= f.telephone_field :phone, class: 'form-control' %>
+    </div>
 
-      <div class="form-group">
-        <%= f.label :number_of_guests, 'Nombre de participants' %>
-        <%= f.number_field :number_of_guests, class: 'form-control' %>
-      </div>
+    <div class="form-group">
+      <%= f.label :address, 'Adresse' %>
+      <%= f.text_field :address, class: 'form-control' %>
+    </div>
 
-      <div class="form-group">
-        <%= f.submit 'Réserver', class: 'btn btn-primary' %>
-      </div>
+    <!-- Boutons pour continuer vers le paiement ou demander un devis -->
+    <div class="form-group">
+      <%= f.submit 'Continuer vers le paiement', class: 'btn btn-primary', name: 'continue' %>
+      <%= f.submit 'Demander un devis', class: 'btn btn-secondary', name: 'quote' %>
     </div>
   </div>
 <% end %>
 
-<%= link_to 'Annuler', availability_room_path(@room), class: 'btn btn-secondary' %>
-<%= link_to 'Supprimer', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr ?' }, class: 'btn btn-danger' if @booking.persisted? %>
-<%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' if @room.present? %>
-
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-  const durationSelect = document.getElementById('duration-select');
-  const startDateField = document.getElementById('start-date');
-  const endDateField = document.getElementById('end-date-field');
-  const timeFields = document.getElementById('time-fields');
-
-  durationSelect.addEventListener('change', function() {
-    const selectedDuration = durationSelect.value;
-
-    // Logique pour les réservations d'une heure
-    if (selectedDuration === 'hour') {
-      timeFields.style.display = 'block'; // Afficher les champs d'heure
-      endDateField.style.display = 'none'; // Cacher les champs de date de fin
-    } else if (selectedDuration === 'day') {
-      timeFields.style.display = 'none'; // Cacher les champs d'heure
-      endDateField.style.display = 'none'; // Cacher les champs de date de fin
-    } else if (['multiple_days', 'weekend', 'week', 'month', 'year'].includes(selectedDuration)) {
-      timeFields.style.display = 'none'; // Cacher les champs d'heure
-      endDateField.style.display = 'block'; // Afficher les champs de date de fin
-
-      // Calculer la date de fin automatiquement
-      const startDate = new Date(startDateField.value);
-      let endDate = new Date(startDate);
-
-      if (selectedDuration === 'multiple_days') {
-        endDate.setDate(startDate.getDate() + 5); // 2 à 6 jours
-      } else if (selectedDuration === 'weekend') {
-        endDate.setDate(startDate.getDate() + 1); // Week-end : Dimanche (1 jour après Samedi)
-      } else if (selectedDuration === 'week') {
-        endDate.setDate(startDate.getDate() + 6); // Semaine : ajouter 6 jours
-      } else if (selectedDuration === 'month') {
-        endDate.setMonth(startDate.getMonth() + 1); // Mois : ajouter 1 mois
-      } else if (selectedDuration === 'year') {
-        endDate.setFullYear(startDate.getFullYear() + 1); // Année : ajouter 1 an
-      }
-
-      document.getElementById('end-date').value = endDate.toISOString().split('T')[0];
-    }
-  });
-});
+<!-- Bouton pour annuler et retourner au calendrier -->
+<%= link_to 'Annuler', availability_room_path(@room), class: 'btn btn-danger' %>
+<%= link_to 'Revenir au calendrier', availability_room_path(@room), class: 'btn btn-secondary' %>
