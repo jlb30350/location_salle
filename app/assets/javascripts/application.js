@@ -45,7 +45,7 @@ function setupDateSelection() {
         console.log("End date:", endDate);
 
         // Récupération de l'ID de la salle depuis la section réservation
-        const roomId = document.getElementById('reservation-section').dataset.roomId;
+        const roomId = reservationSection.dataset.roomId;
         console.log("Redirection avec Start date:", startDate, "End date:", endDate);
 
         // Redirection avec les dates sélectionnées dans l'URL
@@ -78,7 +78,7 @@ function setupDateTimeSelectors() {
   }
 }
 
-// Fonction pour récupérer les créneaux horaires selon la date et l'heure sélectionnée
+// Fonction pour récupérer les créneaux horaires selon la date et l'heure sélectionnées
 function fetchFormWithTimeSlots(date, time) {
   if (!date || !time) return;
 

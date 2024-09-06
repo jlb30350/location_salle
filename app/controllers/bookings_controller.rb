@@ -5,14 +5,11 @@ class BookingsController < ApplicationController
   # Nouvelle réservation
   def new
     @room = Room.find(params[:room_id])
-  
+    
     # Utilisation des dates transmises ou valeurs par défaut
-    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today
-    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : start_date
-  
     @booking = @room.bookings.new(
-      start_date: params[:start_date], # Remplir avec la date passée dans l'URL
-      end_date: params[:end_date],     # Remplir avec la date passée dans l'URL
+      start_date: params[:start_date], # Utiliser les dates transmises dans l'URL
+      end_date: params[:end_date],     # Utiliser les dates transmises dans l'URL
       first_name: current_user.first_name,
       last_name: current_user.last_name,
       email: current_user.email,
@@ -21,12 +18,22 @@ class BookingsController < ApplicationController
     )
   end
 
-  # Créer une réservation
   def create
     @room = Room.find(params[:room_id])
     @booking = @room.bookings.new(booking_params)
     @booking.user = current_user
-
+  
+    # Si aucune date de début ou de fin n'est fournie, utiliser des valeurs par défaut
+    if @booking.start_date.blank? || @booking.end_date.blank?
+      @booking.start_date = Date.today
+      @booking.end_date = @booking.start_date + 1.day
+    end
+  
+    Rails.logger.debug "Start date: #{@booking.start_date}, End date: #{@booking.end_date}"
+    Rails.logger.debug "Booking parameters: #{booking_params.inspect}"
+    Rails.logger.debug "Booking valid?: #{@booking.valid?}"
+    Rails.logger.debug "Booking errors: #{@booking.errors.full_messages}"
+  
     # Vérifier la durée et ajuster la date de fin
     case @booking.duration
     when 'one_day'
@@ -43,29 +50,44 @@ class BookingsController < ApplicationController
     when 'year'
       @booking.end_date = @booking.start_date + 1.year
     end
-
+  
+    Rails.logger.debug "Checking dates availability..."
+    
     # Vérifier la disponibilité des dates et sauvegarder
     if dates_available?(@booking.start_date, @booking.end_date) && @booking.save
-      redirect_to new_room_booking_payment_path(@room, @booking), notice: 'Réservation créée avec succès.'
+      Rails.logger.debug "Booking saved successfully."
+      redirect_to finalize_booking_room_booking_path(@room, @booking), notice: 'Réservation créée avec succès, veuillez finaliser.'
     else
-      flash.now[:alert] = 'Erreur lors de la création de la réservation.'
+      Rails.logger.debug "Booking save failed. Errors: #{@booking.errors.full_messages.join(", ")}"
+      flash.now[:alert] = "Erreur lors de la création de la réservation : #{@booking.errors.full_messages.join(", ")}"
       render :new
     end
   end
+  
+  
+  
 
   # Finaliser la réservation
   def finalize_booking
-    @booking.assign_attributes(booking_params)
-
-    if params[:continue] && @booking.save
-      redirect_to new_room_booking_payment_path(room_id: @room.id, booking_id: @booking.id), notice: 'Procédez au paiement.'
-    elsif params[:quote] && @booking.save
-      redirect_to room_path(@room), notice: 'Demande de devis envoyée.'
+    @booking = @room.bookings.find(params[:id])
+  
+    if request.post?
+      if params[:continue]
+        # Rediriger vers la page de paiement
+        redirect_to new_room_booking_payment_path(room_id: @room.id, booking_id: @booking.id), notice: 'Procédez au paiement.'
+      elsif params[:quote]
+        # Rediriger vers la demande de devis
+        redirect_to room_path(@room), notice: 'Demande de devis envoyée.'
+      else
+        flash.now[:alert] = 'Veuillez choisir une option.'
+        render :finalize_booking
+      end
     else
-      flash.now[:alert] = 'Erreur lors de la finalisation.'
-      render :new
+      # Simple affichage du formulaire de finalisation
+      render :finalize_booking
     end
   end
+  
 
   # Sélection des dates avant la création d'une réservation
   def select_dates
@@ -116,10 +138,21 @@ class BookingsController < ApplicationController
     params.require(:booking).permit(:first_name, :last_name, :email, :phone, :address, :start_date, :end_date, :duration, :number_of_guests)
   end
   
+  
+  
   def dates_available?(start_date, end_date)
     return false if start_date.nil? || end_date.nil?
-    
-    overlapping_bookings = Booking.where("start_date < ? AND end_date > ?", end_date, start_date)
+  
+    overlapping_bookings = Booking.where(room_id: @room.id)
+                                  .where("start_date < ? AND end_date > ?", end_date, start_date)
+  
+    # Si les dates sont les mêmes, vérifier plus précisément les horaires
+    if start_date == end_date
+      overlapping_bookings = overlapping_bookings.where.not("start_date = end_date")
+    end
+  
     overlapping_bookings.empty?
   end
+  
 end
+

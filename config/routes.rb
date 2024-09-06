@@ -21,11 +21,6 @@ Rails.application.routes.draw do
   # Routes pour les avis
   resources :reviews, only: [:create]
 
-  resources :rooms do
-    resources :bookings, only: [:new, :create, :edit, :update, :destroy]
-  end
-  
-
   # Routes pour les chambres (rooms)
   resources :rooms do
     collection do
@@ -39,11 +34,11 @@ Rails.application.routes.draw do
     end
 
     # Routes imbriquées pour les réservations et les paiements
-    resources :bookings do
+    resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
       member do
-        post 'finalize', to: 'bookings#finalize_booking', as: 'finalize'  # Finalisation de la réservation
+        get 'finalize_booking'
+        post 'finalize_booking'
       end
-
       resources :payments, only: [:new, :create]  # Routes pour les paiements
     end
   end

@@ -15,3 +15,6 @@ Rails.application.config.assets.precompile += %w( lightbox/prev.png lightbox/nex
 
 # Préciser le fichier CSS de Lightbox à précompiler
 Rails.application.config.assets.precompile += %w( lightbox.css )
+
+Rails.application.config.assets.precompile += %w( application.js lightbox.js application.css calendar.css custom_styles.scss )
+
