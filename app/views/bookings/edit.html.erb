@@ -1,39 +1,37 @@
-<h2><%= @booking.persisted? ? 'Modifier' : 'Nouvelle' %> Réservation</h2>
-
 <%= form_with(model: [@room, @booking]) do |f| %>
   <div class="form-group">
     <%= f.label :first_name, "Prénom" %>
-    <%= f.text_field :first_name, class: 'form-control', readonly: true, value: @booking.first_name %>
+    <%= f.text_field :first_name, class: 'form-control', value: @booking.first_name %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">
     <%= f.label :last_name, "Nom" %>
-    <%= f.text_field :last_name, class: 'form-control', readonly: true, value: @booking.last_name %>
+    <%= f.text_field :last_name, class: 'form-control', value: @booking.last_name %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">
     <%= f.label :email, "Adresse e-mail" %>
-    <%= f.email_field :email, class: 'form-control', readonly: true, value: @booking.email %>
+    <%= f.email_field :email, class: 'form-control', value: @booking.email %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">
     <%= f.label :phone, "Numéro de téléphone" %>
-    <%= f.telephone_field :phone, class: 'form-control', readonly: true, value: @booking.phone %>
+    <%= f.telephone_field :phone, class: 'form-control', value: @booking.phone %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">
     <%= f.label :address, "Adresse" %>
-    <%= f.text_field :address, class: 'form-control', readonly: true, value: @booking.address %>
+    <%= f.text_field :address, class: 'form-control', value: @booking.address %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">
     <%= f.label :start_date, "Date de début" %>
-    <%= f.text_field :start_date, class: 'form-control', readonly: true, value: @booking.start_date.strftime('%d/%m/%Y') %>
+    <%= f.text_field :start_date, class: 'form-control', value: @booking.start_date.strftime('%d/%m/%Y') %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">
     <%= f.label :end_date, "Date de fin" %>
-    <%= f.text_field :end_date, class: 'form-control', readonly: true, value: @booking.end_date.strftime('%d/%m/%Y') %>
+    <%= f.text_field :end_date, class: 'form-control', value: @booking.end_date.strftime('%d/%m/%Y') %> <!-- Suppression du readonly -->
   </div>
 
   <div class="form-group">

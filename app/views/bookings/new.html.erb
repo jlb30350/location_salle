@@ -53,6 +53,8 @@
   <div class="form-group">
     <%= f.submit 'Continuer vers le paiement', class: 'btn btn-primary', name: 'continue' %>
     <%= f.submit 'Demander un devis', class: 'btn btn-secondary', name: 'quote' %>
+    <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
+
   </div>
 
 <% end %>
