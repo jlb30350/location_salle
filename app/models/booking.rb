@@ -41,7 +41,39 @@ class Booking < ApplicationRecord
     end
   end
 
+  # Méthode pour calculer le montant total de la réservation
+  def total_amount
+    case duration
+    when 'hour'
+      room.hourly_rate * number_of_hours
+    when 'day'
+      room.daily_rate * number_of_days
+    when 'multiple_days'
+      room.daily_rate * number_of_days
+    when 'weekend'
+      room.weekend_rate
+    when 'week'
+      room.weekly_rate
+    when 'month'
+      room.monthly_rate
+    when 'year'
+      room.annual_rate
+    else
+      0 # Valeur par défaut
+    end
+  end
+
   private
+
+  # Calcul du nombre d'heures pour une réservation à l'heure
+  def number_of_hours
+    ((end_date - start_date) / 1.hour).to_i
+  end
+
+  # Calcul du nombre de jours pour une réservation
+  def number_of_days
+    (end_date.to_date - start_date.to_date).to_i + 1 # Ajout de 1 pour inclure le jour de début
+  end
 
   # Avant validation, calculer la date de fin basée sur la durée
   def set_end_date_based_on_duration
