@@ -86,6 +86,36 @@ class RoomsController < ApplicationController
     redirect_to rooms_path
   end
 
+  # Action pour obtenir le formulaire basé sur la durée de réservation
+  def get_form
+    @room = Room.find(params[:room_id])
+    duration = params[:duration]
+    start_date = params[:start_date]
+    end_date = params[:end_date]
+    
+    case duration
+    when 'multiple_days'
+      @message = "Réservation de plusieurs jours du #{start_date} au #{end_date}"
+    when 'hour'
+      @message = "Réservation d'une heure le #{start_date}"
+    when 'day'
+      @message = "Réservation d'une journée le #{start_date}"
+    when 'weekend'
+      @message = "Réservation pour le week-end du #{start_date}"
+    when 'week'
+      @message = "Réservation pour une semaine commençant le #{start_date}"
+    when 'month'
+      @message = "Réservation pour un mois commençant le #{start_date}"
+    when 'year'
+      @message = "Réservation pour une année commençant le #{start_date}"
+    else
+      @message = "Réservation par défaut"
+    end
+
+    # Vous pouvez rediriger ou rendre partiellement une vue
+    render partial: 'form_partial', locals: { message: @message, room: @room }
+  end
+
   def create
     @room = current_user.rooms.new(room_params)
     if @room.save
@@ -150,8 +180,6 @@ class RoomsController < ApplicationController
       redirect_to rooms_path
     end
   end
-end
-
 
   private
 
@@ -188,4 +216,4 @@ end
   def room_visible_to_current_user?(room)
     room.is_public || (user_signed_in? && (current_user.bailleur? || current_user.loueur?))
   end
-
+end

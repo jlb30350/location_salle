@@ -36,6 +36,7 @@ class BookingsController < ApplicationController
       @booking.end_date = @booking.start_date + 1.day
     end
 
+    # Ajuster les dates de la réservation
     adjust_booking_dates(@booking)
 
     if dates_available?(@booking.start_date, @booking.end_date) && @booking.save
@@ -49,13 +50,17 @@ class BookingsController < ApplicationController
 
   # Finaliser la réservation
   def finalize_booking
-    if params[:quote]
-      @booking.update(devis_requested_at: Time.current, status: 'pending')
-      redirect_to room_path(@room), notice: 'Demande de devis envoyée. Vous avez 24h pour finaliser la réservation.'
-    elsif params[:continue]
-      redirect_to new_room_booking_payment_path(@room, @booking), notice: 'Procédez au paiement.'
+    if request.post?
+      if params[:continue]
+        redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Procédez au paiement.'
+      elsif params[:quote]
+        @booking.update(devis_requested_at: Time.current, status: 'pending')
+        redirect_to room_path(@booking.room), notice: 'Votre demande de devis a été envoyée. Vous avez 24h pour finaliser la réservation.'
+      else
+        flash.now[:alert] = 'Veuillez choisir une option.'
+        render :finalize_booking
+      end
     else
-      flash.now[:alert] = 'Veuillez choisir une option.'
       render :finalize_booking
     end
   end
@@ -101,19 +106,28 @@ class BookingsController < ApplicationController
     params.require(:booking).permit(:first_name, :last_name, :email, :phone, :address, :start_date, :end_date, :duration, :number_of_guests)
   end
 
+  # Vérifier la disponibilité des dates
   def dates_available?(start_date, end_date)
     overlapping_bookings = Booking.where(room_id: @room.id)
                                   .where("start_date < ? AND end_date > ?", end_date, start_date)
-    overlapping_bookings.none? do |booking|
-      (start_date < booking.end_date && end_date > booking.start_date)
+
+    overlapping_bookings.each do |booking|
+      if start_date.to_date == booking.start_date.to_date && end_date.to_date == booking.end_date.to_date
+        if start_date.hour < booking.end_date.hour && end_date.hour > booking.start_date.hour
+          @booking.errors.add(:base, "Les heures sélectionnées chevauchent une réservation existante.")
+          return false
+        end
+      end
     end
+    true
   end
 
+  # Ajuster les dates en fonction de la durée
   def adjust_booking_dates(booking)
     case booking.duration
     when 'one_hour'
       booking.start_date = booking.start_date.change(hour: 7)
-      booking.end_date = booking.start_date.change(hour: 17)
+      booking.end_date = booking.start_date.change(hour: 8)
     when 'one_day'
       booking.start_date = booking.start_date.change(hour: 7)
       booking.end_date = booking.start_date.change(hour: 17)
@@ -124,7 +138,7 @@ class BookingsController < ApplicationController
         flash.now[:alert] = "La durée maximale pour '2 à 6 jours' est de 6 jours."
         render :new and return
       end
-      if booking.start_date.wday == 0 || (booking.end_date.wday == 0 && booking.duration == 'multiple_days')
+      if booking.start_date.wday == 0 || booking.end_date.wday == 0
         flash.now[:alert] = "Les réservations ne peuvent pas commencer ou se terminer un dimanche."
         render :new and return
       end

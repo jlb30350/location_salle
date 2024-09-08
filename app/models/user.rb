@@ -12,10 +12,17 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   # Validations
-  validates :email, presence: true, uniqueness: true
-  validates :encrypted_password, presence: true
+  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP, message: "doit être une adresse e-mail valide" }
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :phone, presence: true
-  validates :address, presence: false # Validation pour l'adresse ajoutée
+
+  # Callback pour définir le rôle par défaut
+  before_validation :set_default_role, on: :create
+
+  private
+
+  def set_default_role
+    self.role ||= :loueur
+  end
 end
