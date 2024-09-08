@@ -1,3 +1,34 @@
-# app/views/dashboard/bailleur_dashboard.html.erb
-<h1>Tableau de bord du bailleur</h1>
-# ... afficher les espaces du bailleur, etc.
+<!-- app/views/dashboard/bailleur_dashboard.html.erb -->
+
+<h1>Votre Tableau de Bord</h1>
+
+<p><%= user_mode_message %></p>
+
+<!-- Bouton pour supprimer toutes les réservations, visible uniquement pour les administrateurs -->
+<% if current_user.admin? %>
+  <%= button_to 'Supprimer toutes les réservations', clear_all_bookings_dashboard_index_path, method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer toutes les réservations ?' }, class: 'btn btn-danger' %>
+<% end %>
+
+<!-- Afficher les salles du bailleur et leurs réservations associées -->
+<% if @rooms.any? %>
+  <% @rooms.each do |room| %>
+    <h2><%= room.name %></h2>
+
+    <% if room.bookings.any? %>
+      <ul>
+        <% room.bookings.each do |booking| %>
+          <li>
+            Réservation de <%= booking.first_name %> <%= booking.last_name %>, du <%= booking.start_date %> au <%= booking.end_date %>
+
+            <!-- Bouton pour supprimer une réservation spécifique -->
+            <%= button_to 'Supprimer cette réservation', room_booking_path(room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-warning' %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>Aucune réservation pour cette salle.</p>
+    <% end %>
+  <% end %>
+<% else %>
+  <p>Vous n'avez aucune salle pour le moment.</p>
+<% end %>

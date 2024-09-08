@@ -3,11 +3,27 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <style>
-      /* Email styles need to be inline */
+      /* Tu peux ajouter des styles inline pour tes emails */
     </style>
   </head>
 
   <body>
-    <%= yield %>
+    <h1>Confirmation de votre réservation</h1>
+    <p>Bonjour <%= @booking.first_name %>,</p>
+    <p>Merci d'avoir réservé une salle chez nous.</p>
+    
+    <p>Voici les détails de votre réservation :</p>
+    <ul>
+      <li>Salle : <%= @booking.room.name %></li>
+      <li>Date de début : <%= @booking.start_date.strftime("%d/%m/%Y à %H:%M") %></li>
+      <li>Date de fin : <%= @booking.end_date.strftime("%d/%m/%Y à %H:%M") %></li>
+    </ul>
+
+    <p>Si vous souhaitez annuler cette réservation, vous pouvez cliquer sur le lien ci-dessous :</p>
+    <p>
+      <%= link_to 'Annuler la réservation', cancel_booking_url(@booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir annuler cette réservation ?' }, style: "color: red;" %>
+    </p>
+
+    <p>Merci de votre confiance.</p>
   </body>
 </html>

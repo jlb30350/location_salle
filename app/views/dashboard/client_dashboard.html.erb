@@ -1,3 +1,37 @@
-# app/views/dashboard/client_dashboard.html.erb
-<h1>Tableau de bord du client</h1>
-# ... afficher les réservations du client, etc.
+<!-- app/views/dashboard/client_dashboard.html.erb -->
+
+<h1>Votre Tableau de Bord</h1>
+
+<p><%= user_mode_message %></p>
+
+<!-- Bouton pour chercher une salle au-dessus de la table -->
+<%= link_to 'Chercher une salle', rooms_path, class: 'btn btn-primary mb-3' %>
+
+<% if @bookings.any? %>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Réservation</th>
+        <th>Date de début</th>
+        <th>Date de fin</th>
+        <th>Statut</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @bookings.each do |booking| %>
+        <tr>
+          <td><%= booking.room.name %></td>
+          <td><%= booking.start_date.strftime('%d/%m/%Y %H:%M') %></td>
+          <td><%= booking.end_date.strftime('%d/%m/%Y %H:%M') %></td>
+          <td><%= booking.status %></td>
+          <td>
+            <%= link_to 'Supprimer', room_booking_path(booking.room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-danger' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="alert alert-warning">Vous n'avez aucune réservation en cours.</p>
+<% end %>

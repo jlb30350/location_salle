@@ -2,11 +2,9 @@ class PaymentsController < ApplicationController
   before_action :set_booking
 
   def new
-    # Récupération des credentials Stripe
     stripe_credentials = Rails.application.credentials.stripe
     @stripe_publishable_key = stripe_credentials[:publishable_key]
 
-    # Vérification de la présence de la clé publique
     if @stripe_publishable_key.nil?
       raise "La clé publique Stripe est manquante dans les variables d'environnement."
     end
@@ -15,9 +13,9 @@ class PaymentsController < ApplicationController
   end
 
   def create
-    # Récupération des credentials Stripe
+    # Récupération des identifiants Stripe
     stripe_credentials = Rails.application.credentials.stripe
-    Stripe.api_key = stripe_credentials[:secret_key]
+    Stripe.api_key = stripe_credentials[:secret_key]  # Correction : 'Stripe' au lieu de 'Bande'
 
     if params[:stripeToken].blank?
       flash[:error] = "Une erreur s'est produite avec votre carte, veuillez réessayer."

@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  # Routes pour les pages statiques
+  # Pages statiques
   get 'about', to: 'pages#about'
   get 'contact', to: 'pages#contact'
   get 'faq', to: 'pages#faq'
@@ -9,19 +9,26 @@ Rails.application.routes.draw do
   get 'load_google_maps', to: 'google_maps#load_script'
   get 'rooms/:room_id/photos/:id', to: 'rooms#show_photo', as: 'room_photo'
 
-  # Route pour tester Bootstrap
+  # Bootstrap test
   get 'test_bootstrap', to: 'application#test_bootstrap'
 
-  # Configuration Devise pour l'authentification des utilisateurs
+  # Devise configuration
   devise_for :users
   devise_scope :user do
     delete 'delete_account', to: 'users/registrations#destroy', as: :delete_user_account
   end
 
-  # Routes pour les avis
+  # Reviews
   resources :reviews, only: [:create]
 
-  # Routes pour les chambres (rooms)
+  # Dashboard
+  resources :dashboard do
+    collection do
+      delete 'clear_all_bookings'
+    end
+  end
+
+  # Rooms and bookings routes
   resources :rooms do
     collection do
       get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
@@ -30,28 +37,26 @@ Rails.application.routes.draw do
     end
 
     member do
-      get 'availability'  # Affichage de la disponibilité d'une chambre
+      get 'availability'
     end
 
-    # Routes imbriquées pour les réservations et les paiements
+    # Imbrication des réservations dans les chambres
     resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
       member do
         get 'finalize_booking'
         post 'finalize_booking'
       end
-      resources :payments, only: [:new, :create]  # Routes pour les paiements
+      resources :payments, only: [:new, :create]
     end
   end
 
-  # Route pour charger les créneaux horaires via une méthode AJAX
+  # Route pour les créneaux horaires et formulaires dynamiques
   get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots
-
-  # Route pour charger dynamiquement un formulaire basé sur la durée et la date
   get 'get_form', to: 'rooms#get_form', as: :get_form
 
-  # Route pour le changement de rôle utilisateur
+  # Changement de rôle utilisateur
   post 'switch_role', to: 'users#switch_role', as: :switch_role
 
-  # Page d'accueil par défaut
+  # Page d'accueil
   root to: 'pages#home'
 end

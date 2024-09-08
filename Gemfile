@@ -34,6 +34,8 @@ gem "tzinfo-data", platforms: %i[mswin mswin64 mingw x64_mingw jruby]
 gem "bootsnap", require: false
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
+gem 'stripe'
+gem 'whenever', require: false
 
 gem 'prawn'
 

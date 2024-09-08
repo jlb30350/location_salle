@@ -1,1 +1,13 @@
-<%= yield %>
+Bonjour <%= @booking.first_name %>,
+
+Merci d'avoir réservé une salle chez nous.
+
+Voici les détails de votre réservation :
+- Salle : <%= @booking.room.name %>
+- Date de début : <%= @booking.start_date.strftime("%d/%m/%Y à %H:%M") %>
+- Date de fin : <%= @booking.end_date.strftime("%d/%m/%Y à %H:%M") %>
+
+Si vous souhaitez annuler cette réservation, vous pouvez cliquer sur le lien ci-dessous :
+Annuler la réservation : <%= cancel_booking_url(@booking) %>
+
+Merci de votre confiance.

@@ -17,39 +17,16 @@ class Booking < ApplicationRecord
   # Callbacks
   before_validation :set_end_date_based_on_duration
 
-  # Méthode pour calculer la date de fin en fonction de la durée
-  def calculate_end_date
-    return start_date if start_date.nil?
-
-    case duration
-    when 'hour'
-      start_date.change(hour: 17) # Fin de la journée à 17h
-    when 'day'
-      start_date.change(hour: 17) # Fin de la journée à 17h
-    when 'multiple_days'
-      start_date + 6.days
-    when 'weekend'
-      start_date + 1.day.change(hour: 17) # Samedi à 7h - Dimanche 17h
-    when 'week'
-      start_date + 6.days.change(hour: 17)
-    when 'month'
-      start_date + 1.month.change(hour: 17)
-    when 'year'
-      start_date + 1.year.change(hour: 17)
-    else
-      start_date
-    end
-  end
-
-  # Méthode pour calculer le montant total de la réservation
+  # Méthode pour calculer le montant total
   def total_amount
     case duration
     when 'hour'
-      room.hourly_rate * number_of_hours
+      room.hourly_rate
     when 'day'
-      room.daily_rate * number_of_days
+      room.daily_rate
     when 'multiple_days'
-      room.daily_rate * number_of_days
+      days = (end_date - start_date).to_i
+      room.daily_rate * days
     when 'weekend'
       room.weekend_rate
     when 'week'
@@ -59,25 +36,37 @@ class Booking < ApplicationRecord
     when 'year'
       room.annual_rate
     else
-      0 # Valeur par défaut
+      0 # Cas par défaut si aucune durée n'est définie
     end
   end
 
   private
 
-  # Calcul du nombre d'heures pour une réservation à l'heure
-  def number_of_hours
-    ((end_date - start_date) / 1.hour).to_i
-  end
-
-  # Calcul du nombre de jours pour une réservation
-  def number_of_days
-    (end_date.to_date - start_date.to_date).to_i + 1 # Ajout de 1 pour inclure le jour de début
-  end
-
   # Avant validation, calculer la date de fin basée sur la durée
   def set_end_date_based_on_duration
     self.end_date = calculate_end_date if start_date.present? && end_date.nil?
+  end
+
+  # Calculer la date de fin basée sur la durée
+  def calculate_end_date
+    case duration
+    when 'hour'
+      start_date + 1.hour
+    when 'day'
+      start_date + 1.day
+    when 'multiple_days'
+      start_date + 6.days # Par exemple, pour une réservation multiple, ici on ajoute 6 jours.
+    when 'weekend'
+      start_date.end_of_week(:sunday) # Finir le dimanche
+    when 'week'
+      start_date + 1.week
+    when 'month'
+      start_date + 1.month
+    when 'year'
+      start_date + 1.year
+    else
+      start_date
+    end
   end
 
   # Validation pour s'assurer que la date de début est dans le futur
@@ -99,11 +88,8 @@ class Booking < ApplicationRecord
     overlapping_bookings = room.bookings.where.not(id: id)
                                         .where("start_date < ? AND end_date > ?", end_date, start_date)
     
-    overlapping_bookings.each do |booking|
-      if (start_date < booking.end_date && end_date > booking.start_date)
-        errors.add(:base, "Cette période chevauche une réservation existante.")
-        break
-      end
+    if overlapping_bookings.exists?
+      errors.add(:base, "Cette période chevauche une réservation existante.")
     end
   end
 end

@@ -1,4 +1,5 @@
 <!-- app/views/layouts/_navigation.html.erb -->
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -6,28 +7,20 @@
     </button>
     <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
       <ul class="navbar-nav">
-
-      <li class="nav-item">
-      <%= link_to "Acceuil", root_path, class: 'nav-link' %>
+        <li class="nav-item">
+          <%= link_to "Acceuil", root_path, class: 'nav-link' %>
         </li>
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <!-- Autres éléments de navigation -->
+        
+        <% if defined?(@room) && @room.present? %>
+       
+      <% else %>
+        <%= link_to 'Voir les salles disponibles', rooms_path, class: 'btn btn-primary' %>
+      <% end %>
       
-        <% if @room.present? %>
-          <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
-        <% else %>
-          <%= link_to 'Voir les salles disponibles', rooms_path, class: 'btn btn-primary' %>
-        <% end %>
-      </nav>
-      <li class="nav-item">
-      <% if user_signed_in? && current_user.bailleur? %>
-        <%= link_to 'Gerer mes salle en tant que bailleur', my_rooms_rooms_path, class: 'btn btn-primary' %>
-
-          <% else %>
-            <%= link_to 'Chercher une salle', root_path(anchor: 'search'), class: 'btn btn-primary' %>
-          <% end %>
-        </li>
+      
+        <!-- Afficher tableau de bord ou gestion des salles pour le bailleur -->
         <% if user_signed_in? %>
           <li class="nav-item">
             <%= link_to "Tableau de bord", dashboard_path, class: 'nav-link' %>
@@ -55,11 +48,3 @@
     </div>
   </div>
 </nav>
-
-<% if user_signed_in? %>
-  <div class="text-center mt-3">
-    <p class="alert alert-info">
-      Vous êtes connecté en tant que <strong><%= current_user.bailleur? ? 'bailleur' : 'loueur' %></strong>.
-    </p>
-  </div>
-<% end %>

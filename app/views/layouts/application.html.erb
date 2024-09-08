@@ -34,8 +34,6 @@
   }
 </style>
 
-
-
   <!-- Custom Styles -->
   <style>
     #map { height: 400px; width: 100%; margin-top: 40px; }
@@ -49,6 +47,13 @@
   <%= render 'shared/flash_messages' %>
   <%= render 'layouts/navigation' %>
 
+  <!-- Afficher le message du mode utilisateur (bailleur ou loueur) -->
+  <% if current_user.present? %>
+    <div class="alert alert-info text-center">
+      <%= message_mode_utilisateur %> <!-- Affiche le rôle de l'utilisateur -->
+    </div>
+  <% end %>
+
   <div class="container mt-3">
     <form id="locationForm">
       <input type="text" id="locationInput" placeholder="Entrez un code postal ou une ville" class="form-control mb-2">
@@ -57,8 +62,6 @@
 
     <div id="map"></div>
     <div id="results-container"></div>
-
-  
 
     <%= render 'shared/user_actions' %>
     <%= yield %>
@@ -70,8 +73,6 @@
   <!-- Bootstrap JS & dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
 
   <!-- JavaScript de l'application -->
   <%= javascript_include_tag 'application', 'data-turbo-track': 'reload' %>
@@ -120,7 +121,6 @@
         centerMapOnLocation(location);
       }
     });
-
    
   </script>
 

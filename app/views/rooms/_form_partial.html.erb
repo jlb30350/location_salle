@@ -1,15 +1,17 @@
 <div class="form-message">
   <!-- Ajoutez ici votre formulaire en fonction de la durée et de la date -->
-  <%= form_with url: new_room_booking_path(@room), method: :get do %>
-    <input type="hidden" name="date" value="<%= params[:date] %>">
-    <input type="hidden" name="duration" value="<%= params[:duration] %>">
+  <%= form_with url: new_room_booking_path(@room), method: :get, local: true do %>
+    <%= hidden_field_tag :date, params[:date] %>
+    <%= hidden_field_tag :duration, params[:duration] %>
     
     <!-- Exemple d'un champ pour une heure de début si la durée est "hour" -->
     <% if params[:duration] == 'hour' %>
-      <label for="start_time">Sélectionnez une heure de début :</label>
-      <input type="time" id="start_time" name="start_time" class="form-control">
+      <div class="form-group">
+        <label for="start_time">Sélectionnez une heure de début :</label>
+        <%= time_field_tag :start_time, nil, class: 'form-control' %>
+      </div>
     <% end %>
 
     <button type="submit" class="btn btn-primary">Réserver</button>
-  <% end %> <!-- Fermeture correcte de form_with -->
+  <% end %>
 </div>

@@ -13,15 +13,18 @@ class RoomsController < ApplicationController
             end
   end
 
+  def new
+    @room = Room.new
+  end
+
   def my_rooms
     @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
     render :index
   end
 
   def show
-    @room = Room.find(params[:id])
     Rails.logger.debug "Room found: #{@room.inspect}"
-
+    @room = Room.find(params[:id]) # assurez-vous que @room est bien défini ici
     if @room
       @booking = @room.bookings.new
 
@@ -48,7 +51,7 @@ class RoomsController < ApplicationController
         last_day_of_month = first_day_of_month.end_of_month
 
         @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
-      rescue ArgumentError => e
+      rescue ArgumentError
         flash[:alert] = "Date invalide"
         redirect_to rooms_path and return
       end
@@ -87,7 +90,7 @@ class RoomsController < ApplicationController
   end
 
   def get_form
-    @room = Room.find(params[:room_id]) # Trouver la salle par ID
+    @room = Room.find(params[:room_id])
     duration = params[:duration]
     date = params[:start_date]
   
@@ -112,7 +115,6 @@ class RoomsController < ApplicationController
   
     render partial: 'form_partial', locals: { message: @message }
   end
-  
 
   def availability
     begin
@@ -124,7 +126,7 @@ class RoomsController < ApplicationController
 
       @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
       @booking = @room.bookings.new
-    rescue ArgumentError => e
+    rescue ArgumentError
       flash[:alert] = "Date invalide"
       redirect_to rooms_path
     end
@@ -136,10 +138,6 @@ class RoomsController < ApplicationController
     booking = Booking.find(params[:id])
     booking.destroy
     render json: { success: true }
-  end
-
-  def new
-    @room = Room.new
   end
 
   def create
@@ -224,9 +222,10 @@ class RoomsController < ApplicationController
   end
 
   def set_room
-    @room = Room.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to rooms_path, alert: "Salle non trouvée."
+    @room = Room.find_by(id: params[:id])
+    unless @room
+      redirect_to rooms_path, alert: "Salle non trouvée."
+    end
   end
 
   def ensure_owner
