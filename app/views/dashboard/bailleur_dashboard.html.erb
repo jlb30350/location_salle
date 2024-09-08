@@ -1,7 +1,6 @@
-<!-- app/views/dashboard/bailleur_dashboard.html.erb -->
+<h1>Tableau de Bord du Bailleur</h1>
 
-<h1>Votre Tableau de Bord</h1>
-
+<!-- Affiche un message en fonction du mode utilisateur -->
 <p><%= user_mode_message %></p>
 
 <!-- Bouton pour supprimer toutes les réservations, visible uniquement pour les administrateurs -->
@@ -12,22 +11,51 @@
 <!-- Afficher les salles du bailleur et leurs réservations associées -->
 <% if @rooms.any? %>
   <% @rooms.each do |room| %>
-    <h2><%= room.name %></h2>
+    <div class="room-section">
+      <h2><%= room.name %></h2>
+      <p><%= room.description %></p>
 
-    <% if room.bookings.any? %>
-      <ul>
-        <% room.bookings.each do |booking| %>
-          <li>
-            Réservation de <%= booking.first_name %> <%= booking.last_name %>, du <%= booking.start_date %> au <%= booking.end_date %>
+      <!-- Boutons pour modifier ou supprimer une salle -->
+      <%= link_to 'Modifier', edit_room_path(room), class: 'btn btn-warning' %>
+      <%= button_to 'Supprimer', room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette salle ?' }, class: 'btn btn-danger' %>
 
-            <!-- Bouton pour supprimer une réservation spécifique -->
-            <%= button_to 'Supprimer cette réservation', room_booking_path(room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-warning' %>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p>Aucune réservation pour cette salle.</p>
-    <% end %>
+      <!-- Afficher les photos -->
+      <% if room.main_photo.attached? %>
+        <div class="main-photo">
+          <%= image_tag room.main_photo, class: "img-thumbnail" %>
+          <%= link_to 'Supprimer la photo principale', delete_main_photo_room_path(room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-sm btn-danger mt-2" %>
+        </div>
+      <% else %>
+        <p>Pas de photo principale.</p>
+      <% end %>
+
+      <% if room.additional_photos.attached? %>
+        <div class="additional-photos">
+          <% room.additional_photos.each do |photo| %>
+            <div class="photo-wrapper">
+              <%= image_tag photo.variant(resize_to_limit: [100, 100]), class: "img-thumbnail" %>
+              <%= link_to 'Supprimer cette photo', delete_additional_photo_room_path(room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-sm btn-danger mt-1" %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p>Pas de photos supplémentaires.</p>
+      <% end %>
+
+      <!-- Afficher les réservations de la salle -->
+      <% if room.bookings.any? %>
+        <ul>
+          <% room.bookings.each do |booking| %>
+            <li>
+              Réservation de <%= booking.first_name %> <%= booking.last_name %>, du <%= booking.start_date %> au <%= booking.end_date %>
+              <%= button_to 'Supprimer cette réservation', room_booking_path(room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-warning' %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>Aucune réservation pour cette salle.</p>
+      <% end %>
+    </div>
   <% end %>
 <% else %>
   <p>Vous n'avez aucune salle pour le moment.</p>

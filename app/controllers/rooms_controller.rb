@@ -139,6 +139,20 @@ class RoomsController < ApplicationController
     render json: { success: true }
   end
 
+  def destroy
+    @room = Room.find(params[:id])
+
+    if @room.destroy
+      flash[:notice] = 'La salle et toutes les images et réservations associées ont été supprimées avec succès.'
+      redirect_to rooms_path
+    else
+      flash[:alert] = "Impossible de supprimer la salle."
+      redirect_to rooms_path
+    end
+  end
+end
+
+
   private
 
   def room_params
@@ -174,4 +188,4 @@ class RoomsController < ApplicationController
   def room_visible_to_current_user?(room)
     room.is_public || (user_signed_in? && (current_user.bailleur? || current_user.loueur?))
   end
-end
+

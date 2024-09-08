@@ -41,6 +41,15 @@ Rails.application.routes.draw do
     end
   end
   
+  resources :dashboard, only: [:index] do
+    delete 'clear_all_bookings', on: :collection # Pour la suppression des réservations par l'admin
+  end
+  
+  resources :bookings do
+    member do
+      post :cancel  # Route pour annuler une réservation
+    end
+  end
 
 
   # Rooms and bookings routes

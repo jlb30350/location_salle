@@ -1,11 +1,9 @@
-<!-- app/views/dashboard/client_dashboard.html.erb -->
-
 <h1>Votre Tableau de Bord</h1>
 
 <p><%= user_mode_message %></p>
 
 <!-- Bouton pour chercher une salle au-dessus de la table -->
-<%= link_to 'Chercher une salle', rooms_path, class: 'btn btn-primary mb-3' %>
+<%= link_to 'Chercher une salle', root_path, class: 'btn btn-primary mb-3' %>
 
 <% if @bookings.any? %>
   <table class="table table-bordered">
@@ -15,7 +13,7 @@
         <th>Date de début</th>
         <th>Date de fin</th>
         <th>Statut</th>
-        <th>Action</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -26,7 +24,14 @@
           <td><%= booking.end_date.strftime('%d/%m/%Y %H:%M') %></td>
           <td><%= booking.status %></td>
           <td>
-            <%= link_to 'Supprimer', room_booking_path(booking.room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-danger' %>
+            <!-- Bouton pour modifier une réservation -->
+            <%= link_to 'Modifier', edit_room_booking_path(booking.room, booking), class: 'btn btn-warning' %>
+
+            <!-- Bouton pour annuler une réservation (statut annulé) -->
+            <%= button_to 'Annuler', cancel_booking_path(booking), method: :post, data: { confirm: 'Êtes-vous sûr de vouloir annuler cette réservation ?' }, class: 'btn btn-secondary mt-2' %>
+
+            <!-- Bouton pour supprimer définitivement une réservation -->
+            <%= button_to 'Supprimer', room_booking_path(booking.room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-danger mt-2' %>
           </td>
         </tr>
       <% end %>
@@ -35,3 +40,7 @@
 <% else %>
   <p class="alert alert-warning">Vous n'avez aucune réservation en cours.</p>
 <% end %>
+
+<!-- Ajouter un autre bouton pour chercher une salle en bas -->
+<!-- Bouton pour aller à l'accueil -->
+<%= link_to 'Accueil', root_path, class: 'btn btn-primary' %>

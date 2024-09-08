@@ -3,10 +3,14 @@ class Room < ApplicationRecord
   has_many :availabilities
   has_many_attached :additional_photos
   has_one_attached :main_photo
-  has_many :bookings
+  has_many :bookings, dependent: :destroy
   has_many :reviews
   has_many :room_services
   has_many :services, through: :room_services
+
+  # Assumer les associations d'Active Storage
+  has_one_attached :main_photo, dependent: :purge_later
+  has_many_attached :additional_photos, dependent: :purge_later
 
   # Validations de présence
   validates :name, :description, :capacity, :address, :city, :department, :surface, :mail, :phone, presence: true
