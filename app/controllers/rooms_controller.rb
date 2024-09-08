@@ -5,6 +5,7 @@ class RoomsController < ApplicationController
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo, :delete_additional_photo]
   before_action :ensure_bailleur_or_correct_visibility, only: [:show]
 
+  # Liste des salles
   def index
     @rooms = if user_signed_in? && current_user.bailleur?
               current_user.rooms
@@ -13,18 +14,14 @@ class RoomsController < ApplicationController
             end
   end
 
+  # Créer une nouvelle salle
   def new
     @room = Room.new
   end
 
-  def my_rooms
-    @rooms = current_user.rooms.paginate(page: params[:page], per_page: 10)
-    render :index
-  end
-
+  # Afficher une salle spécifique
   def show
     Rails.logger.debug "Room found: #{@room.inspect}"
-    @room = Room.find(params[:id]) # assurez-vous que @room est bien défini ici
     if @room
       @booking = @room.bookings.new
 
@@ -60,60 +57,62 @@ class RoomsController < ApplicationController
     end
   end
 
-  def create_or_update_booking
-    booking = params[:id] ? Booking.find(params[:id]) : @room.bookings.new(user: current_user)
-    booking.assign_attributes(start_date: params[:start_date], end_date: params[:end_date])
+  # Supprimer la photo principale
+  def delete_main_photo
+    @room = Room.find(params[:id])
 
-    if booking.save
-      render json: { success: true }
+    if @room.main_photo.attached?
+      @room.main_photo.purge # Supprime la photo
+      flash[:notice] = 'Photo principale supprimée avec succès.'
     else
-      render json: { success: false, errors: booking.errors.full_messages }
+      flash[:alert] = 'Aucune photo principale à supprimer.'
     end
+
+    redirect_to rooms_path
   end
 
-  def get_time_slots
-    selected_time = params[:time]
-    selected_date = params[:date]
+  # Supprimer une photo supplémentaire
+  def delete_additional_photo
+    @room = Room.find(params[:id])
+    photo = @room.additional_photos.find_by(id: params[:photo_id])
 
-    time_before = (Time.parse(selected_time) - 1.hour).strftime('%H:%M')
-    time_after = (Time.parse(selected_time) + 1.hour).strftime('%H:%M')
-
-    render partial: 'time_slots_form', locals: { date: selected_date, time_before: time_before, time_after: time_after }
-  end
-
-  def bookings
-    @bookings = @room.bookings
-    respond_to do |format|
-      format.html
-      format.json { render json: @bookings }
-    end
-  end
-
-  def get_form
-    @room = Room.find(params[:room_id])
-    duration = params[:duration]
-    date = params[:start_date]
-  
-    case duration
-    when 'hour'
-      @message = "Formulaire pour une réservation d'une heure le #{date}"
-    when 'day'
-      @message = "Formulaire pour une réservation d'un jour le #{date}"
-    when 'multiple_days'
-      @message = "Formulaire pour une réservation de plusieurs jours à partir du #{date}"
-    when 'weekend'
-      @message = "Formulaire pour un week-end à partir du #{date}"
-    when 'week'
-      @message = "Formulaire pour une semaine à partir du #{date}"
-    when 'month'
-      @message = "Formulaire pour un mois à partir du #{date}"
-    when 'year'
-      @message = "Formulaire pour un an à partir du #{date}"
+    if photo.present?
+      photo.purge  # Supprime la photo
+      flash[:notice] = 'Photo supplémentaire supprimée avec succès.'
     else
-      @message = "Formulaire par défaut"
+      flash[:alert] = 'Aucune photo supplémentaire à supprimer.'
     end
-  
-    render partial: 'form_partial', locals: { message: @message }
+
+    redirect_to rooms_path
+  end
+
+  def create
+    @room = current_user.rooms.new(room_params)
+    if @room.save
+      @room.additional_photos.attach(params[:room][:additional_photos]) if params[:room][:additional_photos].present?
+      redirect_to @room, notice: 'Salle ajoutée avec succès.'
+    else
+      render :new
+    end
+  end
+
+  def update
+    if @room.update(room_params)
+      if params[:room][:main_photo].present?
+        @room.main_photo.attach(params[:room][:main_photo])
+      end
+      redirect_to @room, notice: 'Salle mise à jour avec succès.'
+    else
+      render :edit
+    end
+  end
+
+  def destroy
+    if @room.destroy
+      redirect_to rooms_url, notice: 'La salle a été supprimée avec succès.'
+    else
+      redirect_to rooms_url, alert: "Impossible de supprimer la salle."
+    end
   end
 
   def availability
@@ -138,70 +137,6 @@ class RoomsController < ApplicationController
     booking = Booking.find(params[:id])
     booking.destroy
     render json: { success: true }
-  end
-
-  def create
-    @room = current_user.rooms.new(room_params)
-    if @room.save
-      @room.additional_photos.attach(params[:room][:additional_photos]) if params[:room][:additional_photos].present?
-      redirect_to @room, notice: 'Salle ajoutée avec succès.'
-    else
-      render :new
-    end
-  end
-
-  def edit
-  end
-
-  def update
-    if @room.update(room_params)
-      if params[:room][:main_photo].present?
-        @room.main_photo.attach(params[:room][:main_photo])
-      end
-      redirect_to @room, notice: 'Salle mise à jour avec succès.'
-    else
-      render :edit
-    end
-  end
-
-  def destroy
-    if @room.destroy
-      redirect_to rooms_url, notice: 'La salle a été supprimée avec succès.'
-    else
-      redirect_to rooms_url, alert: "Impossible de supprimer la salle."
-    end
-  end
-
-  def delete_photo
-    if @room.main_photo&.purge
-      redirect_to edit_room_path(@room), notice: 'Photo supprimée avec succès.'
-    else
-      redirect_to edit_room_path(@room), alert: "La suppression de la photo a échoué."
-    end
-  end
-
-  def delete_additional_photo
-    photo = @room.additional_photos.find(params[:photo_id])
-    if photo.present?
-      photo.purge
-      redirect_to edit_room_path(@room), notice: 'Photo supplémentaire supprimée avec succès.'
-    else
-      redirect_to edit_room_path(@room), alert: 'Aucune photo à supprimer.'
-    end
-  end
-
-  def search
-    session[:search_query] = params[:query] if params[:query].present?
-    @rooms = if params[:query].present?
-              if params[:query].match?(/^\d{5}$/)
-                Room.where(department: params[:query])
-              else
-                Room.where("LOWER(city) LIKE ?", "%#{params[:query].downcase}%")
-              end
-            else
-              Room.none
-            end
-    render :search
   end
 
   private

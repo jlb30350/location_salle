@@ -28,6 +28,21 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :rooms do
+    member do
+      delete 'delete_main_photo'  # Route pour supprimer la photo principale
+    end
+  end
+  
+  resources :rooms do
+    member do
+      delete 'delete_main_photo'
+      delete 'delete_additional_photo'  # Route pour supprimer les photos supplémentaires
+    end
+  end
+  
+
+
   # Rooms and bookings routes
   resources :rooms do
     collection do
