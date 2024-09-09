@@ -1,17 +1,17 @@
 class RoomsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :search, :bookings]
-  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_photo, :delete_additional_photo, :availability, :bookings]
-  before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_photo, :delete_additional_photo]
-  before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_photo, :delete_additional_photo]
+  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_main_photo, :delete_additional_photo, :availability, :bookings]
+  before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_main_photo, :delete_additional_photo]
+  before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_main_photo, :delete_additional_photo]
   before_action :ensure_bailleur_or_correct_visibility, only: [:show]
 
   # Liste des salles
   def index
     @rooms = if user_signed_in? && current_user.bailleur?
-              current_user.rooms
-            else
-              Room.where(is_public: true)
-            end
+               current_user.rooms
+             else
+               Room.where(is_public: true)
+             end
   end
 
   # Créer une nouvelle salle
@@ -59,36 +59,30 @@ class RoomsController < ApplicationController
 
   # Supprimer la photo principale
   def delete_main_photo
-    @room = Room.find(params[:id])
-
     if @room.main_photo.attached?
-      @room.main_photo.purge # Supprime la photo
+      @room.main_photo.purge
       flash[:notice] = 'Photo principale supprimée avec succès.'
     else
       flash[:alert] = 'Aucune photo principale à supprimer.'
     end
-
-    redirect_to rooms_path
+    redirect_to @room
   end
 
   # Supprimer une photo supplémentaire
   def delete_additional_photo
-    @room = Room.find(params[:id])
     photo = @room.additional_photos.find_by(id: params[:photo_id])
 
     if photo.present?
-      photo.purge  # Supprime la photo
+      photo.purge
       flash[:notice] = 'Photo supplémentaire supprimée avec succès.'
     else
       flash[:alert] = 'Aucune photo supplémentaire à supprimer.'
     end
-
-    redirect_to rooms_path
+    redirect_to @room
   end
 
   # Action pour obtenir le formulaire basé sur la durée de réservation
   def get_form
-    @room = Room.find(params[:room_id])
     duration = params[:duration]
     start_date = params[:start_date]
     end_date = params[:end_date]
@@ -112,10 +106,10 @@ class RoomsController < ApplicationController
       @message = "Réservation par défaut"
     end
 
-    # Vous pouvez rediriger ou rendre partiellement une vue
     render partial: 'form_partial', locals: { message: @message, room: @room }
   end
 
+  # Créer une nouvelle salle
   def create
     @room = current_user.rooms.new(room_params)
     if @room.save
@@ -126,22 +120,24 @@ class RoomsController < ApplicationController
     end
   end
 
+  # Mettre à jour une salle
   def update
     if @room.update(room_params)
-      if params[:room][:main_photo].present?
-        @room.main_photo.attach(params[:room][:main_photo])
-      end
+      @room.main_photo.attach(params[:room][:main_photo]) if params[:room][:main_photo].present?
       redirect_to @room, notice: 'Salle mise à jour avec succès.'
     else
       render :edit
     end
   end
 
+  # Supprimer une salle
   def destroy
     if @room.destroy
-      redirect_to rooms_url, notice: 'La salle a été supprimée avec succès.'
+      flash[:notice] = 'Salle supprimée avec succès.'
+      redirect_to rooms_path
     else
-      redirect_to rooms_url, alert: "Impossible de supprimer la salle."
+      flash[:alert] = "Impossible de supprimer la salle."
+      redirect_to rooms_path
     end
   end
 
@@ -159,26 +155,7 @@ class RoomsController < ApplicationController
       flash[:alert] = "Date invalide"
       redirect_to rooms_path
     end
-
     render :show
-  end
-
-  def destroy_booking
-    booking = Booking.find(params[:id])
-    booking.destroy
-    render json: { success: true }
-  end
-
-  def destroy
-    @room = Room.find(params[:id])
-
-    if @room.destroy
-      flash[:notice] = 'La salle et toutes les images et réservations associées ont été supprimées avec succès.'
-      redirect_to rooms_path
-    else
-      flash[:alert] = "Impossible de supprimer la salle."
-      redirect_to rooms_path
-    end
   end
 
   private

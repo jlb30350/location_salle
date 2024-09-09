@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_07_201913) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_09_221711) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -117,6 +117,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_07_201913) do
     t.string "phone"
     t.string "kitchen"
     t.boolean "is_public"
+    t.boolean "hourly_rental"
+    t.boolean "daily_rental"
+    t.boolean "weekly_rental"
+    t.boolean "monthly_rental"
+    t.boolean "weekend_rental"
+    t.boolean "quarterly_rental"
+    t.boolean "semiannual_rental"
+    t.boolean "annual_rental"
+    t.boolean "multiple_days_rental"
+    t.decimal "multiple_days_rate"
     t.index ["user_id"], name: "index_rooms_on_user_id"
   end
 

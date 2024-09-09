@@ -10,6 +10,10 @@
 
   <div class="form-group">
     <%= form.submit "Payer maintenant", class: "btn btn-primary" %>
+      <!-- Bouton de retour -->
+  <div class="form-group">
+    <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
+  </div>
   </div>
 <% end %>
 

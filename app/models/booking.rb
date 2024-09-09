@@ -55,9 +55,9 @@ class Booking < ApplicationRecord
     when 'day'
       start_date + 1.day
     when 'multiple_days'
-      start_date + 6.days # Par exemple, pour une réservation multiple, ici on ajoute 6 jours.
+      start_date + 6.days
     when 'weekend'
-      start_date.end_of_week(:sunday) # Finir le dimanche
+      start_date.end_of_week(:sunday)
     when 'week'
       start_date + 1.week
     when 'month'
@@ -85,11 +85,26 @@ class Booking < ApplicationRecord
 
   # Validation pour éviter les chevauchements avec les réservations existantes
   def no_overlap_with_existing_bookings
-    overlapping_bookings = room.bookings.where.not(id: id)
-                                        .where("start_date < ? AND end_date > ?", end_date, start_date)
-    
-    if overlapping_bookings.exists?
-      errors.add(:base, "Cette période chevauche une réservation existante.")
+    if start_date.present? && end_date.present?
+      overlapping_bookings = Booking.where(room_id: room_id)
+                                    .where("start_date < ? AND end_date > ?", end_date, start_date)
+
+      overlapping_bookings.each do |booking|
+        if booking.start_time.present? && booking.end_time.present?
+          # Comparaison des heures uniquement si les deux réservations ont des heures définies
+          if (start_date.hour < booking.end_time.hour && end_date.hour > booking.start_time.hour)
+            errors.add(:base, "Les heures sélectionnées chevauchent une réservation existante.")
+            return false
+          end
+        else
+          # Comparaison des dates uniquement si aucune heure n'est définie
+          if (start_date.to_date <= booking.end_date.to_date && end_date.to_date >= booking.start_date.to_date)
+            errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
+            return false
+          end
+        end
+      end
     end
+    true
   end
 end

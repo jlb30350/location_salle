@@ -2,10 +2,10 @@
 
 <!-- Formulaire de modification de la salle -->
 <%= render 'form' %>
-
+<%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
 <!-- Affichage des photos principales et supplémentaires de la salle -->
 <%= render 'photos', room: @room %>
 
 <!-- Photo statique -->
 <h3>Photos statiques</h3>
-<%= image_tag 'salle_fetes_blanquefort.jpg', alt: 'Photo de la salle' %>
+

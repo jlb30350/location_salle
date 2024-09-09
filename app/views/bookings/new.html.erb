@@ -15,9 +15,8 @@
   </div>
 <% end %>
 
-
 <!-- Formulaire pour finaliser la réservation -->
-<%= form_with(model: [@room, @booking], local: true) do |f| %>
+<%= form_with(model: [@room, @booking], local: true, html: { class: "booking-form" }) do |f| %>
 
   <!-- Champ prénom -->
   <div class="form-group">
@@ -52,9 +51,21 @@
   <!-- Boutons de finalisation -->
   <div class="form-group">
      <%= submit_tag "Payer maintenant", name: "continue", class: "btn btn-primary" %>
-    <%= submit_tag "Demander un devis", name: "quote", class: "btn btn-secondary" %>
-    <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
-
+     <%= submit_tag "Demander un devis", name: "quote", class: "btn btn-secondary" %>
+     <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
   </div>
 
 <% end %>
+
+<!-- Le script pour désactiver les boutons après la soumission -->
+<script>
+  document.querySelector('.booking-form').addEventListener('submit', function(event) {
+    var submitButtons = this.querySelectorAll('input[type="submit"]');
+    submitButtons.forEach(function(button) {
+      button.disabled = true;
+      button.value = "Traitement en cours...";
+    });
+  });
+</script>
+
+

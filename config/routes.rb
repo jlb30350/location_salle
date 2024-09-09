@@ -21,38 +21,14 @@ Rails.application.routes.draw do
   # Reviews
   resources :reviews, only: [:create]
 
-  # Dashboard
-  resources :dashboard do
-    collection do
-      delete 'clear_all_bookings'
-    end
-  end
-
-  resources :rooms do
-    member do
-      delete 'delete_main_photo'  # Route pour supprimer la photo principale
-    end
-  end
-  
-  resources :rooms do
-    member do
-      delete 'delete_main_photo'
-      delete 'delete_additional_photo'  # Route pour supprimer les photos supplémentaires
-    end
-  end
-  
+  # Dashboard (Suppression de la redondance)
   resources :dashboard, only: [:index] do
-    delete 'clear_all_bookings', on: :collection # Pour la suppression des réservations par l'admin
-  end
-  
-  resources :bookings do
-    member do
-      post :cancel  # Route pour annuler une réservation
+    collection do
+      delete 'clear_all_bookings' # Pour la suppression des réservations par l'admin
     end
   end
 
-
-  # Rooms and bookings routes
+  # Rooms and bookings routes (fusion des déclarations)
   resources :rooms do
     collection do
       get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
@@ -62,6 +38,8 @@ Rails.application.routes.draw do
 
     member do
       get 'availability'
+      delete 'delete_main_photo'       # Route pour supprimer la photo principale
+      delete 'delete_additional_photo' # Route pour supprimer les photos supplémentaires
     end
 
     # Imbrication des réservations dans les chambres
@@ -69,6 +47,7 @@ Rails.application.routes.draw do
       member do
         get 'finalize_booking'
         post 'finalize_booking'
+        post 'cancel'  # Route pour annuler une réservation
       end
       resources :payments, only: [:new, :create]
     end

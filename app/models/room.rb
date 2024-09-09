@@ -17,8 +17,11 @@ class Room < ApplicationRecord
 
   # Validation des formats et valeurs numériques
   validates :capacity, :surface, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+
+  # Validation des tarifs
   validates :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
-            :quarterly_rate, :semiannual_rate, :annual_rate, numericality: { greater_than_or_equal_to: 0 }
+            :quarterly_rate, :semiannual_rate, :annual_rate, 
+            numericality: { greater_than_or_equal_to: 0, message: "doit être supérieur ou égal à 0" }
 
   # Validation des photos
   validates :main_photo, presence: true, unless: -> { additional_photos.attached? }
@@ -26,13 +29,17 @@ class Room < ApplicationRecord
 
   validate :at_least_one_rate_present
 
-  # Méthodes pour récupérer les tarifs
+  # Méthodes pour récupérer les tarifs avec des valeurs par défaut (si souhaité)
   def hourly_rate
     self[:hourly_rate] || 0
   end
 
   def daily_rate
     self[:daily_rate] || 0
+  end
+
+  def multiple_days_rate
+    self[:multiple_days_rate] || 0
   end
 
   def weekly_rate
@@ -44,7 +51,7 @@ class Room < ApplicationRecord
   end
 
   def weekend_rate
-    self[:weekend_rate] || 0
+    self[:weekend_rate] || 100  # Utilise 100 comme tarif par défaut si aucun autre tarif n'est défini
   end
 
   def quarterly_rate
@@ -61,8 +68,9 @@ class Room < ApplicationRecord
 
   private
 
+  # S'assurer qu'au moins un tarif est présent
   def at_least_one_rate_present
-    if [hourly_rate, daily_rate, weekly_rate, monthly_rate, weekend_rate, quarterly_rate, semiannual_rate, annual_rate].all?(&:blank?)
+    if [hourly_rate, daily_rate, weekly_rate, monthly_rate, weekend_rate, multiple_days_rate, quarterly_rate, semiannual_rate, annual_rate].all? { |rate| rate == 0 }
       errors.add(:base, "Au moins un tarif doit être défini.")
     end
   end

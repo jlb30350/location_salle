@@ -1,22 +1,26 @@
-<!-- app/views/pages/dashboard.html.erb -->
 <h2>Vos réservations</h2>
-<% if @user_bookings.present? %>
+
+<% if @user_bookings.any? %>
   <% @user_bookings.each do |booking| %>
-    <div>
-      <p>Réservation de la salle : <%= booking.room.name %></p>
-      <p>Date de début : <%= booking.start_date %></p>
-      <p>Date de fin : <%= booking.end_date %></p>
+    <div class="card mb-3">
+      <div class="card-body">
+        <p><strong>Salle réservée :</strong> <%= booking.room.name %></p>
+        <p><strong>Date de début :</strong> <%= booking.start_date.strftime("%d/%m/%Y %H:%M") %></p>
+        <p><strong>Date de fin :</strong> <%= booking.end_date.strftime("%d/%m/%Y %H:%M") %></p>
+
+        <!-- Lien pour modifier ou supprimer la réservation -->
+        <%= link_to 'Modifier', edit_room_booking_path(booking.room, booking), class: 'btn btn-warning btn-sm' %>
+        <%= link_to 'Supprimer', room_booking_path(booking.room, booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-danger btn-sm' %>
+      </div>
     </div>
   <% end %>
 <% else %>
   <p>Vous n'avez aucune réservation pour le moment.</p>
 <% end %>
 
-<!-- Vérifie si @room est défini avant d'afficher le lien -->
-<% if @room %>
-  <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' if @room.present? %>
-
+<!-- Lien pour faire une nouvelle réservation -->
+<% if @room.present? %>
+  <%= link_to 'Nouvelle Réservation', new_room_booking_path(@room), class: 'btn btn-success' %>
 <% else %>
   <%= link_to 'Accueil', root_path(anchor: 'search-section'), class: 'btn btn-primary' %>
-
 <% end %>
