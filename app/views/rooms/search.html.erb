@@ -1,7 +1,7 @@
 <h1>Résultats de la recherche</h1>
 
-<% if @rooms.any? %>
-  <% @rooms.each do |room| %>
+<% if @rooms.any? %> <!-- Vérifie si des résultats ont été trouvés -->
+  <% @rooms.each do |room| %> <!-- Boucle sur chaque salle trouvée -->
     <div class="room-card">
       <!-- Affichage de la photo principale -->
       <% if room.main_photo.attached? %>
@@ -10,9 +10,8 @@
         <img src="placeholder-image.jpg" alt="Pas de photo disponible" class="main-photo">
       <% end %>
 
+      <!-- Affichage du nom et des informations générales -->
       <h2><%= room.name %></h2>
-
-      <!-- Affichage minimal pour tous les utilisateurs -->
       <p>Ville : <%= room.city %></p>
       <p>Département : <%= room.department %></p>
       <p>Capacité : <%= room.capacity %> personnes</p>
@@ -38,6 +37,7 @@
     </div>
   <% end %>
 <% else %>
+  <!-- Message si aucune salle n'a été trouvée -->
   <p>Aucune salle trouvée pour cette recherche.</p>
 <% end %>
 

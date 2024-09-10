@@ -1,6 +1,6 @@
 class RoomsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :search, :bookings]
-  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_main_photo, :delete_additional_photo, :availability, :bookings]
+  before_action :set_room, only: [:show, :edit, :update, :destroy, :delete_main_photo, :delete_additional_photo, :availability, :bookings, :get_form]
   before_action :ensure_bailleur, only: [:new, :create, :edit, :update, :destroy, :delete_main_photo, :delete_additional_photo]
   before_action :ensure_owner, only: [:edit, :update, :destroy, :delete_main_photo, :delete_additional_photo]
   before_action :ensure_bailleur_or_correct_visibility, only: [:show]
@@ -12,6 +12,15 @@ class RoomsController < ApplicationController
              else
                Room.where(is_public: true)
              end
+  end
+
+  # Rechercher des salles
+  def search
+    if params[:query].present?
+      @rooms = Room.where("name LIKE ?", "%#{params[:query]}%")
+    else
+      @rooms = [] # Assurez-vous que @rooms n'est jamais nil
+    end
   end
 
   # Créer une nouvelle salle
@@ -57,36 +66,12 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Supprimer la photo principale
-  def delete_main_photo
-    if @room.main_photo.attached?
-      @room.main_photo.purge
-      flash[:notice] = 'Photo principale supprimée avec succès.'
-    else
-      flash[:alert] = 'Aucune photo principale à supprimer.'
-    end
-    redirect_to @room
-  end
-
-  # Supprimer une photo supplémentaire
-  def delete_additional_photo
-    photo = @room.additional_photos.find_by(id: params[:photo_id])
-
-    if photo.present?
-      photo.purge
-      flash[:notice] = 'Photo supplémentaire supprimée avec succès.'
-    else
-      flash[:alert] = 'Aucune photo supplémentaire à supprimer.'
-    end
-    redirect_to @room
-  end
-
   # Action pour obtenir le formulaire basé sur la durée de réservation
   def get_form
     duration = params[:duration]
     start_date = params[:start_date]
     end_date = params[:end_date]
-    
+  
     case duration
     when 'multiple_days'
       @message = "Réservation de plusieurs jours du #{start_date} au #{end_date}"
@@ -100,14 +85,19 @@ class RoomsController < ApplicationController
       @message = "Réservation pour une semaine commençant le #{start_date}"
     when 'month'
       @message = "Réservation pour un mois commençant le #{start_date}"
+    when 'quarter'
+      @message = "Réservation pour un trimestre commençant le #{start_date}" # Ajout de la réservation trimestrielle
+    when 'semiannual'
+      @message = "Réservation pour un semestre commençant le #{start_date}" # Ajout de la réservation semestrielle
     when 'year'
       @message = "Réservation pour une année commençant le #{start_date}"
     else
       @message = "Réservation par défaut"
     end
-
+  
     render partial: 'form_partial', locals: { message: @message, room: @room }
   end
+  
 
   # Créer une nouvelle salle
   def create
@@ -141,6 +131,30 @@ class RoomsController < ApplicationController
     end
   end
 
+  # Supprimer la photo principale
+  def delete_main_photo
+    if @room.main_photo.attached?
+      @room.main_photo.purge
+      flash[:notice] = 'Photo principale supprimée avec succès.'
+    else
+      flash[:alert] = 'Aucune photo principale à supprimer.'
+    end
+    redirect_to @room
+  end
+
+  # Supprimer une photo supplémentaire
+  def delete_additional_photo
+    photo = @room.additional_photos.find_by(id: params[:photo_id])
+
+    if photo.present?
+      photo.purge
+      flash[:notice] = 'Photo supplémentaire supprimée avec succès.'
+    else
+      flash[:alert] = 'Aucune photo supplémentaire à supprimer.'
+    end
+    redirect_to @room
+  end
+
   def availability
     begin
       @year = params[:year] ? params[:year].to_i : Date.today.year
@@ -165,9 +179,13 @@ class RoomsController < ApplicationController
       :name, :description, :main_photo, :mail, :phone, :kitchen,
       :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
       :quarterly_rate, :semiannual_rate, :annual_rate, :capacity, :surface,
-      :address, :city, :department, additional_photos: []
+      :address, :city, :department, :hourly_rental, :daily_rental, :multiple_days_rental,
+      :weekly_rental, :weekend_rental, :monthly_rental, :annual_rental, :quarterly_rental,
+      :semiannual_rental, # Ajout des options de location pour trimestriel et semestriel
+      additional_photos: []
     )
   end
+  
 
   def ensure_bailleur
     unless current_user&.bailleur?
@@ -176,7 +194,7 @@ class RoomsController < ApplicationController
   end
 
   def set_room
-    @room = Room.find_by(id: params[:id])
+    @room = Room.find(params[:room_id] || params[:id])
     unless @room
       redirect_to rooms_path, alert: "Salle non trouvée."
     end

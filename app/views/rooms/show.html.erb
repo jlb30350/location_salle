@@ -4,7 +4,17 @@
   <!-- Menu déroulant pour choisir la durée -->
   <div class="form-group mt-4">
     <%= label_tag :duration, 'Choisissez la durée' %>
-    <%= select_tag :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], ['2 à 6 jours', 'multiple_days'], ['Week-End', 'weekend'], ['Semaine', 'week'], ['Mois', 'month'], ['Année', 'year']]), class: 'form-control', id: 'duration-select' %>
+    <%= select_tag :duration, options_for_select([
+      ['1 heure', 'hour'], 
+      ['1 jour', 'day'], 
+      ['2 à 6 jours', 'multiple_days'], 
+      ['Week-End', 'weekend'], 
+      ['Semaine', 'week'], 
+      ['Mois', 'month'], 
+      ['Trimestre', 'quarter'], 
+      ['Semestre', 'semiannual'], 
+      ['Année', 'year']]), 
+      class: 'form-control', id: 'duration-select' %>
   </div>
 
   <!-- Navigation du calendrier -->
@@ -74,6 +84,22 @@
   <!-- Conteneur où le formulaire sera affiché en fonction de la sélection -->
   <div id="form-container" class="mt-4"></div>
 
+  <!-- Formulaire de réservation -->
+  <div class="form-group mt-4">
+    <%= form_with url: new_room_booking_path(@room), method: :get, local: true do |form| %>
+      <%= hidden_field_tag :date, params[:date] %>
+      <%= hidden_field_tag :duration, params[:duration] %>
+      
+      <!-- Affiche les détails de la réservation -->
+      <p id="reservation-message"><%= @message %></p>
+      
+      <!-- Bouton de réservation -->
+      <div class="form-group">
+        <%= form.submit "Réserver", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
   <!-- Bouton pour réinitialiser la durée et le calendrier -->
   <div class="mt-3">
     <button id="reset-button" class="btn btn-warning">Réinitialiser la durée</button>
@@ -92,24 +118,25 @@ document.addEventListener("DOMContentLoaded", function() {
   let selectedEndDate = null;
 
   // Fonction pour afficher un formulaire en fonction de la durée et des dates
-function displayForm(duration, startDate, endDate) {
-  if (!duration || !startDate) return;
+  function displayForm(duration, startDate, endDate) {
+    if (!duration || !startDate) return;
 
-  messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
+    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
 
-  // Assurez-vous que l'ID de la salle est inclus dans la requête fetch
-  fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
-    method: 'GET',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-  .then(response => response.text())
-  .then(html => {
-    formContainer.innerHTML = html;
-  })
-  .catch(error => console.error('Erreur:', error));
-}
+    // Assurez-vous que l'ID de la salle est inclus dans la requête fetch
+    fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      formContainer.innerHTML = html;
+    })
+    .catch(error => console.error('Erreur:', error));
+  }
+
   // Fonction pour générer le message de durée
   function getDurationMessage(duration) {
     switch (duration) {
@@ -125,6 +152,10 @@ function displayForm(duration, startDate, endDate) {
         return "une semaine";
       case 'month':
         return "un mois";
+      case 'quarter':
+        return "un trimestre";
+      case 'semiannual':
+        return "un semestre";
       case 'year':
         return "un an";
       default:
@@ -170,6 +201,12 @@ function displayForm(duration, startDate, endDate) {
       } else if (selectedDuration === 'month') {
         selectedStartDate = selectedDate;
         selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 1)).toISOString().split('T')[0];
+      } else if (selectedDuration === 'quarter') {
+        selectedStartDate = selectedDate;
+        selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 3)).toISOString().split('T')[0];
+      } else if (selectedDuration === 'semiannual') {
+        selectedStartDate = selectedDate;
+        selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 6)).toISOString().split('T')[0];
       } else if (selectedDuration === 'year') {
         selectedStartDate = selectedDate;
         selectedEndDate = new Date(new Date(selectedDate).setFullYear(new Date(selectedDate).getFullYear() + 1)).toISOString().split('T')[0];
@@ -211,29 +248,4 @@ function displayForm(duration, startDate, endDate) {
     });
   });
 });
-
-
-  function displayForm(duration, startDate, endDate) {
-    if (!duration || !startDate) return;
-
-    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
-
-    // Modification pour inclure l'ID de la salle dans la requête
-    fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
-      method: 'GET',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.text())
-    .then(html => {
-      formContainer.innerHTML = html;
-    })
-    .catch(error => console.error('Erreur:', error));
-  }
-
-
-
-
-
 </script>

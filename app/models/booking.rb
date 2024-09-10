@@ -2,9 +2,13 @@ class Booking < ApplicationRecord
   belongs_to :user
   belongs_to :room
 
+  DURATIONS = %w[hour day multiple_days weekend week month quarter semiannual year]
+
+  validates :duration, inclusion: { in: DURATIONS, message: "%{value} n'est pas une durée valide" }
+
   # Énumérations pour le statut et la durée de la réservation
   enum status: { pending: 'pending', confirmed: 'confirmed', canceled: 'canceled' }, _prefix: :status
-  enum duration: { hour: 0, day: 1, multiple_days: 2, weekend: 3, week: 4, month: 5, year: 6 }
+  enum duration: { hour: 0, day: 1, multiple_days: 2, weekend: 3, week: 4, month: 5, quarter: 6, semiannual: 7, year: 8 }
 
   # Validations
   validates :first_name, :last_name, :email, presence: true
@@ -33,6 +37,10 @@ class Booking < ApplicationRecord
       room.weekly_rate
     when 'month'
       room.monthly_rate
+    when 'quarter'
+      room.quarterly_rate
+    when 'semiannual'
+      room.semiannual_rate
     when 'year'
       room.annual_rate
     else
@@ -55,13 +63,17 @@ class Booking < ApplicationRecord
     when 'day'
       start_date + 1.day
     when 'multiple_days'
-      start_date + 6.days
+      start_date + 6.days # Maximum 6 jours
     when 'weekend'
-      start_date.end_of_week(:sunday)
+      start_date + 2.days # Suppose que le week-end commence le samedi et se termine le dimanche
     when 'week'
       start_date + 1.week
     when 'month'
       start_date + 1.month
+    when 'quarter'
+      start_date + 3.months
+    when 'semiannual'
+      start_date + 6.months
     when 'year'
       start_date + 1.year
     else
@@ -89,22 +101,9 @@ class Booking < ApplicationRecord
       overlapping_bookings = Booking.where(room_id: room_id)
                                     .where("start_date < ? AND end_date > ?", end_date, start_date)
 
-      overlapping_bookings.each do |booking|
-        if booking.start_time.present? && booking.end_time.present?
-          # Comparaison des heures uniquement si les deux réservations ont des heures définies
-          if (start_date.hour < booking.end_time.hour && end_date.hour > booking.start_time.hour)
-            errors.add(:base, "Les heures sélectionnées chevauchent une réservation existante.")
-            return false
-          end
-        else
-          # Comparaison des dates uniquement si aucune heure n'est définie
-          if (start_date.to_date <= booking.end_date.to_date && end_date.to_date >= booking.start_date.to_date)
-            errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
-            return false
-          end
-        end
+      if overlapping_bookings.exists?
+        errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
       end
     end
-    true
   end
 end

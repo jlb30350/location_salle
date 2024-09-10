@@ -6,17 +6,17 @@
 <p>Salle réservée : <%= @booking.room.name %></p>
 <p>Montant total : <%= number_to_currency(@booking.total_amount) %></p>
 
-<!-- Ajoutez le lien pour télécharger le devis -->
+<!-- Lien pour télécharger le devis -->
 <%= link_to 'Télécharger le devis', invoice_booking_path(@booking, format: :pdf), class: 'btn btn-primary' %>
 
-<!-- Ajoutez un lien pour passer au paiement -->
-<%= link_to 'Procéder au paiement', new_room_booking_payment_path(room_id: @room.id, booking_id: @booking.id), class: 'btn btn-primary' %>
+<!-- Lien pour passer au paiement -->
+<%= link_to 'Procéder au paiement', new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), class: 'btn btn-primary' %>
 
-<!-- Ajoutez le lien pour modifier la réservation -->
-<%= link_to 'Modifier la réservation', edit_room_booking_path(@room, @booking), class: 'btn btn-secondary' %>
+<!-- Lien pour modifier la réservation -->
+<%= link_to 'Modifier la réservation', edit_room_booking_path(@booking.room, @booking), class: 'btn btn-secondary' %>
 
-<!-- Ajoutez le lien pour supprimer la réservation -->
-<%= link_to 'Supprimer la réservation', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation?' }, class: 'btn btn-danger' %>
+<!-- Lien pour supprimer la réservation -->
+<%= link_to 'Supprimer la réservation', room_booking_path(@booking.room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation?' }, class: 'btn btn-danger' %>
 
 <!-- Lien pour revenir à la liste des réservations ou à la salle -->
-<%= link_to 'Retour à la liste des réservations', room_path(@room), class: 'btn btn-secondary' %>
+<%= link_to 'Retour à la liste des réservations', room_path(@booking.room), class: 'btn btn-secondary' %>

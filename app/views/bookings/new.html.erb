@@ -4,9 +4,10 @@
   <!-- Contenu de la section de réservation -->
 </div>
 
+<!-- Affichage des erreurs -->
 <% if @booking.errors.any? %>
   <div id="error_explanation">
-    <h2><%= pluralize(@booking.errors.count, "erreur") %> empêchent la création de cette réservation :</h2>
+    <h2><%= pluralize(@booking.errors.count, "erreur") %> ont empêché la création de la réservation :</h2>
     <ul>
       <% @booking.errors.full_messages.each do |message| %>
         <li><%= message %></li>
@@ -15,44 +16,46 @@
   </div>
 <% end %>
 
-<!-- Formulaire pour finaliser la réservation -->
-<%= form_with(model: [@room, @booking], local: true, html: { class: "booking-form" }) do |f| %>
-
-  <!-- Champ prénom -->
+<!-- Formulaire de réservation -->
+<%= form_with(model: @booking, url: room_bookings_path(@room), local: true, class: "booking-form") do |form| %>
+  
+  <!-- Champ Prénom -->
   <div class="form-group">
-    <%= f.label :first_name, 'Prénom' %>
-    <%= f.text_field :first_name, class: 'form-control', value: @booking.first_name %>
+    <%= form.label :first_name, "Prénom" %>
+    <%= form.text_field :first_name, class: "form-control" %>
   </div>
 
-  <!-- Champ nom -->
+  <!-- Champ Nom -->
   <div class="form-group">
-    <%= f.label :last_name, 'Nom' %>
-    <%= f.text_field :last_name, class: 'form-control', value: @booking.last_name %>
+    <%= form.label :last_name, 'Nom' %>
+    <%= form.text_field :last_name, class: 'form-control' %>
   </div>
 
-  <!-- Champ email -->
+  <!-- Champ Email -->
   <div class="form-group">
-    <%= f.label :email, 'Adresse Email' %>
-    <%= f.email_field :email, class: 'form-control', value: @booking.email %>
+    <%= form.label :email, 'Adresse Email' %>
+    <%= form.email_field :email, class: 'form-control' %>
   </div>
 
-  <!-- Champ téléphone -->
+  <!-- Champ Téléphone -->
   <div class="form-group">
-    <%= f.label :phone, 'Numéro de téléphone' %>
-    <%= f.telephone_field :phone, class: 'form-control', value: @booking.phone %>
+    <%= form.label :phone, 'Numéro de téléphone' %>
+    <%= form.telephone_field :phone, class: 'form-control' %>
   </div>
 
-  <!-- Champ adresse -->
+  <!-- Champ Adresse -->
   <div class="form-group">
-    <%= f.label :address, 'Adresse' %>
-    <%= f.text_field :address, class: 'form-control', value: @booking.address %>
+    <%= form.label :address, 'Adresse' %>
+    <%= form.text_field :address, class: 'form-control' %>
   </div>
+
+
 
   <!-- Boutons de finalisation -->
   <div class="form-group">
-     <%= submit_tag "Payer maintenant", name: "continue", class: "btn btn-primary" %>
-     <%= submit_tag "Demander un devis", name: "quote", class: "btn btn-secondary" %>
-     <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
+    <%= submit_tag "Payer maintenant", name: "continue", class: "btn btn-primary" %>
+    <%= submit_tag "Demander un devis", name: "quote", class: "btn btn-secondary" %>
+    <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
   </div>
 
 <% end %>
@@ -67,5 +70,3 @@
     });
   });
 </script>
-
-

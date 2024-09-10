@@ -38,7 +38,28 @@ class BookingsController < ApplicationController
     end
   
     # Ajuster les dates de la réservation
-    adjust_booking_dates(@booking)
+    def adjust_booking_dates(booking)
+      case booking.duration
+      when 'hour'
+        booking.start_date = booking.start_date.change(hour: 7)
+        booking.end_date = booking.start_date + 1.hour
+      when 'day'
+        booking.start_date = booking.start_date.change(hour: 7)
+        booking.end_date = booking.start_date.change(hour: 17)
+      when 'week'
+        booking.end_date = booking.start_date + 6.days
+      when 'month'
+        booking.end_date = booking.start_date + 1.month
+      when 'quarter'
+        booking.end_date = booking.start_date + 3.months # Pour une durée trimestrielle
+      when 'semiannual'
+        booking.end_date = booking.start_date + 6.months # Pour une durée semestrielle
+      when 'year'
+        booking.end_date = booking.start_date + 1.year
+      else
+        raise "Durée de réservation inconnue"
+      end
+    end
   
     # Vérification de la disponibilité des dates
     if dates_available?(@booking.start_date, @booking.end_date) && @booking.save
@@ -50,7 +71,6 @@ class BookingsController < ApplicationController
       render :new
     end
   end
-  
 
   # Finaliser la réservation
   def finalize_booking
@@ -70,7 +90,6 @@ class BookingsController < ApplicationController
     end
   end
   
-
   # Mettre à jour une réservation
   def update
     if @booking.update(booking_params)
@@ -98,33 +117,26 @@ class BookingsController < ApplicationController
     end
   end
 
-  private
-
   # Vérifier la disponibilité des dates
-# Vérifier la disponibilité des dates
-def dates_available?(start_date, end_date)
-  overlapping_bookings = Booking.where(room_id: @room.id)
-                                .where("start_date < ? AND end_date > ?", end_date, start_date)
+  def dates_available?(start_date, end_date)
+    overlapping_bookings = Booking.where(room_id: @room.id)
+                                  .where("start_date < ? AND end_date > ?", end_date, start_date)
 
-  overlapping_bookings.each do |booking|
-    # Comparaison des dates uniquement
-    if start_date.to_date <= booking.end_date.to_date && end_date.to_date >= booking.start_date.to_date
-      # Si les deux réservations ont des heures, comparez-les
-      if start_date.hour.present? && booking.start_date.hour.present?
-        if (start_date.hour < booking.end_date.hour && end_date.hour > booking.start_date.hour)
-          @booking.errors.add(:base, "Les heures sélectionnées chevauchent une réservation existante.")
+    overlapping_bookings.each do |booking|
+      if start_date.to_date <= booking.end_date.to_date && end_date.to_date >= booking.start_date.to_date
+        if start_date.hour.present? && booking.start_date.hour.present?
+          if (start_date.hour < booking.end_date.hour && end_date.hour > booking.start_date.hour)
+            @booking.errors.add(:base, "Les heures sélectionnées chevauchent une réservation existante.")
+            return false
+          end
+        else
+          @booking.errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
           return false
         end
-      else
-        # Si aucune heure n'est définie, comparez uniquement les dates
-        @booking.errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
-        return false
       end
     end
+    true
   end
-  true
-end
-
 
   # Ajuster les dates en fonction de la durée
   def adjust_booking_dates(booking)
@@ -168,6 +180,8 @@ end
       booking.end_date = (booking.start_date + 1.year).change(hour: 17)
     end
   end
+
+  private
 
   def set_room
     @room = Room.find(params[:room_id])

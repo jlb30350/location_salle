@@ -78,6 +78,13 @@ Rails.application.configure do
   config.assets.debug = true
   config.assets.raise_runtime_errors = true
 
+  config.assets.compile = true
+
+  config.log_level = :debug  # ou un autre niveau (info, warn, error)
+  config.logger = ActiveSupport::Logger.new("log/development.log")
+
+
+
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
