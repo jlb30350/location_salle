@@ -16,90 +16,35 @@ class BookingsController < ApplicationController
     session[:booking_token] = SecureRandom.uuid # Crée un jeton unique pour la réservation
   end
   
-  # Annuler une réservation
-  def cancel
-    if @booking.update(status: 'canceled')
-      flash[:notice] = 'Votre réservation a été annulée avec succès.'
-    else
-      flash[:alert] = "L'annulation de la réservation a échoué."
-    end
-    redirect_to dashboard_path
-  end
-
   # Création d'une réservation
   def create
-    @booking = @room.bookings.new(booking_params)
+    @booking = @room.bookings.build(booking_params)
     @booking.user = current_user
-  
-    # Vérifier et ajuster les dates si elles sont manquantes
-    if @booking.start_date.blank? || @booking.end_date.blank?
-      @booking.start_date = Date.today
-      @booking.end_date = @booking.start_date + 1.day
-    end
-  
-    # Ajuster les dates de la réservation
-    def adjust_booking_dates(booking)
-      case booking.duration
-      when 'hour'
-        booking.start_date = booking.start_date.change(hour: 7)
-        booking.end_date = booking.start_date + 1.hour
-      when 'day'
-        booking.start_date = booking.start_date.change(hour: 7)
-        booking.end_date = booking.start_date.change(hour: 17)
-      when 'week'
-        booking.end_date = booking.start_date + 6.days
-      when 'month'
-        booking.end_date = booking.start_date + 1.month
-      when 'quarter'
-        booking.end_date = booking.start_date + 3.months # Pour une durée trimestrielle
-      when 'semiannual'
-        booking.end_date = booking.start_date + 6.months # Pour une durée semestrielle
-      when 'year'
-        booking.end_date = booking.start_date + 1.year
-      else
-        raise "Durée de réservation inconnue"
-      end
-    end
-  
-    # Vérification de la disponibilité des dates
+
     if dates_available?(@booking.start_date, @booking.end_date) && @booking.save
       session[:booking_id] = @booking.id
-      # Redirection après la création
       redirect_to new_room_booking_payment_path(@room, @booking), notice: 'Réservation créée avec succès, veuillez procéder au paiement.'
     else
-      flash.now[:alert] = "Erreur lors de la création de la réservation : #{@booking.errors.full_messages.join(', ')}"
+      flash.now[:alert] = "Erreur lors de la création de la réservation."
       render :new
     end
   end
 
-  # Finaliser la réservation
-  def finalize_booking
-    if request.post?
-      if params[:continue]  # Si l'utilisateur clique sur "Payer maintenant"
-        redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Procédez au paiement.'
-      elsif params[:quote]  # Si l'utilisateur demande un devis
-        @booking.update(devis_requested_at: Time.current, status: 'pending')
-        flash[:notice] = 'Votre demande de devis a été envoyée. Vous pouvez finaliser votre réservation dans les 24 heures.'
-        redirect_to room_path(@booking.room) # Vous restez sur la page de la salle après avoir demandé un devis
-      else
-        flash.now[:alert] = 'Veuillez choisir une option.'
-        render :finalize_booking
-      end
+  # Annuler une réservation
+  def cancel
+    if @booking.update(status: 'canceled')
+      flash[:notice] = 'Votre réservation a été annulée avec succès.'
+      redirect_to dashboard_path
     else
-      render :finalize_booking
+      flash[:alert] = "L'annulation de la réservation a échoué."
+      redirect_to dashboard_path
     end
   end
-  
+
   # Mettre à jour une réservation
   def update
     if @booking.update(booking_params)
-      if params[:continue]
-        redirect_to new_room_booking_payment_path(@room, @booking), notice: 'Réservation mise à jour avec succès. Veuillez procéder au paiement.'
-      elsif params[:quote]
-        redirect_to room_path(@room), notice: 'Réservation mise à jour avec succès. Votre demande de devis a été envoyée.'
-      else
-        redirect_to room_path(@room), notice: 'Réservation mise à jour avec succès.'
-      end
+      redirect_to resolve_redirect_path, notice: 'Réservation mise à jour avec succès.'
     else
       flash.now[:alert] = 'Il y a eu des erreurs lors de la mise à jour de la réservation.'
       render :edit
@@ -110,78 +55,54 @@ class BookingsController < ApplicationController
   def destroy
     if @booking.destroy
       flash[:notice] = 'Réservation supprimée avec succès.'
-      redirect_to params[:from_dashboard] ? dashboard_path : room_path(@room)
+      redirect_back(fallback_location: room_path(@room))
     else
       flash[:alert] = 'La suppression de la réservation a échoué.'
-      redirect_to room_path(@room)
+      redirect_back(fallback_location: room_path(@room))
     end
   end
 
-  # Vérifier la disponibilité des dates
+  # Finaliser la réservation
+  def finalize_booking
+    if request.post?
+      redirect_based_on_params
+    else
+      render :finalize_booking
+    end
+  end
+
   def dates_available?(start_date, end_date)
-    overlapping_bookings = Booking.where(room_id: @room.id)
-                                  .where("start_date < ? AND end_date > ?", end_date, start_date)
-
-    overlapping_bookings.each do |booking|
-      if start_date.to_date <= booking.end_date.to_date && end_date.to_date >= booking.start_date.to_date
-        if start_date.hour.present? && booking.start_date.hour.present?
-          if (start_date.hour < booking.end_date.hour && end_date.hour > booking.start_date.hour)
-            @booking.errors.add(:base, "Les heures sélectionnées chevauchent une réservation existante.")
-            return false
-          end
-        else
-          @booking.errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
-          return false
-        end
-      end
-    end
-    true
+    overlapping_bookings = @room.bookings.where.not(id: @booking&.id)
+                                         .where("start_date < ? AND end_date > ?", end_date, start_date)
+                                         .exists?
+    !overlapping_bookings
   end
-
-  # Ajuster les dates en fonction de la durée
-  def adjust_booking_dates(booking)
-    case booking.duration
-    when 'one_hour'
-      booking.start_date = booking.start_date.change(hour: 7) if booking.start_date.hour < 7
-      booking.end_date = booking.start_date + 1.hour
-      booking.end_date = booking.start_date.change(hour: 17) if booking.end_date.hour > 17
   
-    when 'one_day'
-      booking.start_date = booking.start_date.change(hour: 7)
-      booking.end_date = booking.start_date.change(hour: 17)
-  
-    when 'multiple_days'
-      booking.start_date = booking.start_date.change(hour: 7) if booking.start_date.hour < 7
-      booking.end_date = booking.end_date.change(hour: 17) if booking.end_date.hour > 17
-  
-      if (booking.end_date - booking.start_date).to_i > 6
-        flash.now[:alert] = "La durée maximale pour '2 à 6 jours' est de 6 jours."
-        render :new and return
-      end
-      if booking.start_date.wday == 0 || booking.end_date.wday == 0
-        flash.now[:alert] = "Les réservations ne peuvent pas commencer ou se terminer un dimanche."
-        render :new and return
-      end
-  
-    when 'week'
-      booking.start_date = booking.start_date.change(hour: 7)
-      booking.end_date = (booking.start_date + 6.days).change(hour: 17)
-  
-    when 'weekend'
-      booking.start_date = booking.start_date.change(hour: 7, wday: 6) # Samedi
-      booking.end_date = booking.start_date.change(hour: 17, wday: 0)  # Dimanche
-  
-    when 'month'
-      booking.start_date = booking.start_date.change(hour: 7)
-      booking.end_date = (booking.start_date + 1.month).change(hour: 17)
-  
-    when 'year'
-      booking.start_date = booking.start_date.change(hour: 7)
-      booking.end_date = (booking.start_date + 1.year).change(hour: 17)
-    end
-  end
 
   private
+
+  def resolve_redirect_path
+    if params[:continue]
+      new_room_booking_payment_path(@room, @booking)
+    elsif params[:quote]
+      room_path(@room)
+    else
+      room_path(@room)
+    end
+  end
+
+  def redirect_based_on_params
+    if params[:continue]
+      redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Procédez au paiement.'
+    elsif params[:quote]
+      @booking.update(devis_requested_at: Time.current, status: 'pending')
+      flash[:notice] = 'Votre demande de devis a été envoyée. Vous pouvez finaliser votre réservation dans les 24 heures.'
+      redirect_to room_path(@booking.room)
+    else
+      flash.now[:alert] = 'Veuillez choisir une option.'
+      render :finalize_booking
+    end
+  end
 
   def set_room
     @room = Room.find(params[:room_id])
@@ -192,6 +113,6 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:first_name, :last_name, :email, :phone, :address, :start_date, :end_date, :duration, :number_of_guests)
+    params.require(:booking).permit(:first_name, :last_name, :email, :phone, :address, :start_date, :end_date)
   end
 end

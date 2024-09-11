@@ -101,6 +101,7 @@ class RoomsController < ApplicationController
 
   # Créer une nouvelle salle
   def create
+     Rails.logger.debug "Valeur de duration: #{params[:booking][:duration]}"
     @room = current_user.rooms.new(room_params)
     if @room.save
       @room.additional_photos.attach(params[:room][:additional_photos]) if params[:room][:additional_photos].present?

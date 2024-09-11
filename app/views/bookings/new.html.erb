@@ -16,57 +16,47 @@
   </div>
 <% end %>
 
-<!-- Formulaire de réservation -->
-<%= form_with(model: @booking, url: room_bookings_path(@room), local: true, class: "booking-form") do |form| %>
-  
-  <!-- Champ Prénom -->
+<!-- Formulaire de réservation avec form_with pour une meilleure intégration Rails -->
+<%= form_with(model: [@room, @booking], local: true) do |form| %>
   <div class="form-group">
     <%= form.label :first_name, "Prénom" %>
-    <%= form.text_field :first_name, class: "form-control" %>
+    <%= form.text_field :first_name, class: 'form-control' %>
   </div>
 
-  <!-- Champ Nom -->
   <div class="form-group">
-    <%= form.label :last_name, 'Nom' %>
+    <%= form.label :last_name, "Nom" %>
     <%= form.text_field :last_name, class: 'form-control' %>
   </div>
 
-  <!-- Champ Email -->
   <div class="form-group">
-    <%= form.label :email, 'Adresse Email' %>
+    <%= form.label :email, "Adresse e-mail" %>
     <%= form.email_field :email, class: 'form-control' %>
   </div>
 
-  <!-- Champ Téléphone -->
   <div class="form-group">
-    <%= form.label :phone, 'Numéro de téléphone' %>
-    <%= form.telephone_field :phone, class: 'form-control' %>
+    <%= form.label :phone, "Téléphone" %>
+    <%= form.telephone_field :phone, class: 'form-control', placeholder: "Entrez un numéro de téléphone valide (10 chiffres)" %>
   </div>
 
-  <!-- Champ Adresse -->
+  <div class="form-group">
+    <%= form.label :start_date, "Date de début" %>
+    <%= form.date_select :start_date, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :end_date, "Date de fin" %>
+    <%= form.date_select :end_date, class: 'form-control' %>
+  </div>
+
   <div class="form-group">
     <%= form.label :address, 'Adresse' %>
     <%= form.text_field :address, class: 'form-control' %>
   </div>
 
-
-
   <!-- Boutons de finalisation -->
   <div class="form-group">
-    <%= submit_tag "Payer maintenant", name: "continue", class: "btn btn-primary" %>
-    <%= submit_tag "Demander un devis", name: "quote", class: "btn btn-secondary" %>
+    <%= form.submit "Payer maintenant", name: "continue", class: "btn btn-primary" %>
+    <%= form.submit "Demander un devis", name: "quote", class: "btn btn-secondary" %>
     <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
   </div>
-
 <% end %>
-
-<!-- Le script pour désactiver les boutons après la soumission -->
-<script>
-  document.querySelector('.booking-form').addEventListener('submit', function(event) {
-    var submitButtons = this.querySelectorAll('input[type="submit"]');
-    submitButtons.forEach(function(button) {
-      button.disabled = true;
-      button.value = "Traitement en cours...";
-    });
-  });
-</script>

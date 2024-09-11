@@ -100,3 +100,12 @@ document.addEventListener('DOMContentLoaded', function() {
   setupDateSelection();
   setupDateTimeSelectors();
 });
+
+// Exemple simple pour mettre à jour les champs cachés
+document.addEventListener('turbolinks:load', function() {
+  var calendar = document.getElementById('calendar');
+  calendar.addEventListener('change', function(event) {
+    document.getElementById('start_date').value = event.start_date;
+    document.getElementById('end_date').value = event.end_date;
+  });
+});

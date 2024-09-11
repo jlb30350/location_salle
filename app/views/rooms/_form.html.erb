@@ -181,6 +181,18 @@
     <%= form.number_field :annual_rate, step: 1, class: 'form-control', placeholder: "Tarif à l'année (en euros)", value: @room.annual_rate || "" %>
   </div>
 
+  <div class="form-group">
+  <%= form.label :duration, "Choisissez la durée" %>
+  <%= form.select :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], 
+                                                 ['De 2 à 6 jours', 'multiple_days'], 
+                                                 ['Week-end', 'weekend'], ['1 semaine', 'week'], 
+                                                 ['1 mois', 'month'], ['1 trimestre', 'quarter'], 
+                                                 ['1 semestre', 'semiannual'], ['1 année', 'year']]), 
+                                                 {}, class: "form-control" %>
+</div>
+
+  
+
   <!-- Photo principale -->
   <div class="form-group">
     <%= form.label :main_photo, "Photo principale" %>

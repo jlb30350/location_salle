@@ -1,44 +1,57 @@
-<%= form_with(model: [@room, @booking]) do |f| %>
+<%= form_with(model: [@room, @booking], local: true) do |f| %>
+  
+  <!-- Champ Prénom -->
   <div class="form-group">
     <%= f.label :first_name, "Prénom" %>
-    <%= f.text_field :first_name, class: 'form-control', value: @booking.first_name %> <!-- Suppression du readonly -->
+    <%= f.text_field :first_name, class: 'form-control' %>
   </div>
 
+  <!-- Champ Nom -->
   <div class="form-group">
     <%= f.label :last_name, "Nom" %>
-    <%= f.text_field :last_name, class: 'form-control', value: @booking.last_name %> <!-- Suppression du readonly -->
+    <%= f.text_field :last_name, class: 'form-control' %>
   </div>
 
+  <!-- Champ Email -->
   <div class="form-group">
     <%= f.label :email, "Adresse e-mail" %>
-    <%= f.email_field :email, class: 'form-control', value: @booking.email %> <!-- Suppression du readonly -->
+    <%= f.email_field :email, class: 'form-control' %>
   </div>
 
+  <!-- Champ Téléphone -->
   <div class="form-group">
     <%= f.label :phone, "Numéro de téléphone" %>
-    <%= f.telephone_field :phone, class: 'form-control', value: @booking.phone %> <!-- Suppression du readonly -->
+    <%= f.telephone_field :phone, class: 'form-control' %>
   </div>
 
+  <!-- Champ Adresse -->
   <div class="form-group">
     <%= f.label :address, "Adresse" %>
-    <%= f.text_field :address, class: 'form-control', value: @booking.address %> <!-- Suppression du readonly -->
+    <%= f.text_field :address, class: 'form-control' %>
   </div>
 
+ 
+
+  <!-- Champ Date de début -->
   <div class="form-group">
     <%= f.label :start_date, "Date de début" %>
-    <%= f.text_field :start_date, class: 'form-control', value: @booking.start_date.strftime('%d/%m/%Y') %> <!-- Suppression du readonly -->
+    <%= f.date_field :start_date, class: 'form-control' %>
   </div>
 
+  <!-- Champ Date de fin -->
   <div class="form-group">
     <%= f.label :end_date, "Date de fin" %>
-    <%= f.text_field :end_date, class: 'form-control', value: @booking.end_date.strftime('%d/%m/%Y') %> <!-- Suppression du readonly -->
+    <%= f.date_field :end_date, class: 'form-control' %>
   </div>
 
+  <!-- Boutons de soumission -->
   <div class="form-group">
     <%= f.submit 'Continuer vers le paiement', name: 'continue', class: 'btn btn-primary' %>
     <%= f.submit 'Demander un devis', name: 'quote', class: 'btn btn-secondary' %>
   </div>
 
+  <!-- Boutons de navigation -->
   <%= link_to 'Annuler', availability_room_path(@room), class: 'btn btn-secondary' %>
   <%= link_to 'Supprimer', room_booking_path(@room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr ?' }, class: 'btn btn-danger' if @booking.persisted? %>
+
 <% end %>
