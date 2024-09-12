@@ -1,6 +1,6 @@
 class BookingsController < ApplicationController
   before_action :set_room, only: [:new, :create, :edit, :update, :destroy, :finalize_booking]
-  before_action :set_booking, only: [:edit, :update, :destroy, :cancel, :finalize_booking]
+  before_action :set_booking, only: [:edit, :update, :destroy, :cancel, :finalize_booking, :show, :create_devis]
 
   # Nouvelle réservation
   def new
@@ -25,7 +25,7 @@ class BookingsController < ApplicationController
       session[:booking_id] = @booking.id
       redirect_to new_room_booking_payment_path(@room, @booking), notice: 'Réservation créée avec succès, veuillez procéder au paiement.'
     else
-      flash.now[:alert] = "Erreur lors de la création de la réservation."
+      flash.now[:alert] = "Erreur lors de la création de la réservation. Veuillez vérifier les dates et autres informations."
       render :new
     end
   end
@@ -38,6 +38,19 @@ class BookingsController < ApplicationController
     else
       flash[:alert] = "L'annulation de la réservation a échoué."
       redirect_to dashboard_path
+    end
+  end
+
+  # Créer un devis
+  def create_devis
+    respond_to do |format|
+      format.html
+      format.pdf do
+        render pdf: "devis_#{booking.id}",
+               template: 'bookings/devis.pdf.erb',
+               layout: 'pdf.html',
+               locals: { booking: @booking }
+      end
     end
   end
 
@@ -71,16 +84,18 @@ class BookingsController < ApplicationController
     end
   end
 
+  # Vérification de disponibilité des dates
   def dates_available?(start_date, end_date)
     overlapping_bookings = @room.bookings.where.not(id: @booking&.id)
                                          .where("start_date < ? AND end_date > ?", end_date, start_date)
                                          .exists?
+    Rails.logger.debug "Overlapping bookings: #{overlapping_bookings}"
     !overlapping_bookings
   end
-  
 
   private
 
+  # Déterminer où rediriger après une action
   def resolve_redirect_path
     if params[:continue]
       new_room_booking_payment_path(@room, @booking)
@@ -91,6 +106,7 @@ class BookingsController < ApplicationController
     end
   end
 
+  # Redirection basée sur les paramètres soumis
   def redirect_based_on_params
     if params[:continue]
       redirect_to new_room_booking_payment_path(room_id: @booking.room.id, booking_id: @booking.id), notice: 'Procédez au paiement.'
@@ -104,14 +120,20 @@ class BookingsController < ApplicationController
     end
   end
 
+  # Chargement de la salle
   def set_room
     @room = Room.find(params[:room_id])
   end
 
+  # Chargement de la réservation
   def set_booking
     @booking = @room.bookings.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    flash[:alert] = "Réservation non trouvée."
+    redirect_back(fallback_location: room_path(@room))
   end
 
+  # Paramètres autorisés pour une réservation
   def booking_params
     params.require(:booking).permit(:first_name, :last_name, :email, :phone, :address, :start_date, :end_date)
   end

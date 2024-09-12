@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Devis</title>
   <style>
-    /* Ajoutez ici les styles pour vos PDF */
-    body { font-family: Arial, sans-serif; }
-    h1, h2, p { margin: 0; padding: 10px 0; }
+    body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    .montant { font-size: 24px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <%= yield %>
+  <h1>Devis pour la Réservation</h1>
+  <p>Numéro de réservation: <%= @booking.id %></p>
+  <p class="montant">Montant: <%= number_to_currency(@booking.total_amount) %></p>
 </body>
 </html>
+<%= link_to "Demander un devis", booking_create_devis_path(@booking, format: :pdf), class: "btn btn-info" %>

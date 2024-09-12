@@ -109,3 +109,5 @@ document.addEventListener('turbolinks:load', function() {
     document.getElementById('end_date').value = event.end_date;
   });
 });
+
+

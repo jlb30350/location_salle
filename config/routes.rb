@@ -21,14 +21,14 @@ Rails.application.routes.draw do
   # Reviews
   resources :reviews, only: [:create]
 
-  # Dashboard (Suppression de la redondance)
+  # Dashboard
   resources :dashboard, only: [:index] do
     collection do
-      delete 'clear_all_bookings' # Pour la suppression des réservations par l'admin
+      delete 'clear_all_bookings'  # Pour la suppression des réservations par l'admin
     end
   end
 
-  # Rooms and bookings routes (fusion des déclarations)
+  # Rooms and bookings routes
   resources :rooms do
     collection do
       get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
@@ -42,9 +42,9 @@ Rails.application.routes.draw do
       delete 'delete_additional_photo' # Route pour supprimer les photos supplémentaires
     end
 
-    # Imbrication des réservations dans les chambres
-    resources :bookings, only: [:new, :create, :edit, :update, :destroy] do
+    resources :bookings, except: [:index, :show] do
       member do
+        get 'create_devis', defaults: { format: 'pdf' }
         get 'finalize_booking'
         post 'finalize_booking'
         post 'cancel'  # Route pour annuler une réservation

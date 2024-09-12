@@ -1,50 +1,52 @@
 <h1>Procéder au paiement</h1>
 
-<p>Montant à payer : <%= number_to_currency(@amount) %></p>
+<p>Montant à payer : <%= number_to_currency(@amount, unit: "€") %></p>
 
-<%= form_with url: room_booking_payments_path(@room, @booking), method: :post, local: true do |form| %>
+<%= form_with url: room_booking_payments_path(@room, @booking), id: 'payment-form', method: :post, local: true do |form| %>
   <div class="form-group">
     <label for="card-element">Informations de la carte</label>
-    <div id="card-element"><!-- Stripe card element sera inséré ici --></div>
+    <div id="card-element"><!-- Stripe Elements injectera ici le formulaire de carte --></div>
   </div>
+
+  <div id="error-message" class="alert alert-danger" style="display: none;"></div>
 
   <div class="form-group">
     <%= form.submit "Payer maintenant", class: "btn btn-primary" %>
-      <!-- Bouton de retour -->
-  <div class="form-group">
     <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
-  </div>
   </div>
 <% end %>
 
-<!-- Script pour intégrer Stripe -->
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  var stripe = Stripe('<%= @stripe_publishable_key %>');
-  var elements = stripe.elements();
-  
-  var card = elements.create('card');
-  card.mount('#card-element');
+  document.addEventListener('DOMContentLoaded', function () {
+    var stripe = Stripe('<%= Rails.application.credentials.dig(:stripe, :publishable_key) %>');
+    var elements = stripe.elements();
+    var card = elements.create('card');
+    card.mount('#card-element');
 
-  // Gestion des erreurs et soumission du formulaire
-  var form = document.querySelector('form');
-  form.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    stripe.createToken(card).then(function(result) {
-      if (result.error) {
-        // Afficher les erreurs
-        alert(result.error.message);
-      } else {
-        // Envoyer le token au backend
-        var hiddenInput = document.createElement('input');
-        hiddenInput.setAttribute('type', 'hidden');
-        hiddenInput.setAttribute('name', 'stripeToken');
-        hiddenInput.setAttribute('value', result.token.id);
-        form.appendChild(hiddenInput);
-
-        form.submit();
-      }
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      stripe.createToken(card).then(function(result) {
+        if (result.error) {
+          var errorElement = document.getElementById('error-message');
+          errorElement.textContent = result.error.message;
+          errorElement.style.display = 'block';
+        } else {
+          stripeTokenHandler(result.token);
+        }
+      });
     });
+
+    function stripeTokenHandler(token) {
+      var form = document.getElementById('payment-form');
+      var hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', 'stripeToken');
+      hiddenInput.setAttribute('value', token.id);
+      form.appendChild(hiddenInput);
+
+      form.submit(); // Soumet le formulaire au serveur après avoir ajouté le token
+    }
   });
 </script>

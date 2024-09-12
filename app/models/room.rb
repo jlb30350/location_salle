@@ -20,8 +20,8 @@ class Room < ApplicationRecord
 
   # Validation des tarifs
   validates :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
-            :quarterly_rate, :semiannual_rate, :annual_rate, 
-            numericality: { greater_than_or_equal_to: 0, message: "doit être supérieur ou égal à 0" }
+            :quarterly_rate, :semiannual_rate, :annual_rate, :multiple_days_rate, 
+            numericality: { greater_than_or_equal_to: 0, message: "doit être supérieur ou égal à 0" }, allow_nil: true
 
   # Validation des photos
   validates :main_photo, presence: true, unless: -> { additional_photos.attached? }

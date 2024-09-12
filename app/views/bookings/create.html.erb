@@ -1,37 +1,40 @@
 <h1>Réserver une salle</h1>
 
 <%= form_with model: [@room, @booking], local: true do |f| %>
+  <!-- Champs cachés pour stocker les dates sélectionnées dans le calendrier -->
+  <%= hidden_field_tag :start_date, params[:start_date], id: "hidden-start-date" %>
+  <%= hidden_field_tag :end_date, params[:end_date], id: "hidden-end-date" %>
+
+  <!-- Date de début et date de fin visibles -->
   <div class="form-group">
     <%= f.label :start_date, "Date de début" %>
-    <%= f.date_select :start_date, class: 'form-control' %>
+    <%= f.date_select :start_date, class: 'form-control', value: params[:start_date] %>
   </div>
 
   <div class="form-group">
     <%= f.label :end_date, "Date de fin" %>
-    <%= f.date_select :end_date, class: 'form-control' %>
+    <%= f.date_select :end_date, class: 'form-control', value: params[:end_date] %>
   </div>
 
-  <%# Champs additionnels si ces attributs existent dans le modèle Booking %>
+  <!-- Email -->
   <div class="form-group">
     <%= f.label :email, "Email" %>
     <%= f.email_field :email, class: 'form-control' %>
   </div>
 
+  <!-- Téléphone -->
   <div class="form-group">
     <%= f.label :phone, "Téléphone" %>
     <%= f.text_field :phone, class: 'form-control' %>
   </div>
 
+  <!-- Adresse -->
   <div class="form-group">
     <%= f.label :address, "Adresse" %>
     <%= f.text_field :address, class: 'form-control' %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :duration, "Durée" %>
-    <%= f.select :duration, Booking.durations.keys.map { |w| [w.humanize, w] }, class: 'form-control' %>
-  </div>
-
+  <!-- Bouton de soumission -->
   <div class="form-group">
     <%= f.submit "Réserver", class: 'btn btn-primary' %>
   </div>
@@ -47,3 +50,39 @@
     </ul>
   </div>
 <% end %>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const availableDays = document.querySelectorAll('.available-day');
+  const hiddenStartDate = document.getElementById('hidden-start-date');
+  const hiddenEndDate = document.getElementById('hidden-end-date');
+  const startDateInput = document.querySelector('select#booking_start_date_1i'); // Le champ visible pour la date de début
+  const endDateInput = document.querySelector('select#booking_end_date_1i'); // Le champ visible pour la date de fin
+  let selectedStartDate = null;
+  let selectedEndDate = null;
+
+  availableDays.forEach(button => {
+    button.addEventListener('click', function() {
+      const selectedDate = this.getAttribute('data-date');
+
+      if (!selectedStartDate) {
+        selectedStartDate = selectedDate;
+        hiddenStartDate.value = selectedStartDate;
+        startDateInput.value = selectedStartDate;
+      } else {
+        selectedEndDate = selectedDate;
+        hiddenEndDate.value = selectedEndDate;
+        endDateInput.value = selectedEndDate;
+      }
+    });
+  });
+
+  // Gérer la soumission du formulaire et vérifier que les dates sont bien sélectionnées
+  document.querySelector('form').addEventListener('submit', function(event) {
+    if (!hiddenStartDate.value || !hiddenEndDate.value) {
+      event.preventDefault();
+      alert("Veuillez sélectionner une date de début et une date de fin.");
+    }
+  });
+});
+</script>

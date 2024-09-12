@@ -1,14 +1,3 @@
-<% if @room.errors.any? %>
-  <div id="error_explanation" class="alert alert-danger">
-    <h2><%= pluralize(@room.errors.count, "erreur") %> ont empêché cette salle d'être enregistrée :</h2>
-    <ul>
-      <% @room.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
-
 <%= form_with(model: @room, local: true, html: { onsubmit: "return checkPhotos();" }) do |form| %>
 
   <!-- Nom de la salle -->
@@ -117,146 +106,74 @@
   </div>
 
   <!-- Tarification et options de location -->
-
+  
   <!-- Location à l'heure -->
   <div class="form-group">
-    <%= form.check_box :hourly_rental, {}, @room.hourly_rental, false %>
+    <%= form.check_box :hourly_rental, {}, true, false %>
     <%= form.label :hourly_rental, "Permettre la location à l'heure" %>
-    <%= form.number_field :hourly_rate, step: 1, class: 'form-control', placeholder: "Tarif à l'heure (en euros)", value: @room.hourly_rate || "" %>
+    <%= form.number_field :hourly_rate, step: 1, class: 'form-control', value: @room.hourly_rate || 1 %>
+
   </div>
 
   <!-- Location à la journée -->
   <div class="form-group">
-    <%= form.check_box :daily_rental, {}, @room.daily_rental, false %>
+    <%= form.check_box :daily_rental, {}, true, true %>
     <%= form.label :daily_rental, "Permettre la location à la journée" %>
-    <%= form.number_field :daily_rate, step: 1, class: 'form-control', placeholder: "Tarif à la journée (en euros)", value: @room.daily_rate || "" %>
+    <%= form.number_field :daily_rate, step: 1, class: 'form-control', value: @room.daily_rate || 1 %>
   </div>
 
   <!-- Location 2 à 6 jours -->
   <div class="form-group">
-    <%= form.check_box :multiple_days_rental, {}, @room.multiple_days_rental, false %>
+    <%= form.check_box :multiple_days_rental, {}, true, true %>
     <%= form.label :multiple_days_rental, "Permettre la location de 2 à 6 jours" %>
-    <%= form.number_field :multiple_days_rate, step: 1, class: 'form-control', placeholder: "Tarif pour 2 à 6 jours (en euros)", value: @room.multiple_days_rate || "" %>
+    <%= form.number_field :multiple_days_rate, step: 1, class: 'form-control', value: @room.multiple_days_rate || 1 %>
   </div>
 
   <!-- Location à la semaine -->
   <div class="form-group">
-    <%= form.check_box :weekly_rental, {}, @room.weekly_rental, false %>
+    <%= form.check_box :weekly_rental, {}, true, true %>
     <%= form.label :weekly_rental, "Permettre la location à la semaine" %>
-    <%= form.number_field :weekly_rate, step: 1, class: 'form-control', placeholder: "Tarif à la semaine (en euros)", value: @room.weekly_rate || "" %>
+    <%= form.number_field :weekly_rate, step: 1, class: 'form-control', value: @room.weekly_rate || 1 %>
   </div>
 
   <!-- Location pour le week-end -->
   <div class="form-group">
-    <%= form.check_box :weekend_rental, {}, @room.weekend_rental, false %>
+    <%= form.check_box :weekend_rental, {}, true, true %>
     <%= form.label :weekend_rental, "Permettre la location pour le week-end" %>
-    <%= form.number_field :weekend_rate, step: 1, class: 'form-control', placeholder: "Tarif pour le week-end (en euros)", value: @room.weekend_rate || "" %>
+    <%= form.number_field :weekend_rate, step: 1, class: 'form-control', value: @room.weekend_rate || 1 %>
   </div>
 
   <!-- Location au mois -->
   <div class="form-group">
-    <%= form.check_box :monthly_rental, {}, @room.monthly_rental, false %>
+    <%= form.check_box :monthly_rental, {}, true, true %>
     <%= form.label :monthly_rental, "Permettre la location au mois" %>
-    <%= form.number_field :monthly_rate, step: 1, class: 'form-control', placeholder: "Tarif au mois (en euros)", value: @room.monthly_rate || "" %>
+    <%= form.number_field :monthly_rate, step: 1, class: 'form-control', value: @room.monthly_rate || 1 %>
   </div>
 
   <!-- Location au trimestre -->
   <div class="form-group">
-    <%= form.check_box :quarterly_rental, {}, @room.quarterly_rental, false %>
-    <%= form.label :quarterly_rental, "Permettre la location au trimestre" %>
-    <%= form.number_field :quarterly_rate, step: 1, class: 'form-control', placeholder: "Tarif au trimestre (en euros)", value: @room.quarterly_rate || "" %>
+    <%= form.check_box :quarterly_rental, {}, true, true %>
+    <%= form.label :quarterly_rental, "Permettre la location trimestrielle" %>
+    <%= form.number_field :quarterly_rate, step: 1, class: 'form-control', value: @room.quarterly_rate || 1 %>
   </div>
 
   <!-- Location au semestre -->
   <div class="form-group">
-    <%= form.check_box :semiannual_rental, {}, @room.semiannual_rental, false %>
+    <%= form.check_box :semiannual_rental, {}, true, true %>
     <%= form.label :semiannual_rental, "Permettre la location au semestre" %>
-    <%= form.number_field :semiannual_rate, step: 1, class: 'form-control', placeholder: "Tarif au semestre (en euros)", value: @room.semiannual_rate || "" %>
+    <%= form.number_field :semiannual_rate, step: 1, class: 'form-control', value: @room.semiannual_rate || 1 %>
   </div>
 
   <!-- Location à l'année -->
   <div class="form-group">
-    <%= form.check_box :annual_rental, {}, @room.annual_rental, false %>
+    <%= form.check_box :annual_rental, {}, true, true %>
     <%= form.label :annual_rental, "Permettre la location à l'année" %>
-    <%= form.number_field :annual_rate, step: 1, class: 'form-control', placeholder: "Tarif à l'année (en euros)", value: @room.annual_rate || "" %>
+    <%= form.number_field :annual_rate, step: 1, class: 'form-control', value: @room.annual_rate || 1 %>
   </div>
 
-  <div class="form-group">
-  <%= form.label :duration, "Choisissez la durée" %>
-  <%= form.select :duration, options_for_select([['1 heure', 'hour'], ['1 jour', 'day'], 
-                                                 ['De 2 à 6 jours', 'multiple_days'], 
-                                                 ['Week-end', 'weekend'], ['1 semaine', 'week'], 
-                                                 ['1 mois', 'month'], ['1 trimestre', 'quarter'], 
-                                                 ['1 semestre', 'semiannual'], ['1 année', 'year']]), 
-                                                 {}, class: "form-control" %>
-</div>
-
-  
-
-  <!-- Photo principale -->
-  <div class="form-group">
-    <%= form.label :main_photo, "Photo principale" %>
-    <%= form.file_field :main_photo, class: "form-control-file #{'is-invalid' if @room.errors[:main_photo].any?}" %>
-    <% if @room.errors[:main_photo].any? %>
-      <div class="invalid-feedback">
-        <%= @room.errors[:main_photo].first %>
-      </div>
-    <% end %>
-
-    <!-- Affichage de la photo principale -->
-    <% if @room.persisted? && @room.main_photo.attached? %>
-      <div class="mt-3">
-        <%= link_to image_tag(url_for(@room.main_photo), class: "img-thumbnail"), url_for(@room.main_photo), data: { lightbox: 'room-photos', title: @room.name } %>
-        <%= link_to 'Supprimer', delete_main_photo_room_path(@room), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Photos supplémentaires -->
-  <div class="form-group">
-    <%= form.label :additional_photos, "Photos supplémentaires" %>
-    <%= form.file_field :additional_photos, multiple: true, class: "form-control-file #{'is-invalid' if @room.errors[:additional_photos].any?}" %>
-    <% if @room.errors[:additional_photos].any? %>
-      <div class="invalid-feedback">
-        <%= @room.errors[:additional_photos].first %>
-      </div>
-    <% end %>
-
-    <!-- Affichage des photos supplémentaires -->
-    <% if @room.persisted? && @room.additional_photos.attached? %>
-      <div class="row mt-3">
-        <% @room.additional_photos.each do |photo| %>
-          <div class="col-md-3 text-center">
-            <%= link_to image_tag(url_for(photo), class: "img-thumbnail"), url_for(photo), data: { lightbox: 'room-photos', title: @room.name } %>
-            <%= link_to 'Supprimer', delete_additional_photo_room_path(@room, photo_id: photo.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette photo ?' }, class: "btn btn-danger btn-sm mt-2" %>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Soumission -->
+  <!-- Bouton de soumission -->
   <div class="form-group">
     <%= form.submit "Enregistrer la salle", class: "btn btn-primary" %>
   </div>
 
 <% end %>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const rateFields = document.querySelectorAll('input[type="number"]');
-
-    rateFields.forEach(function(field) {
-      field.addEventListener('input', function(event) {
-        const value = parseFloat(event.target.value);
-        if (value < 0) {
-          event.target.setCustomValidity("Le tarif ne peut pas être inférieur à 0.");
-          event.target.reportValidity();
-          event.target.value = "";
-        } else {
-          event.target.setCustomValidity("");
-        }
-      });
-    });
-  });
-</script>

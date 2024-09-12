@@ -25,8 +25,28 @@ class RoomsController < ApplicationController
 
   # Créer une nouvelle salle
   def new
-    @room = Room.new
+    @room = Room.new(
+      hourly_rate: 1,
+      daily_rate: 1,
+      multiple_days_rate: 1,
+      weekly_rate: 1,
+      weekend_rate: 1,
+      monthly_rate: 1,
+      quarterly_rate: 1,
+      semiannual_rate: 1,
+      annual_rate: 1,
+      hourly_rental: true,
+      daily_rental: true,
+      multiple_days_rental: true,
+      weekly_rental: true,
+      weekend_rental: true,
+      monthly_rental: true,
+      quarterly_rental: true,
+      semiannual_rental: true,
+      annual_rental: true
+    )
   end
+  
 
   # Afficher une salle spécifique
   def show
@@ -66,43 +86,43 @@ class RoomsController < ApplicationController
     end
   end
 
-  # Action pour obtenir le formulaire basé sur la durée de réservation
+  # Action pour obtenir le formulaire basé sur le type de réservation
   def get_form
-    duration = params[:duration]
     start_date = params[:start_date]
     end_date = params[:end_date]
   
-    case duration
-    when 'multiple_days'
-      @message = "Réservation de plusieurs jours du #{start_date} au #{end_date}"
-    when 'hour'
-      @message = "Réservation d'une heure le #{start_date}"
-    when 'day'
-      @message = "Réservation d'une journée le #{start_date}"
-    when 'weekend'
-      @message = "Réservation pour le week-end du #{start_date}"
-    when 'week'
-      @message = "Réservation pour une semaine commençant le #{start_date}"
-    when 'month'
-      @message = "Réservation pour un mois commençant le #{start_date}"
-    when 'quarter'
-      @message = "Réservation pour un trimestre commençant le #{start_date}" # Ajout de la réservation trimestrielle
-    when 'semiannual'
-      @message = "Réservation pour un semestre commençant le #{start_date}" # Ajout de la réservation semestrielle
-    when 'year'
-      @message = "Réservation pour une année commençant le #{start_date}"
-    else
-      @message = "Réservation par défaut"
-    end
+    @message = case params[:booking_type]
+               when 'multiple_days'
+                 "Réservation de plusieurs jours du #{start_date} au #{end_date}"
+               when 'hour'
+                 "Réservation d'une heure le #{start_date}"
+               when 'day'
+                 "Réservation d'une journée le #{start_date}"
+               when 'weekend'
+                 "Réservation pour le week-end du #{start_date}"
+               when 'week'
+                 "Réservation pour une semaine commençant le #{start_date}"
+               when 'month'
+                 "Réservation pour un mois commençant le #{start_date}"
+               when 'quarter'
+                 "Réservation pour un trimestre commençant le #{start_date}"
+               when 'semiannual'
+                 "Réservation pour un semestre commençant le #{start_date}"
+               when 'year'
+                 "Réservation pour une année commençant le #{start_date}"
+               else
+                 "Réservation par défaut"
+               end
   
     render partial: 'form_partial', locals: { message: @message, room: @room }
   end
-  
 
   # Créer une nouvelle salle
   def create
-     Rails.logger.debug "Valeur de duration: #{params[:booking][:duration]}"
+    Rails.logger.debug "Paramètres reçus pour la création de la salle: #{params[:room].inspect}"
+    Rails.logger.debug "Paramètres autorisés : #{room_params.inspect}"
     @room = current_user.rooms.new(room_params)
+
     if @room.save
       @room.additional_photos.attach(params[:room][:additional_photos]) if params[:room][:additional_photos].present?
       redirect_to @room, notice: 'Salle ajoutée avec succès.'
@@ -176,15 +196,10 @@ class RoomsController < ApplicationController
   private
 
   def room_params
-    params.require(:room).permit(
-      :name, :description, :main_photo, :mail, :phone, :kitchen,
-      :hourly_rate, :daily_rate, :weekly_rate, :monthly_rate, :weekend_rate,
-      :quarterly_rate, :semiannual_rate, :annual_rate, :capacity, :surface,
-      :address, :city, :department, :hourly_rental, :daily_rental, :multiple_days_rental,
-      :weekly_rental, :weekend_rental, :monthly_rental, :annual_rental, :quarterly_rental,
-      :semiannual_rental, # Ajout des options de location pour trimestriel et semestriel
-      additional_photos: []
-    )
+    params.require(:room).permit(:name, :description, :address, :city, :department, :surface, :capacity, :mail, :phone, :kitchen, 
+                                 :hourly_rental, :hourly_rate, :daily_rental, :daily_rate, :multiple_days_rental, :multiple_days_rate, 
+                                 :weekly_rental, :weekly_rate, :weekend_rental, :weekend_rate, :monthly_rental, :monthly_rate, 
+                                 :quarterly_rental, :quarterly_rate, :semiannual_rental, :semiannual_rate, :annual_rental, :annual_rate)
   end
   
 
