@@ -105,14 +105,24 @@
     <%= form.check_box :kitchen, class: "form-check-input" %>
   </div>
 
+  <!-- Ajout de la photo principale -->
+  <div class="form-group">
+    <%= form.label :main_photo, "Photo principale" %>
+    <%= form.file_field :main_photo, class: 'form-control' %>
+  </div>
+
+  <!-- Ajout de photos supplémentaires -->
+  <div class="form-group">
+    <%= form.label :additional_photos, "Photos supplémentaires" %>
+    <%= form.file_field :additional_photos, multiple: true, class: 'form-control' %>
+  </div>
+
   <!-- Tarification et options de location -->
-  
   <!-- Location à l'heure -->
   <div class="form-group">
     <%= form.check_box :hourly_rental, {}, true, false %>
     <%= form.label :hourly_rental, "Permettre la location à l'heure" %>
     <%= form.number_field :hourly_rate, step: 1, class: 'form-control', value: @room.hourly_rate || 1 %>
-
   </div>
 
   <!-- Location à la journée -->
@@ -122,7 +132,7 @@
     <%= form.number_field :daily_rate, step: 1, class: 'form-control', value: @room.daily_rate || 1 %>
   </div>
 
-  <!-- Location 2 à 6 jours -->
+  <!-- Location de 2 à 6 jours -->
   <div class="form-group">
     <%= form.check_box :multiple_days_rental, {}, true, true %>
     <%= form.label :multiple_days_rental, "Permettre la location de 2 à 6 jours" %>

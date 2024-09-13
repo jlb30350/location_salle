@@ -9,9 +9,10 @@ class Booking < ApplicationRecord
   validate :start_date_in_the_future
   validate :end_date_after_start_date
   validate :no_overlap_with_existing_bookings
+  validate :room_rates_present
 
-  # Assure que le montant total est calculé avant la sauvegarde
-  before_save :calculate_total_amount
+  # Assure que le montant total est calculé avant la validation
+  before_validation :calculate_total_amount
 
   # Méthode publique pour recalculer le montant total
   def calculate_total_amount
@@ -19,72 +20,62 @@ class Booking < ApplicationRecord
     Rails.logger.debug "Montant total mis à jour : #{self.total_amount}" # Log du montant total après calcul
   end
 
-  # Méthode publique pour calculer le montant total
+  # Méthode pour calculer le montant total
   def total_amount
     Rails.logger.debug "Calcul de total_amount pour la réservation ID: #{id}, durée: #{calculated_duration}"  # Log de l'ID et de la durée
 
-    amount = case calculated_duration
+    case calculated_duration
     when :hour
-      room.hourly_rate || 0
+      room.hourly_rate
     when :day
-      room.daily_rate || 0
+      room.daily_rate
     when :multiple_days
-      days = (end_date - start_date).to_i + 1
-      room.daily_rate * days || 0
+      room.multiple_days_rate * (end_date - start_date + 1).to_i
     when :week
-      room.weekly_rate || 0
+      room.weekly_rate
     when :month
-      room.monthly_rate || 0
+      room.monthly_rate
+    when :weekend
+      room.weekend_rate
     when :quarter
-      room.quarterly_rate || 0
+      room.quarterly_rate
     when :semiannual
-      room.semiannual_rate || 0
+      room.semiannual_rate
     when :year
-      room.annual_rate || 0
+      room.annual_rate
     else
-      0 # Cas par défaut si aucune durée n'est définie
+      0 # Valeur par défaut si la durée est inconnue
     end
-
-    Rails.logger.debug "Montant calculé : #{amount}"  # Log du montant
-    amount
   end
 
-  # Calcule automatiquement la durée basée sur les dates
+  # Méthode pour déterminer la durée de la réservation
   def calculated_duration
-    days = (end_date - start_date).to_i + 1  # Inclure le dernier jour
-    Rails.logger.debug "Durée calculée en jours : #{days}"  # Log de la durée
-    case days
-    when 0
-      :hour
-    when 1
-      :day
-    when 2..6
-      :multiple_days
-    when 7
-      :week
-    when 28..31
-      :month
-    when 90..92
-      :quarter
-    when 180..183
-      :semiannual
-    when 365
-      :year
-    else
-      :custom_duration # Si c'est une durée personnalisée
-    end
+    days = (end_date - start_date).to_i
+    return :hour if days == 0
+    return :day if days == 1
+    return :multiple_days if days > 1 && days < 7
+    return :week if days == 7
+    return :month if days >= 28 && days <= 31
+    return :weekend if days == 2 && [5, 6].include?(start_date.wday)
+    return :quarter if days >= 90 && days <= 92
+    return :semiannual if days >= 180 && days <= 183
+    return :year if days == 365
   end
 
   private
 
   # Validation pour vérifier que la date de début est dans le futur
   def start_date_in_the_future
-    errors.add(:start_date, "ne peut pas être dans le passé") if start_date.present? && start_date < Date.today
+    if start_date.present? && start_date < Date.today
+      errors.add(:start_date, "ne peut pas être dans le passé")
+    end
   end
 
   # Validation pour s'assurer que la date de fin est après la date de début
   def end_date_after_start_date
-    errors.add(:end_date, "doit être après la date de début") if start_date.present? && end_date.present? && end_date <= start_date
+    if start_date.present? && end_date.present? && end_date <= start_date
+      errors.add(:end_date, "doit être après la date de début")
+    end
   end
 
   # Validation pour éviter les chevauchements avec les réservations existantes
@@ -95,6 +86,15 @@ class Booking < ApplicationRecord
                                   .where.not(id: id)
                                   .where("start_date < ? AND end_date > ?", end_date, start_date)
 
-    errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.") if overlapping_bookings.exists?
+    if overlapping_bookings.exists?
+      errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
+    end
+  end
+
+  # Validation pour s'assurer que les tarifs de la salle sont présents
+  def room_rates_present
+    if room.hourly_rate.nil? && room.daily_rate.nil? && room.weekly_rate.nil? && room.monthly_rate.nil?
+      errors.add(:room, "Les tarifs de location ne sont pas définis.")
+    end
   end
 end

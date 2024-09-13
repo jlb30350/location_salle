@@ -1,4 +1,153 @@
 <!-- app/views/rooms/new.html.erb -->
+
 <h1>Ajouter une nouvelle salle</h1>
 
-<%= render 'form', room: @room %>
+<!-- Affichage des erreurs, s'il y en a -->
+<% if @room.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(@room.errors.count, "erreur") %> ont empêché la création de la salle :</h2>
+    <ul>
+      <% @room.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: @room, local: true, html: { multipart: true } do |f| %>
+
+  <!-- Nom de la salle -->
+  <div class="form-group">
+    <%= f.label :name, "Nom de la salle" %>
+    <%= f.text_field :name, class: 'form-control' %>
+  </div>
+
+  <!-- Description de la salle -->
+  <div class="form-group">
+    <%= f.label :description, "Description" %>
+    <%= f.text_area :description, class: 'form-control' %>
+  </div>
+
+  <!-- Adresse de la salle -->
+  <div class="form-group">
+    <%= f.label :address, "Adresse" %>
+    <%= f.text_field :address, class: 'form-control' %>
+  </div>
+
+  <!-- Ville -->
+  <div class="form-group">
+    <%= f.label :city, "Ville" %>
+    <%= f.text_field :city, class: 'form-control' %>
+  </div>
+
+  <!-- Département -->
+  <div class="form-group">
+    <%= f.label :department, "Département" %>
+    <%= f.text_field :department, class: 'form-control' %>
+  </div>
+
+  <!-- E-mail -->
+  <div class="form-group">
+    <%= f.label :mail, "E-mail" %>
+    <%= f.email_field :mail, class: 'form-control' %>
+  </div>
+
+  <!-- Téléphone -->
+  <div class="form-group">
+    <%= f.label :phone, "Téléphone" %>
+    <%= f.telephone_field :phone, class: 'form-control' %>
+  </div>
+
+  <!-- Cuisine -->
+  <div class="form-group">
+    <%= f.label :kitchen, "Cuisine" %>
+    <%= f.check_box :kitchen, class: 'form-check-input' %>
+  </div>
+
+  <!-- Surface -->
+  <div class="form-group">
+    <%= f.label :surface, "Surface (en m²)" %>
+    <%= f.number_field :surface, class: 'form-control' %>
+  </div>
+
+  <!-- Capacité -->
+  <div class="form-group">
+    <%= f.label :capacity, "Capacité (nombre de personnes)" %>
+    <%= f.number_field :capacity, class: 'form-control' %>
+  </div>
+
+  <!-- Ajout de la photo principale -->
+  <div class="form-group">
+    <%= f.label :main_photo, "Photo principale" %>
+    <%= f.file_field :main_photo, class: 'form-control' %>
+  </div>
+
+  <!-- Ajout des photos supplémentaires -->
+  <div class="form-group">
+    <%= f.label :additional_photos, "Photos supplémentaires" %>
+    <%= f.file_field :additional_photos, multiple: true, class: 'form-control' %>
+  </div>
+
+  <!-- Options de location avec cases à cocher -->
+  <h3>Options de location</h3>
+
+  <div class="form-group">
+    <%= f.check_box :hourly_rental, checked: true %>
+    <%= f.label :hourly_rental, "Location à l'heure" %>
+    <%= f.number_field :hourly_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :daily_rental, checked: true %>
+    <%= f.label :daily_rental, "Location à la journée" %>
+    <%= f.number_field :daily_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :multiple_days_rental, checked: true %>
+    <%= f.label :multiple_days_rental, "Location de 2 à 6 jours" %>
+    <%= f.number_field :multiple_days_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :weekly_rental, checked: true %>
+    <%= f.label :weekly_rental, "Location à la semaine" %>
+    <%= f.number_field :weekly_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :weekend_rental, checked: true %>
+    <%= f.label :weekend_rental, "Location week-end" %>
+    <%= f.number_field :weekend_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :monthly_rental, checked: true %>
+    <%= f.label :monthly_rental, "Location au mois" %>
+    <%= f.number_field :monthly_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :quarterly_rental, checked: true %>
+    <%= f.label :quarterly_rental, "Location au trimestre" %>
+    <%= f.number_field :quarterly_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :semiannual_rental, checked: true %>
+    <%= f.label :semiannual_rental, "Location au semestre" %>
+    <%= f.number_field :semiannual_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.check_box :annual_rental, checked: true %>
+    <%= f.label :annual_rental, "Location à l'année" %>
+    <%= f.number_field :annual_rate, class: 'form-control', step: 0.01, value: 1 %>
+  </div>
+
+  <!-- Soumettre le formulaire -->
+  <div class="form-group">
+    <%= f.submit "Créer la salle", class: "btn btn-primary" %>
+  </div>
+
+<% end %>

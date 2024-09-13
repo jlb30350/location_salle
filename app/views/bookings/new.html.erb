@@ -2,6 +2,7 @@
 
 <!-- Affichage des erreurs -->
 <% if @booking.errors.any? %>
+  <div class="alert alert-danger">
   <div id="error_explanation">
     <h2><%= pluralize(@booking.errors.count, "erreur") %> ont empêché la création de la réservation :</h2>
     <ul>
@@ -14,54 +15,46 @@
 
 <!-- Formulaire de réservation avec form_with -->
 <%= form_with(model: @booking, url: room_bookings_path(@room), local: true) do |f| %>
-
-  <!-- Prénom -->
   <div class="form-group">
     <%= f.label :first_name, "Prénom" %>
     <%= f.text_field :first_name, class: 'form-control' %>
   </div>
 
-  <!-- Nom -->
   <div class="form-group">
     <%= f.label :last_name, "Nom" %>
     <%= f.text_field :last_name, class: 'form-control' %>
   </div>
 
-  <!-- Téléphone -->
-  <div class="form-group">
-    <%= f.label :phone, "Téléphone" %>
-    <%= f.text_field :phone, class: 'form-control', maxlength: 10, pattern: '\\d{10}', title: 'Veuillez entrer un numéro de téléphone valide avec 10 chiffres' %>
-  </div>
-
-  <!-- Adresse e-mail -->
   <div class="form-group">
     <%= f.label :email, "Adresse e-mail" %>
     <%= f.email_field :email, class: 'form-control' %>
   </div>
 
-  <!-- Date de début -->
+  <div class="form-group">
+    <%= f.label :phone, "Téléphone" %>
+    <%= f.text_field :phone, class: 'form-control', maxlength: 10, pattern: '\d{10}', title: 'Veuillez entrer un numéro de téléphone valide avec 10 chiffres' %>
+  </div>
+
   <div class="form-group">
     <%= f.label :start_date, "Date de début" %>
     <%= f.date_select :start_date, class: 'form-control' %>
   </div>
 
-  <!-- Date de fin -->
   <div class="form-group">
     <%= f.label :end_date, "Date de fin" %>
     <%= f.date_select :end_date, class: 'form-control' %>
   </div>
 
-  <!-- Adresse -->
   <div class="form-group">
     <%= f.label :address, 'Adresse' %>
     <%= f.text_field :address, class: 'form-control' %>
   </div>
 
-  <!-- Boutons de soumission -->
+  <!-- Boutons de finalisation -->
   <div class="form-group">
     <%= f.submit "Payer maintenant", name: "continue", class: "btn btn-primary" %>
-    <%= f.submit "Demander un devis", name: "quote", class: "btn btn-secondary" %>
+     <%= f.submit "Voir le devis", name: "view_quote", class: "btn btn-secondary" %>
     <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
   </div>
-
 <% end %>
+

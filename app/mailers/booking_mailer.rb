@@ -1,5 +1,5 @@
 class BookingMailer < ApplicationMailer
-  default from: 'noreply@votresite.com'
+  default from: 'noreply@jereserveunesalle.com'
 
   def booking_confirmation(booking)
     @booking = booking
@@ -11,6 +11,12 @@ class BookingMailer < ApplicationMailer
 
     mail(to: @user.email, subject: 'Confirmation de réservation et devis')
   end
+
+  def quote(booking)
+    @booking = booking
+    mail(to: @booking.user.email, subject: 'Votre devis pour la réservation')
+  end
+end
 
   private
 

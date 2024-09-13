@@ -7,7 +7,7 @@
       <% if room.main_photo.attached? %>
         <%= image_tag room.main_photo.variant(resize_to_fit: [150, 150]), class: 'main-photo' %>
       <% else %>
-        <img src="placeholder-image.jpg" alt="Pas de photo disponible" class="main-photo">
+        <img src="/assets/placeholder-image.jpg" alt="Pas de photo disponible" class="main-photo">
       <% end %>
 
       <!-- Affichage du nom et des informations générales -->
@@ -20,14 +20,19 @@
         <!-- Informations supplémentaires pour les utilisateurs connectés -->
         <p>Adresse complète : <%= room.address %></p>
         <p>Surface : <%= room.surface %> m²</p>
-        <p>Tarif horaire : <%= number_to_currency(room.hourly_rate) %></p>
-        <p>Tarif journalier : <%= number_to_currency(room.daily_rate) %></p>
-        <p>Tarif hebdomadaire : <%= number_to_currency(room.weekly_rate) %></p>
-        <p>Tarif mensuel : <%= number_to_currency(room.monthly_rate) %></p>
-        <p>Tarif week-end : <%= number_to_currency(room.weekend_rate) %></p>
-        <p>Tarif trimestriel : <%= number_to_currency(room.quarterly_rate) %></p>
-        <p>Tarif semestriel : <%= number_to_currency(room.semiannual_rate) %></p>
-        <p>Tarif annuel : <%= number_to_currency(room.annual_rate) %></p>
+
+        <%# Affichage conditionnel des tarifs %>
+        <%= safe_join([
+          room.hourly_rate ? content_tag(:p, "Tarif horaire : #{number_to_currency(room.hourly_rate)}") : '',
+          room.daily_rate ? content_tag(:p, "Tarif journalier : #{number_to_currency(room.daily_rate)}") : '',
+          room.weekly_rate ? content_tag(:p, "Tarif hebdomadaire : #{number_to_currency(room.weekly_rate)}") : '',
+          room.monthly_rate ? content_tag(:p, "Tarif mensuel : #{number_to_currency(room.monthly_rate)}") : '',
+          room.weekend_rate ? content_tag(:p, "Tarif week-end : #{number_to_currency(room.weekend_rate)}") : '',
+          room.quarterly_rate ? content_tag(:p, "Tarif trimestriel : #{number_to_currency(room.quarterly_rate)}") : '',
+          room.semiannual_rate ? content_tag(:p, "Tarif semestriel : #{number_to_currency(room.semiannual_rate)}") : '',
+          room.annual_rate ? content_tag(:p, "Tarif annuel : #{number_to_currency(room.annual_rate)}") : ''
+        ]) %>
+
         <%= link_to 'Voir les disponibilités', room_path(room), class: "btn btn-primary" %>
       <% else %>
         <!-- Message pour les utilisateurs non connectés -->

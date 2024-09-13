@@ -17,6 +17,19 @@
       class: 'form-control', id: 'duration-select' %>
   </div>
 
+  <h3>Réservations existantes :</h3>
+  <div class="reservations-list">
+    <% if @bookings.present? %> <!-- Vérifie si des réservations existent -->
+      <% @bookings.each do |booking| %> <!-- Boucle sur chaque réservation -->
+        <div class="calendar-day reserved">
+          <p>Réservé du <%= booking.start_date.strftime('%d/%m/%Y') %> au <%= booking.end_date.strftime('%d/%m/%Y') %></p>
+        </div>
+      <% end %>
+    <% else %>
+      <p>Aucune réservation pour le moment.</p>
+    <% end %>
+  </div>
+
   <!-- Navigation du calendrier -->
   <div class="calendar-navigation mb-3 mt-4">
     <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
@@ -38,40 +51,48 @@
       </tr>
     </thead>
     <tbody>
-      <% start_day_of_week = Date.new(@year.to_i, @month.to_i, 1).wday %>
-      <tr>
-        <!-- Remplissage des cellules vides avant le premier jour du mois -->
-        <% start_day_of_week.times do %>
-          <td></td>
-        <% end %>
-
-        <!-- Boucle sur les jours du mois pour générer les cellules -->
-        <% (Date.new(@year.to_i, @month.to_i, 1)..Date.new(@year.to_i, @month.to_i, -1)).each do |date| %>
-          <% past_day_class = 'past-day' if date < Date.today %>
-          <% is_reserved = @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>
-          <td class="<%= 'reserved' if is_reserved %> <%= past_day_class %>">
-            <% if is_reserved %>
-              <span class="reserved-date"><%= date.day %></span>
-            <% else %>
-              <% if date >= Date.today %>
-                <button class="btn btn-success available-day" data-date="<%= date %>" data-day="<%= date.wday %>"><%= date.day %></button>
-              <% else %>
-                <span><%= date.day %></span>
-              <% end %>
-            <% end %>
-          </td>
-          <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
-            </tr><tr>
+      <% begin %>
+        <% first_day_of_month = Date.new(@year.to_i, @month.to_i, 1) %>
+        <% last_day_of_month = first_day_of_month.end_of_month %>
+        <% start_day_of_week = first_day_of_month.wday %>
+        
+        <tr>
+          <!-- Remplissage des cellules vides avant le premier jour du mois -->
+          <% start_day_of_week.times do %>
+            <td></td>
           <% end %>
-        <% end %>
 
-        <!-- Remplissage des cellules vides après le dernier jour du mois -->
-        <% (6 - Date.new(@year.to_i, @month.to_i, -1).wday).times do %>
-          <td></td>
-        <% end %>
-      </tr>
+          <!-- Boucle sur les jours du mois pour générer les cellules -->
+          <% (first_day_of_month..last_day_of_month).each do |date| %>
+            <% past_day_class = 'past-day' if date < Date.today %>
+            <% is_reserved = @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>
+            <td class="<%= 'reserved' if is_reserved %> <%= past_day_class %>">
+              <% if is_reserved %>
+                <span class="reserved-date"><%= date.day %></span>
+              <% else %>
+                <% if date >= Date.today %>
+                  <button class="btn btn-success available-day" data-date="<%= date %>" data-day="<%= date.wday %>"><%= date.day %></button>
+                <% else %>
+                  <span><%= date.day %></span>
+                <% end %>
+              <% end %>
+            </td>
+            <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
+              </tr><tr>
+            <% end %>
+          <% end %>
+          
+          <!-- Remplissage des cellules vides après le dernier jour du mois -->
+          <% (6 - last_day_of_month.wday).times do %>
+            <td></td>
+          <% end %>
+        </tr>
+      <% rescue ArgumentError => e %>
+        <p>Date invalide. Veuillez essayer de nouveau.</p>
+      <% end %>
     </tbody>
   </table>
+</div>
 
   <!-- Conteneur pour afficher les informations de la sélection -->
   <div class="mt-4">
@@ -121,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
   function displayForm(duration, startDate, endDate) {
     if (!duration || !startDate) return;
 
-    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du`;
+    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du ${startDate}`;
 
     // Assurez-vous que l'ID de la salle est inclus dans la requête fetch
     fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
