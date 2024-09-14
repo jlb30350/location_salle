@@ -45,28 +45,25 @@ Rails.application.routes.draw do
     # Routes imbriquées pour les réservations
     resources :bookings, except: [:index, :show] do
       member do
-        # Route pour créer un devis en PDF
         get 'create_devis', defaults: { format: 'pdf' }
-        # Route pour finaliser une réservation (affiche le formulaire ou traite la soumission)
         get 'finalize_booking'
         post 'finalize_booking'
-        # Route pour annuler une réservation
         post 'cancel'
-        # Route pour créer un devis
-        post 'create_devis'
         get 'view_quote', defaults: { format: 'pdf' }
+        delete 'destroy'  # Cette ligne ajoute une route pour supprimer une réservation
       end
-      # Routes pour les paiements
       resources :payments, only: [:new, :create]
     end
   end
 
   # Route pour obtenir les créneaux horaires disponibles
   get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots
+  
   # Route pour afficher le formulaire en fonction du type de réservation
   get 'get_form', to: 'rooms#get_form', as: :get_form
+  
   # Route pour afficher la page de paiement pour une réservation spécifique
-  get 'rooms/:room_id/bookings/:id/payment', to: 'payments#new', as: 'room_booking_payment' # Nouveau nom de route
+  get 'rooms/:room_id/bookings/:id/payment', to: 'payments#new', as: 'room_booking_payment'
 
   # Route pour changer le rôle de l'utilisateur (loueur/bailleur)
   post 'switch_role', to: 'users#switch_role', as: :switch_role

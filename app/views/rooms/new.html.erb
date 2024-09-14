@@ -3,7 +3,7 @@
 <h1>Ajouter une nouvelle salle</h1>
 
 <!-- Affichage des erreurs, s'il y en a -->
-<% if @room.errors.any? %>
+<% if @room && @room.errors.any? %>
   <div id="error_explanation">
     <h2><%= pluralize(@room.errors.count, "erreur") %> ont empêché la création de la salle :</h2>
     <ul>
@@ -14,8 +14,7 @@
   </div>
 <% end %>
 
-<%= form_with model: @room, local: true, html: { multipart: true } do |f| %>
-
+<%= form_with model: @room, url: rooms_path, local: true, html: { multipart: true } do |f| %> 
   <!-- Nom de la salle -->
   <div class="form-group">
     <%= f.label :name, "Nom de la salle" %>

@@ -1,2 +1,11 @@
-<h1>Rooms#create</h1>
-<p>Find me in app/views/rooms/create.html.erb</p>
+def create
+    @room = current_user.rooms.new(room_params)
+    
+    if @room.save
+      attach_photos if params[:room][:main_photo].present? || params[:room][:additional_photos].present?
+      redirect_to @room, notice: 'Salle ajoutée avec succès.'
+    else
+      render :new
+    end
+  end
+  

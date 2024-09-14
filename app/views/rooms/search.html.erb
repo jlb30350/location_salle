@@ -1,52 +1,55 @@
-<h1>Résultats de la recherche</h1>
+<div class="room-details-section">
+  <!-- Vérification de la présence des résultats -->
+  <h1>Résultats de la recherche</h1>
 
-<% if @rooms.any? %> <!-- Vérifie si des résultats ont été trouvés -->
-  <% @rooms.each do |room| %> <!-- Boucle sur chaque salle trouvée -->
-    <div class="room-card">
-      <!-- Affichage de la photo principale -->
-      <% if room.main_photo.attached? %>
-        <%= image_tag room.main_photo.variant(resize_to_fit: [150, 150]), class: 'main-photo' %>
-      <% else %>
-        <img src="/assets/placeholder-image.jpg" alt="Pas de photo disponible" class="main-photo">
-      <% end %>
+  <% if @rooms.present? && @rooms.any? %> <!-- Vérifie si @rooms existe et contient des résultats -->
+    <% @rooms.each do |room| %> <!-- Boucle sur chaque salle trouvée -->
+      <div class="room-card">
+        <!-- Affichage de la photo principale -->
+        <% if room.main_photo.attached? %>
+          <%= image_tag room.main_photo.variant(resize_to_fit: [150, 150]), class: 'main-photo' %>
+        <% else %>
+          <img src="/assets/placeholder-image.jpg" alt="Pas de photo disponible" class="main-photo">
+        <% end %>
 
-      <!-- Affichage du nom et des informations générales -->
-      <h2><%= room.name %></h2>
-      <p>Ville : <%= room.city %></p>
-      <p>Département : <%= room.department %></p>
-      <p>Capacité : <%= room.capacity %> personnes</p>
+        <!-- Affichage du nom et des informations générales -->
+        <h2><%= room.name %></h2>
+        <p>Ville : <%= room.city %></p>
+        <p>Département : <%= room.department %></p>
+        <p>Capacité : <%= room.capacity %> personnes</p>
 
-      <% if user_signed_in? %>
-        <!-- Informations supplémentaires pour les utilisateurs connectés -->
-        <p>Adresse complète : <%= room.address %></p>
-        <p>Surface : <%= room.surface %> m²</p>
+        <% if user_signed_in? %>
+          <!-- Informations supplémentaires pour les utilisateurs connectés -->
+          <p>Adresse complète : <%= room.address %></p>
+          <p>Surface : <%= room.surface %> m²</p>
 
-        <%# Affichage conditionnel des tarifs %>
-        <%= safe_join([
-          room.hourly_rate ? content_tag(:p, "Tarif horaire : #{number_to_currency(room.hourly_rate)}") : '',
-          room.daily_rate ? content_tag(:p, "Tarif journalier : #{number_to_currency(room.daily_rate)}") : '',
-          room.weekly_rate ? content_tag(:p, "Tarif hebdomadaire : #{number_to_currency(room.weekly_rate)}") : '',
-          room.monthly_rate ? content_tag(:p, "Tarif mensuel : #{number_to_currency(room.monthly_rate)}") : '',
-          room.weekend_rate ? content_tag(:p, "Tarif week-end : #{number_to_currency(room.weekend_rate)}") : '',
-          room.quarterly_rate ? content_tag(:p, "Tarif trimestriel : #{number_to_currency(room.quarterly_rate)}") : '',
-          room.semiannual_rate ? content_tag(:p, "Tarif semestriel : #{number_to_currency(room.semiannual_rate)}") : '',
-          room.annual_rate ? content_tag(:p, "Tarif annuel : #{number_to_currency(room.annual_rate)}") : ''
-        ]) %>
+          <!-- Affichage conditionnel des tarifs -->
+          <%= safe_join([
+            room.hourly_rate ? content_tag(:p, "Tarif horaire : #{number_to_currency(room.hourly_rate)}") : '',
+            room.daily_rate ? content_tag(:p, "Tarif journalier : #{number_to_currency(room.daily_rate)}") : '',
+            room.weekly_rate ? content_tag(:p, "Tarif hebdomadaire : #{number_to_currency(room.weekly_rate)}") : '',
+            room.monthly_rate ? content_tag(:p, "Tarif mensuel : #{number_to_currency(room.monthly_rate)}") : '',
+            room.weekend_rate ? content_tag(:p, "Tarif week-end : #{number_to_currency(room.weekend_rate)}") : '',
+            room.quarterly_rate ? content_tag(:p, "Tarif trimestriel : #{number_to_currency(room.quarterly_rate)}") : '',
+            room.semiannual_rate ? content_tag(:p, "Tarif semestriel : #{number_to_currency(room.semiannual_rate)}") : '',
+            room.annual_rate ? content_tag(:p, "Tarif annuel : #{number_to_currency(room.annual_rate)}") : ''
+          ]) %>
 
-        <%= link_to 'Voir les disponibilités', room_path(room), class: "btn btn-primary" %>
-      <% else %>
-        <!-- Message pour les utilisateurs non connectés -->
-        <p class="text-danger">Connectez-vous ou créez un compte pour voir tous les détails et réserver cette salle.</p>
-        <%= link_to 'Voir les disponibilités', new_user_session_path, class: "btn btn-primary" %>
-      <% end %>
-    </div>
+          <%= link_to 'Voir les disponibilités', room_path(room), class: "btn btn-primary" %>
+        <% else %>
+          <!-- Message pour les utilisateurs non connectés -->
+          <p class="text-danger">Connectez-vous ou créez un compte pour voir tous les détails et réserver cette salle.</p>
+          <%= link_to 'Voir les disponibilités', new_user_session_path, class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <!-- Message si aucune salle n'a été trouvée -->
+    <p>Aucune salle trouvée pour cette recherche.</p>
   <% end %>
-<% else %>
-  <!-- Message si aucune salle n'a été trouvée -->
-  <p>Aucune salle trouvée pour cette recherche.</p>
-<% end %>
 
-<!-- Bouton Retour -->
-<div class="text-center mt-4">
-  <%= link_to 'Retour', root_path, class: 'btn btn-secondary' %>
+  <!-- Bouton Retour -->
+  <div class="text-center mt-4">
+    <%= link_to 'Retour', root_path, class: 'btn btn-secondary' %>
+  </div>
 </div>
