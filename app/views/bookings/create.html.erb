@@ -36,7 +36,7 @@
 
   <!-- Bouton de soumission -->
   <div class="form-group">
-    <%= f.submit "Réserver", class: 'btn btn-primary' %>
+    <%= submit_tag "Réserver", class: "btn btn-warning" %>
   </div>
 <% end %>
 
@@ -51,6 +51,7 @@
   </div>
 <% end %>
 
+<!-- Script JavaScript pour gérer la sélection des dates -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const availableDays = document.querySelectorAll('.available-day');

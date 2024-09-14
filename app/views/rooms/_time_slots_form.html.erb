@@ -4,17 +4,26 @@
 <p>Après : <%= time_after %></p>
 
 <!-- Formulaire pour réserver le créneau -->
-<%= form_with url: new_room_booking_path(@room), method: :get do %>
-    <%= hidden_field_tag :room_id, @room.id %>
-    <%= hidden_field_tag :duration, params[:duration] %>
-    <%= hidden_field_tag :date, params[:date] %>
-    
-    <% if params[:duration] == 'hour' %>
+<%= form_with url: finalize_booking_room_booking_path(@room, @booking), method: :get do %>
+  
+  <!-- Champs cachés pour les paramètres requis -->
+  <%= hidden_field_tag :room_id, @room.id %>
+  <%= hidden_field_tag :duration, params[:duration] %>
+  <%= hidden_field_tag :date, params[:date] %>
+
+  <!-- Si la durée est 'hour', afficher le champ de sélection de l'heure -->
+  <% if params[:duration] == 'hour' %>
+    <div class="form-group">
       <label for="start_time">Sélectionnez une heure de début :</label>
       <%= time_field_tag :start_time, nil, class: 'form-control' %>
-    <% end %>
-  
-    <button type="submit" class="btn btn-primary">Réserver</button>
+    </div>
   <% end %>
-  
-  
+
+  <!-- Champs cachés pour les dates de début et de fin -->
+  <input type="hidden" name="start_date" value="<%= @start_date %>">
+  <input type="hidden" name="end_date" value="<%= @end_date %>">
+
+  <!-- Bouton pour soumettre la réservation -->
+  <%= submit_tag "Réserver", class: "btn btn-warning" %>
+
+<% end %>

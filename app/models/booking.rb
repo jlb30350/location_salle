@@ -4,6 +4,7 @@ class Booking < ApplicationRecord
 
   # Validation des champs de réservation
   validates :first_name, :last_name, :email, presence: true
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP, message: "doit être une adresse e-mail valide" }
   validates :phone, format: { with: /\A\d{10}\z/, message: "doit être un numéro de téléphone valide (10 chiffres)" }
   validates :start_date, :end_date, presence: true
   validate :start_date_in_the_future
@@ -11,18 +12,18 @@ class Booking < ApplicationRecord
   validate :no_overlap_with_existing_bookings
   validate :room_rates_present
 
-  # Assure que le montant total est calculé avant la validation
+  # Calculer le montant total avant validation
   before_validation :calculate_total_amount
 
-  # Méthode publique pour recalculer le montant total
+  # Recalculer le montant total
   def calculate_total_amount
-    self.total_amount = total_amount # Utilisation de la méthode publique ici
-    Rails.logger.debug "Montant total mis à jour : #{self.total_amount}" # Log du montant total après calcul
+    self.total_amount = total_amount_calculated # Utilisation de la méthode pour calculer le total
+    Rails.logger.debug "Montant total mis à jour : #{self.total_amount}" 
   end
 
-  # Méthode pour calculer le montant total
-  def total_amount
-    Rails.logger.debug "Calcul de total_amount pour la réservation ID: #{id}, durée: #{calculated_duration}"  # Log de l'ID et de la durée
+  # Calcul du montant total
+  def total_amount_calculated
+    Rails.logger.debug "Calcul de total_amount pour la réservation ID: #{id}, durée: #{calculated_duration}"
 
     case calculated_duration
     when :hour
@@ -44,7 +45,7 @@ class Booking < ApplicationRecord
     when :year
       room.annual_rate
     else
-      0 # Valeur par défaut si la durée est inconnue
+      0 # Valeur par défaut
     end
   end
 
@@ -64,21 +65,21 @@ class Booking < ApplicationRecord
 
   private
 
-  # Validation pour vérifier que la date de début est dans le futur
+  # Vérifie que la date de début est dans le futur
   def start_date_in_the_future
     if start_date.present? && start_date < Date.today
       errors.add(:start_date, "ne peut pas être dans le passé")
     end
   end
 
-  # Validation pour s'assurer que la date de fin est après la date de début
+  # Vérifie que la date de fin est après la date de début
   def end_date_after_start_date
     if start_date.present? && end_date.present? && end_date <= start_date
       errors.add(:end_date, "doit être après la date de début")
     end
   end
 
-  # Validation pour éviter les chevauchements avec les réservations existantes
+  # Vérifie l'absence de chevauchements avec les réservations existantes
   def no_overlap_with_existing_bookings
     return unless start_date.present? && end_date.present?
 
@@ -91,7 +92,7 @@ class Booking < ApplicationRecord
     end
   end
 
-  # Validation pour s'assurer que les tarifs de la salle sont présents
+  # S'assurer que les tarifs de la salle sont présents
   def room_rates_present
     if room.hourly_rate.nil? && room.daily_rate.nil? && room.weekly_rate.nil? && room.monthly_rate.nil?
       errors.add(:room, "Les tarifs de location ne sont pas définis.")

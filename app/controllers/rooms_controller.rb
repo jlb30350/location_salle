@@ -70,17 +70,22 @@ class RoomsController < ApplicationController
 
   # Afficher une salle spécifique
   def show
+    @room = Room.find(params[:id])
     @year = params[:year] ? params[:year].to_i : Date.today.year
     @month = params[:month] ? params[:month].to_i : Date.today.month
-
-    first_day_of_month = Date.new(@year, @month, 1) rescue nil
-    last_day_of_month = first_day_of_month.end_of_month if first_day_of_month
-    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month) if first_day_of_month
-
-    if first_day_of_month.nil?
-      flash[:alert] = "Date invalide. Veuillez réessayer."
-    end
+    
+    first_day_of_month = Date.new(@year, @month, 1)
+    last_day_of_month = first_day_of_month.end_of_month
+    
+    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+    
+    # Initialiser une nouvelle réservation non persistée
+    @booking = @room.bookings.build(user: current_user)
   end
+  
+  
+  
+  
 
   # Créer une nouvelle salle
   def create

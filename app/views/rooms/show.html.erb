@@ -19,8 +19,8 @@
 
   <h3>Réservations existantes :</h3>
   <div class="reservations-list">
-    <% if @bookings.present? %> <!-- Vérifie si des réservations existent -->
-      <% @bookings.each do |booking| %> <!-- Boucle sur chaque réservation -->
+    <% if @bookings.present? %>
+      <% @bookings.each do |booking| %>
         <div class="calendar-day reserved">
           <p>Réservé du <%= booking.start_date.strftime('%d/%m/%Y') %> au <%= booking.end_date.strftime('%d/%m/%Y') %></p>
         </div>
@@ -30,242 +30,123 @@
     <% end %>
   </div>
 
-  <!-- Navigation du calendrier -->
-  <div class="calendar-navigation mb-3 mt-4">
-    <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
-    <%= link_to "Mois précédent", availability_room_path(@room, year: @month == 1 ? @year.to_i - 1 : @year, month: @month == 1 ? 12 : @month.to_i - 1), class: "btn btn-secondary" %>
-    <%= link_to "Mois suivant", availability_room_path(@room, year: @month == 12 ? @year.to_i + 1 : @year, month: @month == 12 ? 1 : @month.to_i + 1), class: "btn btn-secondary" %>
-    <%= link_to "Année suivante", availability_room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
-  </div>
-
-  <!-- Affichage du mois et de l'année -->
-  <h3><%= Date::MONTHNAMES[@month.to_i] %> <%= @year %></h3>
-
-  <!-- Affichage du calendrier sous forme de tableau -->
-  <table class="table calendar-table">
-    <thead>
-      <tr>
-        <% Date::ABBR_DAYNAMES.each do |day_name| %>
-          <th><%= day_name %></th>
-        <% end %>
-      </tr>
-    </thead>
-    <tbody>
-      <% begin %>
-        <% first_day_of_month = Date.new(@year.to_i, @month.to_i, 1) %>
-        <% last_day_of_month = first_day_of_month.end_of_month %>
-        <% start_day_of_week = first_day_of_month.wday %>
-        
-        <tr>
-          <!-- Remplissage des cellules vides avant le premier jour du mois -->
-          <% start_day_of_week.times do %>
-            <td></td>
-          <% end %>
-
-          <!-- Boucle sur les jours du mois pour générer les cellules -->
-          <% (first_day_of_month..last_day_of_month).each do |date| %>
-            <% past_day_class = 'past-day' if date < Date.today %>
-            <% is_reserved = @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>
-            <td class="<%= 'reserved' if is_reserved %> <%= past_day_class %>">
-              <% if is_reserved %>
-                <span class="reserved-date"><%= date.day %></span>
-              <% else %>
-                <% if date >= Date.today %>
-                  <button class="btn btn-success available-day" data-date="<%= date %>" data-day="<%= date.wday %>"><%= date.day %></button>
-                <% else %>
-                  <span><%= date.day %></span>
-                <% end %>
-              <% end %>
-            </td>
-            <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
-              </tr><tr>
-            <% end %>
-          <% end %>
-          
-          <!-- Remplissage des cellules vides après le dernier jour du mois -->
-          <% (6 - last_day_of_month.wday).times do %>
-            <td></td>
-          <% end %>
-        </tr>
-      <% rescue ArgumentError => e %>
-        <p>Date invalide. Veuillez essayer de nouveau.</p>
-      <% end %>
-    </tbody>
-  </table>
-</div>
-
-  <!-- Conteneur pour afficher les informations de la sélection -->
-  <div class="mt-4">
-    <p id="message-formulaire"></p> <!-- Phrase affichée au-dessus des dates -->
-
-    <p>Date de début sélectionnée : <span id="start-date-display">Aucune</span></p>
-    <p>Date de fin sélectionnée : <span id="end-date-display">Aucune</span></p>
-  </div>
-
-  <!-- Conteneur où le formulaire sera affiché en fonction de la sélection -->
-  <div id="form-container" class="mt-4"></div>
-
-  <!-- Formulaire de réservation -->
-  <div class="form-group mt-4">
-    <%= form_with url: new_room_booking_path(@room), method: :get, local: true do |form| %>
-      <%= hidden_field_tag :date, params[:date] %>
-      <%= hidden_field_tag :duration, params[:duration] %>
-      
-      <!-- Affiche les détails de la réservation -->
-      <p id="reservation-message"><%= @message %></p>
-      
-      <!-- Bouton de réservation -->
-      <div class="form-group">
-        <%= form.submit "Réserver", class: "btn btn-primary" %>
-      </div>
+  <!-- Formulaire pour créer la réservation -->
+  <div class="form-group">
+    <%= form_with url: room_bookings_path(@room), method: :post, local: true do %>
+      <!-- Champs cachés pour envoyer les dates sélectionnées -->
+      <input type="hidden" name="booking[start_date]" id="start-date-field" value="">
+      <input type="hidden" name="booking[end_date]" id="end-date-field" value="">
+      <%= submit_tag "Réserver", class: "btn btn-warning" %>
     <% end %>
   </div>
-
-  <!-- Bouton pour réinitialiser la durée et le calendrier -->
-  <div class="mt-3">
-    <button id="reset-button" class="btn btn-warning">Réinitialiser la durée</button>
-  </div>
 </div>
 
+<!-- Calendrier cliquable -->
+<div class="calendar-navigation mb-3 mt-4">
+  <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
+  <%= link_to "Mois précédent", availability_room_path(@room, year: @month == 1 ? @year.to_i - 1 : @year, month: @month == 1 ? 12 : @month.to_i - 1), class: "btn btn-secondary" %>
+  <%= link_to "Mois suivant", availability_room_path(@room, year: @month == 12 ? @year.to_i + 1 : @year, month: @month == 12 ? 1 : @month.to_i + 1), class: "btn btn-secondary" %>
+  <%= link_to "Année suivante", availability_room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
+</div>
+
+<h3><%= Date::MONTHNAMES[@month.to_i] %> <%= @year %></h3>
+
+<!-- Tableau de calendrier -->
+<table class="table calendar-table">
+  <thead>
+    <tr>
+      <% Date::ABBR_DAYNAMES.each do |day_name| %>
+        <th><%= day_name %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% begin %>
+      <% first_day_of_month = Date.new(@year.to_i, @month.to_i, 1) %>
+      <% last_day_of_month = first_day_of_month.end_of_month %>
+      <% start_day_of_week = first_day_of_month.wday %>
+
+      <tr>
+        <!-- Cellules vides avant le premier jour du mois -->
+        <% start_day_of_week.times do %>
+          <td></td>
+        <% end %>
+
+        <!-- Boucle sur les jours du mois -->
+        <% (first_day_of_month..last_day_of_month).each do |date| %>
+          <% past_day_class = 'past-day' if date < Date.today %>
+          <% is_reserved = @bookings.any? { |booking| booking.start_date <= date && booking.end_date >= date } %>
+          <td class="<%= 'reserved' if is_reserved %> <%= past_day_class %>">
+            <% if is_reserved %>
+              <span class="reserved-date"><%= date.day %></span>
+            <% else %>
+              <% if date >= Date.today %>
+                <button class="btn btn-success available-day" data-date="<%= date %>" data-day="<%= date.wday %>"><%= date.day %></button>
+              <% else %>
+                <span><%= date.day %></span>
+              <% end %>
+            <% end %>
+          </td>
+          <% if date.wday == 6 %> <!-- Fin de semaine, nouvelle ligne -->
+            </tr><tr>
+          <% end %>
+        <% end %>
+
+        <!-- Cellules vides après le dernier jour du mois -->
+        <% (6 - last_day_of_month.wday).times do %>
+          <td></td>
+        <% end %>
+      </tr>
+    <% rescue ArgumentError => e %>
+      <p>Date invalide. Veuillez essayer de nouveau.</p>
+    <% end %>
+  </tbody>
+</table>
+
+<!-- Informations des dates sélectionnées -->
+<div class="mt-4">
+  <p>Date de début sélectionnée : <span id="start-date-display">Aucune</span></p>
+  <p>Date de fin sélectionnée : <span id="end-date-display">Aucune</span></p>
+</div>
+
+<!-- JavaScript pour gérer la sélection de dates -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  const durationSelect = document.getElementById('duration-select');
   const availableDays = document.querySelectorAll('.available-day');
-  const formContainer = document.getElementById('form-container');
+  const startDateField = document.getElementById('start-date-field');
+  const endDateField = document.getElementById('end-date-field');
   const startDateDisplay = document.getElementById('start-date-display');
   const endDateDisplay = document.getElementById('end-date-display');
-  const messageFormulaire = document.getElementById('message-formulaire');
   let selectedStartDate = null;
   let selectedEndDate = null;
 
-  // Fonction pour afficher un formulaire en fonction de la durée et des dates
-  function displayForm(duration, startDate, endDate) {
-    if (!duration || !startDate) return;
-
-    messageFormulaire.textContent = `Formulaire pour ${getDurationMessage(duration)} à partir du ${startDate}`;
-
-    // Assurez-vous que l'ID de la salle est inclus dans la requête fetch
-    fetch(`/get_form?duration=${duration}&start_date=${startDate}&end_date=${endDate}&room_id=<%= @room.id %>`, {
-      method: 'GET',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => response.text())
-    .then(html => {
-      formContainer.innerHTML = html;
-    })
-    .catch(error => console.error('Erreur:', error));
-  }
-
-  // Fonction pour générer le message de durée
-  function getDurationMessage(duration) {
-    switch (duration) {
-      case 'hour':
-        return "une réservation d'une heure";
-      case 'day':
-        return "une réservation d'un jour";
-      case 'multiple_days':
-        return "une réservation de plusieurs jours";
-      case 'weekend':
-        return "un week-end";
-      case 'week':
-        return "une semaine";
-      case 'month':
-        return "un mois";
-      case 'quarter':
-        return "un trimestre";
-      case 'semiannual':
-        return "un semestre";
-      case 'year':
-        return "un an";
-      default:
-        return "une réservation";
-    }
-  }
-
-  // Gérer le clic sur une date disponible
   availableDays.forEach(button => {
     button.addEventListener('click', function() {
       const selectedDate = this.getAttribute('data-date');
-      const selectedDuration = durationSelect.value;
-      const dayOfWeek = this.getAttribute('data-day'); // Récupère le jour de la semaine (0 = dimanche, 6 = samedi)
+      const selectedDuration = document.getElementById('duration-select').value;
 
-      // Gestion des différents types de durées
-      if (selectedDuration === 'weekend') {
-        if (dayOfWeek != 6) { // 6 correspond au samedi dans JavaScript
-          alert("Veuillez sélectionner un samedi pour réserver un week-end.");
-          return;
-        }
-        selectedStartDate = selectedDate;
-        selectedEndDate = new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() + 1)).toISOString().split('T')[0]; // Dimanche suivant
-      } else if (selectedDuration === 'multiple_days') {
+      if (selectedDuration === 'multiple_days') {
         if (!selectedStartDate) {
           selectedStartDate = selectedDate;
+          startDateField.value = selectedStartDate;
           startDateDisplay.textContent = selectedStartDate;
-          endDateDisplay.textContent = 'Aucune';
-        } else {
-          selectedEndDate = selectedDate;
+        } else if (!selectedEndDate) {
           const startDateObj = new Date(selectedStartDate);
-          const endDateObj = new Date(selectedEndDate);
-          const diffDays = (endDateObj - startDateObj) / (1000 * 60 * 60 * 24);
+          const endDateObj = new Date(selectedDate);
 
-          if (diffDays > 6) {
-            alert("La sélection ne doit pas dépasser 6 jours. Veuillez recommencer.");
-            selectedStartDate = null;
-            selectedEndDate = null;
+          if (endDateObj > startDateObj) {
+            selectedEndDate = selectedDate;
+            endDateField.value = selectedEndDate;
+            endDateDisplay.textContent = selectedEndDate;
+          } else {
+            alert("La date de fin doit être après la date de début.");
           }
         }
-      } else if (selectedDuration === 'week') {
-        selectedStartDate = selectedDate;
-        selectedEndDate = new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() + 6)).toISOString().split('T')[0];
-      } else if (selectedDuration === 'month') {
-        selectedStartDate = selectedDate;
-        selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 1)).toISOString().split('T')[0];
-      } else if (selectedDuration === 'quarter') {
-        selectedStartDate = selectedDate;
-        selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 3)).toISOString().split('T')[0];
-      } else if (selectedDuration === 'semiannual') {
-        selectedStartDate = selectedDate;
-        selectedEndDate = new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() + 6)).toISOString().split('T')[0];
-      } else if (selectedDuration === 'year') {
-        selectedStartDate = selectedDate;
-        selectedEndDate = new Date(new Date(selectedDate).setFullYear(new Date(selectedDate).getFullYear() + 1)).toISOString().split('T')[0];
       } else {
         selectedStartDate = selectedDate;
-        selectedEndDate = null;
+        startDateField.value = selectedStartDate;
+        startDateDisplay.textContent = selectedStartDate;
       }
-
-      // Mettre à jour les affichages
-      startDateDisplay.textContent = selectedStartDate;
-      endDateDisplay.textContent = selectedEndDate || 'Aucune';
-
-      // Mettre à jour le formulaire en fonction de la date et de la durée choisies
-      displayForm(selectedDuration, selectedStartDate, selectedEndDate);
-    });
-  });
-
-  // Gérer la modification du choix de la durée
-  durationSelect.addEventListener('change', function() {
-    if (selectedStartDate) {
-      displayForm(durationSelect.value, selectedStartDate, selectedEndDate);
-    }
-  });
-
-  // Réinitialiser la sélection
-  const resetButton = document.getElementById('reset-button');
-  resetButton.addEventListener('click', function() {
-    durationSelect.selectedIndex = 0;
-    selectedStartDate = null;
-    selectedEndDate = null;
-
-    formContainer.innerHTML = '';
-    startDateDisplay.textContent = 'Aucune';
-    endDateDisplay.textContent = 'Aucune';
-
-    availableDays.forEach(button => {
-      button.classList.remove('btn-primary');
-      button.classList.add('btn-success');
     });
   });
 });

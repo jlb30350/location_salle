@@ -16,11 +16,10 @@ class BookingsController < ApplicationController
     if @booking.save
       redirect_to finalize_booking_room_booking_path(@room, @booking), notice: 'Réservation créée avec succès.'
     else
-      flash[:alert] = 'Impossible de créer la réservation.'
-      render :new
+      render :new, alert: 'Erreur lors de la création de la réservation.'
     end
   end
-
+  
   # Modifier une réservation existante
   def edit
   end
@@ -75,6 +74,6 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:start_date, :end_date, :total_price, :status, :special_requests)
+    params.require(:booking).permit(:first_name, :last_name, :email, :phone, :start_date, :end_date, :address)
   end
 end
