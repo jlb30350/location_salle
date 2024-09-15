@@ -28,33 +28,37 @@ Rails.application.routes.draw do
     end
   end
 
+
+
   # Routes pour les chambres et les réservations
-  resources :rooms do
-    collection do
-      get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
-      get 'confirmation'
-      get 'search'
-    end
-
-    member do
-      get 'availability'
-      delete 'delete_main_photo'       # Route pour supprimer la photo principale
-      delete 'delete_additional_photo' # Route pour supprimer les photos supplémentaires
-    end
-
-    # Routes imbriquées pour les réservations
-    resources :bookings, except: [:index, :show] do
-      member do
-        get 'create_devis', defaults: { format: 'pdf' }
-        get 'finalize_booking'
-        post 'finalize_booking'
-        post 'cancel'
-        get 'view_quote', defaults: { format: 'pdf' }
-        delete 'destroy'  # Cette ligne ajoute une route pour supprimer une réservation
-      end
-      resources :payments, only: [:new, :create]
-    end
+resources :rooms do
+  collection do
+    get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
+    get 'confirmation'
+    get 'search'
   end
+
+  member do
+    get 'availability'
+    delete 'delete_main_photo'
+    delete 'delete_additional_photo'
+  end
+
+  # Routes imbriquées pour les réservations
+  resources :bookings, except: [:index, :show] do
+    member do
+      get 'create_devis', defaults: { format: 'pdf' }
+      get 'finalize_booking'
+      post 'finalize_booking'
+      post 'cancel'
+      get 'view_quote', defaults: { format: 'pdf' }
+      delete 'destroy'
+    end
+
+    # Routes pour les paiements
+    resources :payments, only: [:new, :create]
+  end
+end
 
   # Route pour obtenir les créneaux horaires disponibles
   get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots

@@ -10,9 +10,10 @@ class BookingsController < ApplicationController
 
   # Enregistrer une nouvelle réservation
   def create
+    @room = Room.find(params[:room_id])
     @booking = @room.bookings.new(booking_params)
     @booking.user = current_user
-
+  
     if @booking.save
       redirect_to finalize_booking_room_booking_path(@room, @booking), notice: 'Réservation créée avec succès.'
     else
@@ -42,13 +43,16 @@ class BookingsController < ApplicationController
 
   # Finaliser la réservation
   def finalize_booking
-    if request.post?
-      # Traitement des informations de paiement ou d'envoi de devis
-      redirect_to payment_path(@room, @booking), notice: 'Réservation finalisée.'
+    @room = Room.find(params[:room_id])
+    @booking = Booking.new(booking_params)
+    # Redirection vers la page de finalisation avec les dates et les informations déjà sélectionnées
+    if @booking.valid?
+      redirect_to finalize_booking_room_booking_path(@room, @booking)
     else
-      render :finalize_booking
+      render :new
     end
   end
+  
 
   # Annuler une réservation
   def cancel
@@ -74,6 +78,8 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.require(:booking).permit(:first_name, :last_name, :email, :phone, :start_date, :end_date, :address)
+    params.permit(:first_name, :last_name, :email, :phone, :start_date, :end_date, :duration, :address)
   end
+  
+  
 end

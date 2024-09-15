@@ -1,6 +1,7 @@
 <div class="form-message">
   <!-- Formulaire pour la réservation -->
-  <%= form_with url: finalize_booking_room_booking_path(@room, @booking), method: :get, local: true do %>
+  <%= form_with url: room_bookings_path(@room), method: :post, local: true do %>
+
     
     <!-- Champs cachés pour la date et la durée -->
     <%= hidden_field_tag :date, params[:date] %>

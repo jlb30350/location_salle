@@ -17,14 +17,23 @@ class Booking < ApplicationRecord
 
   # Recalculer le montant total
   def calculate_total_amount
-    self.total_amount = total_amount_calculated # Utilisation de la méthode pour calculer le total
+    # Si les dates sont manquantes, le montant total ne peut pas être calculé
+    if start_date.nil? || end_date.nil?
+      Rails.logger.debug "Impossible de calculer le montant total : dates manquantes."
+      self.total_amount = 0
+      return
+    end
+
+    # Calcul du montant total en fonction de la durée
+    self.total_amount = total_amount_calculated
     Rails.logger.debug "Montant total mis à jour : #{self.total_amount}" 
   end
 
-  # Calcul du montant total
+  # Calcul du montant total en fonction de la durée
   def total_amount_calculated
     Rails.logger.debug "Calcul de total_amount pour la réservation ID: #{id}, durée: #{calculated_duration}"
 
+    # Calculer le montant basé sur la durée déterminée
     case calculated_duration
     when :hour
       room.hourly_rate
@@ -45,12 +54,19 @@ class Booking < ApplicationRecord
     when :year
       room.annual_rate
     else
-      0 # Valeur par défaut
+      0 # Valeur par défaut si la durée est inconnue ou non applicable
     end
   end
 
   # Méthode pour déterminer la durée de la réservation
   def calculated_duration
+    # Vérifier que les dates existent avant de calculer la durée
+    if start_date.nil? || end_date.nil?
+      Rails.logger.debug "Durée impossible à calculer : dates manquantes."
+      return nil
+    end
+
+    # Calculer la différence en jours
     days = (end_date - start_date).to_i
     return :hour if days == 0
     return :day if days == 1

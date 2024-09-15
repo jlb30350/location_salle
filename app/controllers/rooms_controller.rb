@@ -44,6 +44,20 @@ class RoomsController < ApplicationController
     redirect_to rooms_path
   end
 
+  # Afficher une salle spécifique
+  def show
+    @year = params[:year] ? params[:year].to_i : Date.today.year
+    @month = params[:month] ? params[:month].to_i : Date.today.month
+    
+    first_day_of_month = Date.new(@year, @month, 1)
+    last_day_of_month = first_day_of_month.end_of_month
+    
+    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
+    
+    # Initialiser une nouvelle réservation non persistée
+    @booking = @room.bookings.build(user: current_user)
+  end
+
   # Créer une nouvelle salle
   def new
     @room = Room.new(
@@ -67,25 +81,6 @@ class RoomsController < ApplicationController
       annual_rental: true
     )
   end
-
-  # Afficher une salle spécifique
-  def show
-    @room = Room.find(params[:id])
-    @year = params[:year] ? params[:year].to_i : Date.today.year
-    @month = params[:month] ? params[:month].to_i : Date.today.month
-    
-    first_day_of_month = Date.new(@year, @month, 1)
-    last_day_of_month = first_day_of_month.end_of_month
-    
-    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
-    
-    # Initialiser une nouvelle réservation non persistée
-    @booking = @room.bookings.build(user: current_user)
-  end
-  
-  
-  
-  
 
   # Créer une nouvelle salle
   def create
@@ -152,7 +147,7 @@ class RoomsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { render partial: 'form_partial', locals: { message: @message } }
+      format.js { render partial: 'form_partial', locals: { message: @message } }
       format.json { render json: { message: @message } }
     end
   end
@@ -177,7 +172,6 @@ class RoomsController < ApplicationController
     flash[:alert] = "Salle non trouvée."
     redirect_to rooms_path
   end
-  
 
   def ensure_owner
     redirect_to rooms_path, alert: "Vous n'avez pas les droits pour gérer cette salle." unless current_user.id == @room.user_id
