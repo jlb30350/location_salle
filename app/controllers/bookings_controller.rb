@@ -3,56 +3,56 @@ class BookingsController < ApplicationController
   before_action :set_room
   before_action :set_booking, only: [:edit, :update, :destroy, :finalize_booking, :cancel]
 
+
+
+
+  
+
   # Créer une nouvelle réservation
-  def new
-    @booking = @room.bookings.new
-  end
-
-  # Enregistrer une nouvelle réservation
   def create
-    @room = Room.find(params[:room_id])
-    @booking = @room.bookings.new(booking_params)
-    @booking.user = current_user
-  
+    @booking = @room.bookings.build(booking_params)
+
     if @booking.save
-      redirect_to finalize_booking_room_booking_path(@room, @booking), notice: 'Réservation créée avec succès.'
-    else
-      render :new, alert: 'Erreur lors de la création de la réservation.'
-    end
-  end
-  
-  # Modifier une réservation existante
-  def edit
-  end
-
-  # Mettre à jour une réservation existante
-  def update
-    if @booking.update(booking_params)
-      redirect_to room_path(@room), notice: 'Réservation mise à jour avec succès.'
-    else
-      render :edit
-    end
-  end
-
-  # Supprimer une réservation
-  def destroy
-    @booking.destroy
-    flash[:notice] = 'Réservation supprimée avec succès.'
-    redirect_to room_path(@room)
-  end
-
-  # Finaliser la réservation
-  def finalize_booking
-    @room = Room.find(params[:room_id])
-    @booking = Booking.new(booking_params)
-    # Redirection vers la page de finalisation avec les dates et les informations déjà sélectionnées
-    if @booking.valid?
-      redirect_to finalize_booking_room_booking_path(@room, @booking)
+      redirect_to @room, notice: 'Réservation créée avec succès.'
     else
       render :new
     end
   end
+
+  # Finaliser la réservation
+  def create
+    @room = Room.find(params[:room_id])
+    @booking = @room.bookings.build(booking_params.merge(user: current_user))
   
+    # Assigner les dates manquantes si elles ne sont pas dans le formulaire
+    @booking.start_date ||= Date.parse(params[:start_date]) if params[:start_date].present?
+    @booking.end_date ||= Date.parse(params[:end_date]) if params[:end_date].present?
+  
+    if @booking.save
+      redirect_to payment_booking_path(@booking)
+    else
+      flash.now[:error] = "Impossible de créer la réservation. Vérifiez les informations."
+      render :finalize_booking
+    end
+  end
+  
+  def destroy
+    @booking.destroy
+    flash[:success] = "La réservation a été supprimée avec succès."
+    redirect_to dashboard_path # Si tu as une route de tableau de bord utilisateur
+  end
+  
+
+
+
+  def finalize_booking
+    @room = Room.find(params[:room_id])
+    @booking = @room.bookings.build(user: current_user)
+    # Aucune validation à ce stade
+    render 'finalize_booking'
+  end
+  
+
 
   # Annuler une réservation
   def cancel
@@ -60,6 +60,12 @@ class BookingsController < ApplicationController
     flash[:notice] = 'Réservation annulée avec succès.'
     redirect_to dashboard_path
   end
+
+  def payment
+    @booking = Booking.find(params[:id])
+    # Logique pour afficher la page de paiement
+  end
+  
 
   private
 
@@ -78,8 +84,7 @@ class BookingsController < ApplicationController
   end
 
   def booking_params
-    params.permit(:first_name, :last_name, :email, :phone, :start_date, :end_date, :duration, :address)
+    params.require(:booking).permit(:first_name, :last_name, :email, :phone, :address, :start_date, :end_date, :start_time, :end_time, :room_id)
   end
-  
-  
 end
+

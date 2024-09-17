@@ -46,16 +46,19 @@ class RoomsController < ApplicationController
 
   # Afficher une salle spécifique
   def show
-    @year = params[:year] ? params[:year].to_i : Date.today.year
-    @month = params[:month] ? params[:month].to_i : Date.today.month
-    
-    first_day_of_month = Date.new(@year, @month, 1)
-    last_day_of_month = first_day_of_month.end_of_month
-    
-    @bookings = @room.bookings.where('start_date <= ? AND end_date >= ?', last_day_of_month, first_day_of_month)
-    
-    # Initialiser une nouvelle réservation non persistée
+    @room = Room.find(params[:id])
+    @month = params[:month] || Date.today.month
+    @year = params[:year] || Date.today.year
+
+    # Récupérer les réservations qui chevauchent le mois en cours
+    @bookings = @room.bookings.where("start_date <= ? AND end_date >= ?", Date.new(@year.to_i, @month.to_i, -1), Date.new(@year.to_i, @month.to_i, 1))
+
+    # Initialise une nouvelle réservation non persistée pour le formulaire
     @booking = @room.bookings.build(user: current_user)
+
+    # Assure-toi que les heures sont initialisées si elles sont pertinentes
+    @booking.start_time ||= Time.zone.now.change(hour: 7) # Heure de début par défaut 7h00
+    @booking.end_time ||= Time.zone.now.change(hour: 17) # Heure de fin par défaut 17h00
   end
 
   # Créer une nouvelle salle

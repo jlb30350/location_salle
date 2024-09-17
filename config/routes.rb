@@ -28,10 +28,10 @@ Rails.application.routes.draw do
     end
   end
 
-
-
   # Routes pour les chambres et les réservations
 resources :rooms do
+  resources :bookings, only: [:create, :destroy]
+
   collection do
     get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
     get 'confirmation'
@@ -53,12 +53,14 @@ resources :rooms do
       post 'cancel'
       get 'view_quote', defaults: { format: 'pdf' }
       delete 'destroy'
+      get 'payment'
     end
 
     # Routes pour les paiements
     resources :payments, only: [:new, :create]
   end
 end
+
 
   # Route pour obtenir les créneaux horaires disponibles
   get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots

@@ -17,6 +17,7 @@
       class: 'form-control', id: 'duration-select' %>
   </div>
 
+  <!-- Affichage des réservations existantes -->
   <h3>Réservations existantes :</h3>
   <div class="reservations-list">
     <% if @bookings.present? %>
@@ -32,10 +33,10 @@
 
   <!-- Navigation du calendrier -->
   <div class="calendar-navigation mb-3 mt-4">
-    <%= link_to "Année précédente", availability_room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
-    <%= link_to "Mois précédent", availability_room_path(@room, year: @month == 1 ? @year.to_i - 1 : @year, month: @month == 1 ? 12 : @month.to_i - 1), class: "btn btn-secondary" %>
-    <%= link_to "Mois suivant", availability_room_path(@room, year: @month == 12 ? @year.to_i + 1 : @year, month: @month == 12 ? 1 : @month.to_i + 1), class: "btn btn-secondary" %>
-    <%= link_to "Année suivante", availability_room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
+    <%= link_to "Année précédente", room_path(@room, year: @year.to_i - 1, month: @month), class: "btn btn-secondary" %>
+    <%= link_to "Mois précédent", room_path(@room, year: @month == 1 ? @year.to_i - 1 : @year, month: @month == 1 ? 12 : @month.to_i - 1), class: "btn btn-secondary" %>
+    <%= link_to "Mois suivant", room_path(@room, year: @month == 12 ? @year.to_i + 1 : @year, month: @month == 12 ? 1 : @month.to_i + 1), class: "btn btn-secondary" %>
+    <%= link_to "Année suivante", room_path(@room, year: @year.to_i + 1, month: @month), class: "btn btn-secondary" %>
   </div>
 
   <h3><%= Date::MONTHNAMES[@month.to_i] %> <%= @year %></h3>
@@ -54,7 +55,7 @@
         <% first_day_of_month = Date.new(@year.to_i, @month.to_i, 1) %>
         <% last_day_of_month = first_day_of_month.end_of_month %>
         <% start_day_of_week = first_day_of_month.wday %>
-        
+
         <tr>
           <!-- Remplissage des cellules vides avant le premier jour du mois -->
           <% start_day_of_week.times do %>
@@ -80,7 +81,7 @@
               </tr><tr>
             <% end %>
           <% end %>
-          
+
           <!-- Remplissage des cellules vides après le dernier jour du mois -->
           <% (6 - last_day_of_month.wday).times do %>
             <td></td>
@@ -100,11 +101,15 @@
   <p>Date de fin sélectionnée : <span id="end-date-display">Aucune</span></p>
   <p>Heure de début sélectionnée : <span id="time-display">Aucune</span></p>
   <p>Heure de fin sélectionnée : <span id="end-time-display">Aucune</span></p>
-
-  
 </div>
 
-<div id="form-container" class="mt-4"></div>
+<!-- Formulaire caché pour soumettre la réservation -->
+<%= form_with url: room_bookings_path(@room), method: :post, local: true, id: "reservation-form" do |form| %>
+  <%= form.hidden_field :start_date, id: "start-date-input" %>
+  <%= form.hidden_field :end_date, id: "end-date-input" %>
+  <%= form.hidden_field :start_time, id: "start-time-input" %>
+  <%= form.hidden_field :end_time, id: "end-time-input" %>
+<% end %>
 
 <!-- Un seul bouton pour réserver -->
 <div class="form-group mt-4">
@@ -116,6 +121,7 @@
 </div>
 
 <script>
+
 document.addEventListener("DOMContentLoaded", function() {
   const durationSelect = document.getElementById('duration-select');
   const availableDays = document.querySelectorAll('.available-day');
@@ -125,19 +131,10 @@ document.addEventListener("DOMContentLoaded", function() {
   const endTimeDisplay = document.getElementById('end-time-display'); // Pour l'heure de fin
   let selectedStartDate = null;
   let selectedEndDate = null;
+  let selectedStartTime = "07:00";
+  let selectedEndTime = "17:00";
   let manualSelection = false;
 
-  // Initialiser les heures par défaut
-  let selectedStartTime = "07:00"; // Heure par défaut
-  let selectedEndTime = "17:00";   // Heure de fin par défaut
-
-  // Fonction pour valider l'entrée d'heure
-  function validateTimeInput(time) {
-    const regex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Format HH:MM
-    return regex.test(time);
-  }
-
-  // Fonction pour mettre à jour l'affichage des dates et des heures
   function updateDisplays() {
     startDateDisplay.textContent = selectedStartDate || 'Aucune';
     endDateDisplay.textContent = selectedEndDate || 'Aucune';
@@ -145,149 +142,67 @@ document.addEventListener("DOMContentLoaded", function() {
     endTimeDisplay.textContent = selectedEndTime || 'Aucune';
   }
 
-  // Ajouter l'écouteur pour sélectionner une date
   availableDays.forEach(button => {
     button.addEventListener('click', function() {
       const selectedDate = this.getAttribute('data-date');
       const selectedDuration = durationSelect.value;
 
-      // Si "2 à 6 jours" est sélectionné, permettre à l'utilisateur de choisir manuellement
       if (selectedDuration === 'multiple_days') {
         if (!selectedStartDate) {
-          selectedStartDate = selectedDate; // Première sélection : date de début
+          selectedStartDate = selectedDate;
         } else {
-          selectedEndDate = selectedDate; // Deuxième sélection : date de fin
+          selectedEndDate = selectedDate;
           manualSelection = true;
         }
       } else {
-        // Pour les autres types de réservation, on calcule automatiquement la date de fin
         selectedStartDate = selectedDate;
         switch (selectedDuration) {
-          case 'hour': // Réservation à l'heure
-            selectedEndDate = selectedStartDate; // Même jour
-            // Saisie d'heure pour l'heure de début
+          case 'hour':
+            selectedEndDate = selectedStartDate;
             selectedStartTime = prompt("Veuillez entrer l'heure de début (format HH:MM)", selectedStartTime);
-            if (!validateTimeInput(selectedStartTime)) {
-              alert("Heure invalide, veuillez entrer l'heure au format HH:MM.");
-              selectedStartTime = "07:00"; // Valeur par défaut si l'entrée est invalide
-            }
             selectedEndTime = prompt("Veuillez entrer l'heure de fin (format HH:MM)", selectedEndTime);
-            if (!validateTimeInput(selectedEndTime)) {
-              alert("Heure invalide, veuillez entrer l'heure au format HH:MM.");
-              selectedEndTime = "17:00"; // Valeur par défaut si l'entrée est invalide
-            }
             break;
-
-          case 'day': // Réservation à la journée
-            selectedEndDate = selectedStartDate; // Même jour
-            selectedStartTime = "07:00"; // Heure de début par défaut
-            selectedEndTime = "17:00"; // Heure de fin par défaut
+          case 'day':
+            selectedEndDate = selectedStartDate;
             break;
-
-          case 'week': // Réservation à la semaine
+          case 'week':
             selectedEndDate = new Date(new Date(selectedStartDate).setDate(new Date(selectedStartDate).getDate() + 6)).toISOString().split('T')[0];
-            selectedStartTime = "07:00"; // Heure de début par défaut
-            selectedEndTime = "17:00"; // Heure de fin par défaut
             break;
-
-          case 'weekend': // Réservation pour le week-end
-            const startDay = new Date(selectedStartDate).getDay(); // Vérification si c'est un samedi
+          case 'weekend':
+            const startDay = new Date(selectedStartDate).getDay();
             if (startDay !== 6) {
-              alert("Veuillez sélectionner un samedi pour réserver un week-end.");
+              alert("Veuillez sélectionner un samedi pour un week-end.");
               selectedStartDate = null;
               selectedEndDate = null;
-              selectedStartTime = "07:00";
-              selectedEndTime = "17:00";
             } else {
-              selectedEndDate = new Date(new Date(selectedStartDate).setDate(new Date(selectedStartDate).getDate() + 1)).toISOString().split('T')[0]; // Dimanche
-              selectedStartTime = "07:00"; // Heure de début samedi
-              selectedEndTime = "17:00";   // Heure de fin dimanche
+              selectedEndDate = new Date(new Date(selectedStartDate).setDate(new Date(selectedStartDate).getDate() + 1)).toISOString().split('T')[0];
             }
             break;
-
-          case 'month': // Réservation au mois
+          case 'month':
             selectedEndDate = new Date(new Date(selectedStartDate).setMonth(new Date(selectedStartDate).getMonth() + 1)).toISOString().split('T')[0];
-            selectedStartTime = "07:00";
-            selectedEndTime = "17:00";
             break;
-
-          default:
-            selectedEndDate = "Aucune";
-            selectedEndTime = "Aucune";
         }
       }
 
-      // Mise à jour des affichages
       updateDisplays();
     });
   });
 
-  // Réinitialiser la sélection
+  document.getElementById('reservation-button').addEventListener('click', function() {
+    document.getElementById('start-date-input').value = selectedStartDate;
+    document.getElementById('end-date-input').value = selectedEndDate;
+    document.getElementById('start-time-input').value = selectedStartTime;
+    document.getElementById('end-time-input').value = selectedEndTime;
+    document.getElementById('reservation-form').submit();
+  });
+
   document.getElementById('reset-button').addEventListener('click', function() {
-    durationSelect.selectedIndex = 0;
     selectedStartDate = null;
     selectedEndDate = null;
-    selectedStartTime = "07:00"; // Réinitialiser l'heure de début
-    selectedEndTime = "17:00"; // Réinitialiser l'heure de fin
-    manualSelection = false;
+    selectedStartTime = "07:00";
+    selectedEndTime = "17:00";
     updateDisplays();
   });
-
-  // Mise à jour des heures et dates lors du changement de durée
-  durationSelect.addEventListener('change', function() {
-    if (selectedStartDate && !manualSelection) {
-      const selectedDuration = durationSelect.value;
-      switch (selectedDuration) {
-        case 'hour':
-          selectedEndDate = selectedStartDate;
-          selectedStartTime = prompt("Veuillez entrer l'heure de début (format HH:MM)", selectedStartTime);
-          if (!validateTimeInput(selectedStartTime)) {
-            alert("Heure invalide, veuillez entrer l'heure au format HH:MM.");
-            selectedStartTime = "07:00"; // Valeur par défaut si invalide
-          }
-          selectedEndTime = prompt("Veuillez entrer l'heure de fin (format HH:MM)", selectedEndTime);
-          if (!validateTimeInput(selectedEndTime)) {
-            alert("Heure invalide, veuillez entrer l'heure au format HH:MM.");
-            selectedEndTime = "17:00"; // Valeur par défaut si invalide
-          }
-          break;
-
-        case 'day':
-          selectedEndDate = selectedStartDate;
-          selectedStartTime = "07:00";
-          selectedEndTime = "17:00";
-          break;
-
-        case 'week':
-          selectedEndDate = new Date(new Date(selectedStartDate).setDate(new Date(selectedStartDate).getDate() + 6)).toISOString().split('T')[0];
-          selectedStartTime = "07:00";
-          selectedEndTime = "17:00";
-          break;
-
-        case 'weekend':
-          // Le week-end commence toujours le samedi 7h et finit le dimanche 17h
-          selectedStartTime = "07:00";
-          selectedEndTime = "17:00";
-          break;
-
-        case 'month':
-          selectedEndDate = new Date(new Date(selectedStartDate).setMonth(new Date(selectedStartDate).getMonth() + 1)).toISOString().split('T')[0];
-          selectedStartTime = "07:00";
-          selectedEndTime = "17:00";
-          break;
-
-        default:
-          selectedEndDate = "Aucune";
-          selectedEndTime = "Aucune";
-      }
-
-      // Mise à jour des affichages
-      updateDisplays();
-    }
-  });
 });
-
-
-
 
 </script>
