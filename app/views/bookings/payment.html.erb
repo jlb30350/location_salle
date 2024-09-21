@@ -1,7 +1,85 @@
 <h1>Paiement pour la réservation</h1>
-<p>Nom de la salle : <%= @booking.room.name %></p>
-<p>Date de début : <%= @booking.start_date %></p>
-<p>Date de fin : <%= @booking.end_date %></p>
-<p>Montant total : <%= @booking.total_amount %> €</p>
 
-<!-- Intégration du processus de paiement ici -->
+<p><strong>Nom de la salle :</strong> <%= @booking.room.name %></p>
+<p><strong>Date de début :</strong> <%= @booking.start_date %></p>
+<p><strong>Date de fin :</strong> <%= @booking.end_date %></p>
+<p><strong>Montant total :</strong> <%= @booking.total_amount %> €</p>
+
+<!-- Formulaire Stripe -->
+<form action="<%= room_booking_payment_path(@booking.room, @booking) %>" method="post" id="payment-form">
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %> <!-- Ajoute le token CSRF -->
+
+  <div class="form-row">
+    <label for="card-element">
+      Carte de crédit ou de débit
+    </label>
+    <div id="card-element">
+      <!-- Stripe va insérer ses éléments ici -->
+    </div>
+
+    <!-- Erreurs de carte -->
+    <div id="card-errors" role="alert"></div>
+  </div>
+
+  <button type="submit">Payer</button>
+</form>
+
+<!-- Script Stripe -->
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  var stripe = Stripe('<%= Rails.application.credentials.dig(:stripe, :publishable_key) %>');
+  var elements = stripe.elements();
+
+  var style = {
+    base: {
+      color: '#32325d',
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSmoothing: 'antialiased',
+      fontSize: '16px',
+      '::placeholder': {
+        color: '#aab7c4'
+      }
+    },
+    invalid: {
+      color: '#fa755a',
+      iconColor: '#fa755a'
+    }
+  };
+
+  var card = elements.create('card', {style: style});
+  card.mount('#card-element');
+
+  card.on('change', function(event) {
+    var displayError = document.getElementById('card-errors');
+    if (event.error) {
+      displayError.textContent = event.error.message;
+    } else {
+      displayError.textContent = '';
+    }
+  });
+
+  var form = document.getElementById('payment-form');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    stripe.createToken(card).then(function(result) {
+      if (result.error) {
+        var errorElement = document.getElementById('card-errors');
+        errorElement.textContent = result.error.message;
+      } else {
+        stripeTokenHandler(result.token);
+      }
+    });
+  });
+
+  function stripeTokenHandler(token) {
+    var form = document.getElementById('payment-form');
+    var hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'hidden');
+    hiddenInput.setAttribute('name', 'stripeToken');
+    hiddenInput.setAttribute('value', token.id);
+    form.appendChild(hiddenInput);
+
+    form.submit();
+  }
+</script>

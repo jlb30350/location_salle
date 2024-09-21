@@ -27,8 +27,10 @@
   </div>
 
   <div class="form-group">
-     <%= form.submit "Payer maintenant", name: "commit", class: "btn btn-primary" %>
-  <%= form.submit "Voir le devis", name: "commit", class: "btn btn-secondary" %>
+  <%= link_to 'Voir/Imprimer le Devis', quote_room_booking_path(booking.room, booking), class: 'btn btn-secondary btn-sm' %>
+
+  <%= link_to 'Payer', room_booking_payment_path(booking.room, booking), class: 'btn btn-primary btn-sm' %>
+
   </div>
 <% end %>
 

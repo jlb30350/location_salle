@@ -4,4 +4,7 @@
 <p>Nom de la salle : <%= @booking.room.name %></p>
 <p>Date de début : <%= @booking.start_date %></p>
 <p>Date de fin : <%= @booking.end_date %></p>
-<p>Montant total estimé : <%= @booking.total_amount %> €</p>
+<p>Montant total à régler: <%= @booking.total_amount %> €</p>
+
+<%= link_to 'Accueil', root_path(anchor: 'search-section'), class: 'btn btn-primary' %>
+<%= link_to 'Payer', room_booking_payment_path(@booking.room, @booking), class: 'btn btn-primary btn-sm' %>

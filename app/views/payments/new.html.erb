@@ -1,52 +1,78 @@
-<h1>Procéder au paiement</h1>
+<h1>Paiement pour la réservation</h1>
 
-<p>Montant à payer : <%= number_to_currency(@amount, unit: "€") %></p>
+<p><strong>Montant à payer :</strong> <%= number_to_currency(@amount, unit: "€") %></p>
 
-<%= form_with url: room_booking_payments_path(@room, @booking), id: 'payment-form', method: :post, local: true do |form| %>
+<!-- Formulaire Stripe -->
+<%= form_with url: room_booking_payment_path(@room, @booking), id: 'payment-form', method: :post, local: true do |form| %>
   <div class="form-group">
     <label for="card-element">Informations de la carte</label>
-    <div id="card-element"><!-- Stripe Elements injectera ici le formulaire de carte --></div>
+    <div id="card-element">
+      <!-- Stripe va injecter les champs de carte ici -->
+    </div>
+
+    <!-- Zone d'affichage des erreurs -->
+    <div id="card-errors" role="alert"></div>
   </div>
 
-  <div id="error-message" class="alert alert-danger" style="display: none;"></div>
-
-  <div class="form-group">
-    <%= form.submit "Payer maintenant", class: "btn btn-primary" %>
-    <%= link_to 'Retour', room_path(@room), class: 'btn btn-secondary' %>
-  </div>
+  <button type="submit" class="btn btn-primary">Payer</button>
 <% end %>
 
+<!-- Script Stripe -->
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var stripe = Stripe('<%= Rails.application.credentials.dig(:stripe, :publishable_key) %>');
-    var elements = stripe.elements();
-    var card = elements.create('card');
-    card.mount('#card-element');
+  var stripe = Stripe('<%= Rails.application.credentials.dig(:stripe, :publishable_key) %>');
+  var elements = stripe.elements();
 
-    var form = document.getElementById('payment-form');
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
-      stripe.createToken(card).then(function(result) {
-        if (result.error) {
-          var errorElement = document.getElementById('error-message');
-          errorElement.textContent = result.error.message;
-          errorElement.style.display = 'block';
-        } else {
-          stripeTokenHandler(result.token);
-        }
-      });
-    });
+  var style = {
+    base: {
+      color: '#32325d',
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSmoothing: 'antialiased',
+      fontSize: '16px',
+      '::placeholder': {
+        color: '#aab7c4'
+      }
+    },
+    invalid: {
+      color: '#fa755a',
+      iconColor: '#fa755a'
+    }
+  };
 
-    function stripeTokenHandler(token) {
-      var form = document.getElementById('payment-form');
-      var hiddenInput = document.createElement('input');
-      hiddenInput.setAttribute('type', 'hidden');
-      hiddenInput.setAttribute('name', 'stripeToken');
-      hiddenInput.setAttribute('value', token.id);
-      form.appendChild(hiddenInput);
+  var card = elements.create('card', {style: style});
+  card.mount('#card-element');
 
-      form.submit(); // Soumet le formulaire au serveur après avoir ajouté le token
+  card.on('change', function(event) {
+    var displayError = document.getElementById('card-errors');
+    if (event.error) {
+      displayError.textContent = event.error.message;
+    } else {
+      displayError.textContent = '';
     }
   });
+
+  var form = document.getElementById('payment-form');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    stripe.createToken(card).then(function(result) {
+      if (result.error) {
+        var errorElement = document.getElementById('card-errors');
+        errorElement.textContent = result.error.message;
+      } else {
+        stripeTokenHandler(result.token);
+      }
+    });
+  });
+
+  function stripeTokenHandler(token) {
+    var form = document.getElementById('payment-form');
+    var hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'hidden');
+    hiddenInput.setAttribute('name', 'stripeToken');
+    hiddenInput.setAttribute('value', token.id);
+    form.appendChild(hiddenInput);
+
+    form.submit();
+  }
 </script>

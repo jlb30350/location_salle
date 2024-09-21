@@ -45,13 +45,13 @@ Rails.application.routes.draw do
     # Routes imbriquées pour les réservations
     resources :bookings, only: [:create, :edit, :update, :destroy] do
       member do
-        get 'payment' # Page de paiement
+        get 'payment', to: 'payments#new'   # Affichage du formulaire de paiement
+        post 'payment', to: 'payments#create'  # Soumission du formulaire de paiement
+
         get 'quote'   # Page de devis
-        get 'create_devis', defaults: { format: 'pdf' }
         get 'finalize_booking'
         post 'finalize_booking'
         post 'cancel'
-        get 'view_quote', defaults: { format: 'pdf' }
       end
     end
   end
