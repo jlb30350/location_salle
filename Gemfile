@@ -39,6 +39,7 @@ gem 'whenever', require: false
 
 gem 'prawn'
 
+gem 'bullet', group: :development
 
 
 

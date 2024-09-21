@@ -4,7 +4,7 @@
 <p>Après : <%= time_after %></p>
 
 <!-- Formulaire pour réserver le créneau -->
-<%= form_with url: finalize_booking_room_booking_path(@room, @booking), method: :get do %>
+<%= form_with url: finalize_booking_room_booking_path(@room, @booking), method: :post do %>
   
   <!-- Champs cachés pour les paramètres requis -->
   <%= hidden_field_tag :room_id, @room.id %>

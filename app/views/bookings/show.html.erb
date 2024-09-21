@@ -16,7 +16,8 @@
 <%= link_to 'Modifier la réservation', edit_room_booking_path(@booking.room, @booking), class: 'btn btn-secondary' %>
 
 <!-- Lien pour supprimer la réservation -->
-<%= link_to 'Supprimer la réservation', room_booking_path(@booking.room, @booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation?' }, class: 'btn btn-danger' %>
+<%= link_to 'Supprimer la réservation', booking_path(@booking), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: "btn btn-danger" %>
+
 
 <!-- Lien pour revenir à la liste des réservations ou à la salle -->
 <%= link_to 'Retour à la liste des réservations', room_path(@booking.room), class: 'btn btn-secondary' %>

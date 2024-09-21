@@ -103,13 +103,18 @@
   <p>Heure de fin sélectionnée : <span id="end-time-display">Aucune</span></p>
 </div>
 
+
 <!-- Formulaire caché pour soumettre la réservation -->
-<%= form_with url: room_bookings_path(@room), method: :post, local: true, id: "reservation-form" do |form| %>
+<%= form_with model: @booking, url: room_bookings_path(@room), method: :post, local: true, id: "reservation-form" do |form| %>
   <%= form.hidden_field :start_date, id: "start-date-input" %>
   <%= form.hidden_field :end_date, id: "end-date-input" %>
   <%= form.hidden_field :start_time, id: "start-time-input" %>
   <%= form.hidden_field :end_time, id: "end-time-input" %>
+  <%= form.hidden_field :room_id, value: @room.id %>
 <% end %>
+
+
+
 
 <!-- Un seul bouton pour réserver -->
 <div class="form-group mt-4">
@@ -120,6 +125,7 @@
   <button id="reset-button" class="btn btn-warning">Réinitialiser la durée</button>
 </div>
 
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -127,13 +133,13 @@ document.addEventListener("DOMContentLoaded", function() {
   const availableDays = document.querySelectorAll('.available-day');
   const startDateDisplay = document.getElementById('start-date-display');
   const endDateDisplay = document.getElementById('end-date-display');
-  const timeDisplay = document.getElementById('time-display'); // Pour l'heure de début
-  const endTimeDisplay = document.getElementById('end-time-display'); // Pour l'heure de fin
+  const timeDisplay = document.getElementById('time-display');
+  const endTimeDisplay = document.getElementById('end-time-display');
+  
   let selectedStartDate = null;
   let selectedEndDate = null;
   let selectedStartTime = "07:00";
   let selectedEndTime = "17:00";
-  let manualSelection = false;
 
   function updateDisplays() {
     startDateDisplay.textContent = selectedStartDate || 'Aucune';
@@ -152,7 +158,6 @@ document.addEventListener("DOMContentLoaded", function() {
           selectedStartDate = selectedDate;
         } else {
           selectedEndDate = selectedDate;
-          manualSelection = true;
         }
       } else {
         selectedStartDate = selectedDate;
@@ -183,12 +188,15 @@ document.addEventListener("DOMContentLoaded", function() {
             break;
         }
       }
-
       updateDisplays();
     });
   });
 
   document.getElementById('reservation-button').addEventListener('click', function() {
+    if (!selectedStartDate || !selectedEndDate) {
+      alert("Veuillez sélectionner les dates de début et de fin avant de réserver.");
+      return;
+    }
     document.getElementById('start-date-input').value = selectedStartDate;
     document.getElementById('end-date-input').value = selectedEndDate;
     document.getElementById('start-time-input').value = selectedStartTime;
@@ -204,5 +212,7 @@ document.addEventListener("DOMContentLoaded", function() {
     updateDisplays();
   });
 });
+
+
 
 </script>

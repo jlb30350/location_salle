@@ -46,12 +46,11 @@ class RoomsController < ApplicationController
 
   # Afficher une salle spécifique
   def show
-    @room = Room.find(params[:id])
     @month = params[:month] || Date.today.month
     @year = params[:year] || Date.today.year
 
     # Récupérer les réservations qui chevauchent le mois en cours
-    @bookings = @room.bookings.where("start_date <= ? AND end_date >= ?", Date.new(@year.to_i, @month.to_i, -1), Date.new(@year.to_i, @month.to_i, 1))
+    @bookings = @room.bookings.where("start_date <= ? AND end_date >= ?", Date.new(@year.to_i, @month.to_i, 1).end_of_month, Date.new(@year.to_i, @month.to_i, 1))
 
     # Initialise une nouvelle réservation non persistée pour le formulaire
     @booking = @room.bookings.build(user: current_user)
@@ -126,28 +125,18 @@ class RoomsController < ApplicationController
     start_date = params[:start_date]
     end_date = params[:end_date]
 
-    case duration
-    when 'hour'
-      @message = "Formulaire pour une réservation d'une heure à partir du #{start_date}"
-    when 'day'
-      @message = "Formulaire pour une réservation d'un jour à partir du #{start_date}"
-    when 'multiple_days'
-      @message = "Formulaire pour une réservation de plusieurs jours, du #{start_date} au #{end_date}"
-    when 'weekend'
-      @message = "Formulaire pour un week-end à partir du #{start_date}"
-    when 'week'
-      @message = "Formulaire pour une semaine à partir du #{start_date}"
-    when 'month'
-      @message = "Formulaire pour un mois à partir du #{start_date}"
-    when 'quarter'
-      @message = "Formulaire pour un trimestre à partir du #{start_date}"
-    when 'semiannual'
-      @message = "Formulaire pour un semestre à partir du #{start_date}"
-    when 'year'
-      @message = "Formulaire pour une année à partir du #{start_date}"
-    else
-      @message = "Durée non reconnue"
-    end
+    @message = case duration
+               when 'hour' then "Formulaire pour une réservation d'une heure à partir du #{start_date}"
+               when 'day' then "Formulaire pour une réservation d'un jour à partir du #{start_date}"
+               when 'multiple_days' then "Formulaire pour une réservation de plusieurs jours, du #{start_date} au #{end_date}"
+               when 'weekend' then "Formulaire pour un week-end à partir du #{start_date}"
+               when 'week' then "Formulaire pour une semaine à partir du #{start_date}"
+               when 'month' then "Formulaire pour un mois à partir du #{start_date}"
+               when 'quarter' then "Formulaire pour un trimestre à partir du #{start_date}"
+               when 'semiannual' then "Formulaire pour un semestre à partir du #{start_date}"
+               when 'year' then "Formulaire pour une année à partir du #{start_date}"
+               else "Durée non reconnue"
+               end
 
     respond_to do |format|
       format.js { render partial: 'form_partial', locals: { message: @message } }
@@ -170,7 +159,7 @@ class RoomsController < ApplicationController
   end
 
   def set_room
-    @room = Room.find(params[:room_id] || params[:id])
+    @room = Room.includes(:bookings).find(params[:id])
   rescue ActiveRecord::RecordNotFound
     flash[:alert] = "Salle non trouvée."
     redirect_to rooms_path

@@ -1,78 +1,33 @@
-<h1>Finalisation de la réservation</h1>
-
-<!-- Afficher le nom de la salle -->
-<p><strong>Nom de la salle :</strong> <%= @room.name %></p>
-
-<!-- Afficher les dates sélectionnées -->
-<p><strong>Date de début :</strong> <%= @booking.start_date ? @booking.start_date.strftime('%d/%m/%Y') : "Date non spécifiée" %></p>
-<p><strong>Date de fin :</strong> <%= @booking.end_date ? @booking.end_date.strftime('%d/%m/%Y') : "Date non spécifiée" %></p>
-
-<!-- Afficher les heures sélectionnées -->
-<p><strong>Heure de début :</strong> <%= @booking.start_time ? @booking.start_time.strftime('%H:%M') : "Heure non spécifiée" %></p>
-<p><strong>Heure de fin :</strong> <%= @booking.end_time ? @booking.end_time.strftime('%H:%M') : "Heure non spécifiée" %></p>
-
-<!-- Formulaire de finalisation -->
-<%= form_with model: @booking, url: @booking.persisted? ? room_booking_path(@room, @booking) : room_bookings_path(@room), method: @booking.persisted? ? :patch : :post do |form| %>
-  <!-- Informations sur l'utilisateur -->
+<%= form_with model: @booking, url: room_bookings_path(@room), method: :post, local: true do |form| %>
   <div class="form-group">
     <%= form.label :first_name, "Prénom" %>
-    <%= form.text_field :first_name, value: @booking.first_name, class: "form-control", required: true %>
+    <%= form.text_field :first_name, class: "form-control", required: true %>
   </div>
 
   <div class="form-group">
     <%= form.label :last_name, "Nom" %>
-    <%= form.text_field :last_name, value: @booking.last_name, class: "form-control", required: true %>
+    <%= form.text_field :last_name, class: "form-control", required: true %>
   </div>
 
   <div class="form-group">
     <%= form.label :email, "Adresse e-mail" %>
-    <%= form.email_field :email, value: @booking.email, class: "form-control", required: true %>
+    <%= form.email_field :email, class: "form-control", required: true %>
   </div>
 
   <div class="form-group">
     <%= form.label :phone, "Téléphone" %>
-    <%= form.telephone_field :phone, value: @booking.phone, class: "form-control", required: true %>
+    <%= form.text_field :phone, class: "form-control", required: true %>
   </div>
 
   <div class="form-group">
-    <%= form.label :address, "Adresse" %>
-    <%= form.text_field :address, value: @booking.address, class: "form-control", required: true %>
-  </div>
-
-  <!-- Dates sélectionnées (affichage non modifiable) -->
-  <div class="form-group">
-    <%= form.label :start_date, "Date de début" %>
-    <%= form.date_select :start_date, default: @booking.start_date, disabled: true, class: "form-control" %>
-    <%= form.hidden_field :start_date, value: @booking.start_date %> <!-- Champ caché pour soumettre la date -->
+    <%= form.hidden_field :start_date, value: @booking.start_date || params[:start_date] %>
+    <%= form.hidden_field :end_date, value: @booking.end_date || params[:end_date] %>
+    <%= form.hidden_field :start_time, value: @booking.start_time || "07:00" %>
+    <%= form.hidden_field :end_time, value: @booking.end_time || "17:00" %>
   </div>
 
   <div class="form-group">
-    <%= form.label :end_date, "Date de fin" %>
-    <%= form.date_select :end_date, default: @booking.end_date, disabled: true, class: "form-control" %>
-    <%= form.hidden_field :end_date, value: @booking.end_date %> <!-- Champ caché pour soumettre la date -->
-  </div>
-
-  <!-- Heures sélectionnées (affichage non modifiable) -->
-  <div class="form-group">
-    <%= form.label :start_time, "Heure de début" %>
-    <%= form.time_select :start_time, default: @booking.start_time, disabled: true, class: "form-control" %>
-    <%= form.hidden_field :start_time, value: @booking.start_time %> <!-- Champ caché pour soumettre l'heure de début -->
-  </div>
-
-  <div class="form-group">
-    <%= form.label :end_time, "Heure de fin" %>
-    <%= form.time_select :end_time, default: @booking.end_time, disabled: true, class: "form-control" %>
-    <%= form.hidden_field :end_time, value: @booking.end_time %> <!-- Champ caché pour soumettre l'heure de fin -->
-  </div>
-
-  <!-- Boutons de finalisation -->
-  <div class="form-group">
-    <%= form.submit "Payer maintenant", name: "continue", class: "btn btn-primary" %>
-    <%= form.submit "Demander un devis", name: "quote", class: "btn btn-secondary" %>
+    <%= form.submit "Réserver", class: "btn btn-primary" %>
   </div>
 <% end %>
 
-<!-- Bouton de retour -->
-<div class="form-group">
-  <%= link_to 'Retour à la réservation', room_bookings_path(@room), class: 'btn btn-warning' %>
-</div>

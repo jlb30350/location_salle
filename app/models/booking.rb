@@ -6,7 +6,8 @@ class Booking < ApplicationRecord
   validates :first_name, :last_name, :email, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP, message: "doit être une adresse e-mail valide" }
   validates :phone, format: { with: /\A\d{10}\z/, message: "doit être un numéro de téléphone valide (10 chiffres)" }
-  validates :start_date, :end_date, presence: true
+  validates :start_date, :end_date, :start_time, :end_time, presence: true
+
   validate :start_date_in_the_future
   validate :end_date_after_start_date
   validate :no_overlap_with_existing_bookings
@@ -15,25 +16,18 @@ class Booking < ApplicationRecord
   # Calculer le montant total avant validation
   before_validation :calculate_total_amount
 
-  # Recalculer le montant total
   def calculate_total_amount
-    # Si les dates sont manquantes, le montant total ne peut pas être calculé
-    if start_date.nil? || end_date.nil?
-      Rails.logger.debug "Impossible de calculer le montant total : dates manquantes."
-      self.total_amount = 0
-      return
+    if start_date && end_date && start_time && end_time
+      self.total_amount = total_amount_calculated
+      Rails.logger.debug "Montant total mis à jour : #{self.total_amount}"
+    else
+      errors.add(:base, "Impossible de calculer le montant total : dates ou heures manquantes.")
     end
-
-    # Calcul du montant total en fonction de la durée
-    self.total_amount = total_amount_calculated
-    Rails.logger.debug "Montant total mis à jour : #{self.total_amount}" 
   end
 
-  # Calcul du montant total en fonction de la durée
   def total_amount_calculated
     Rails.logger.debug "Calcul de total_amount pour la réservation ID: #{id}, durée: #{calculated_duration}"
 
-    # Calculer le montant basé sur la durée déterminée
     case calculated_duration
     when :hour
       room.hourly_rate
@@ -58,15 +52,9 @@ class Booking < ApplicationRecord
     end
   end
 
-  # Méthode pour déterminer la durée de la réservation
   def calculated_duration
-    # Vérifier que les dates existent avant de calculer la durée
-    if start_date.nil? || end_date.nil?
-      Rails.logger.debug "Durée impossible à calculer : dates manquantes."
-      return nil
-    end
+    return nil if start_date.nil? || end_date.nil?
 
-    # Calculer la différence en jours
     days = (end_date - start_date).to_i
     return :hour if days == 0
     return :day if days == 1
@@ -81,34 +69,36 @@ class Booking < ApplicationRecord
 
   private
 
-  # Vérifie que la date de début est dans le futur
+  # Valider que la date de début est dans le futur
   def start_date_in_the_future
     if start_date.present? && start_date < Date.today
       errors.add(:start_date, "ne peut pas être dans le passé")
     end
   end
 
-  # Vérifie que la date de fin est après la date de début
+  # Valider que la date de fin est après la date de début
   def end_date_after_start_date
-    if start_date.present? && end_date.present? && end_date <= start_date
-      errors.add(:end_date, "doit être après la date de début")
+    if start_date.present? && end_date.present?
+      # Vérifie si c'est une réservation horaire
+      if start_date == end_date && start_time >= end_time
+        errors.add(:end_time, "L'heure de fin doit être après l'heure de début pour une réservation horaire.")
+      elsif end_date < start_date
+        errors.add(:end_date, "doit être après la date de début")
+      end
     end
   end
 
-  # Vérifie l'absence de chevauchements avec les réservations existantes
+  # Vérifier s'il y a des réservations chevauchantes
   def no_overlap_with_existing_bookings
-    return unless start_date.present? && end_date.present?
-
-    overlapping_bookings = Booking.where(room_id: room_id)
-                                  .where.not(id: id)
-                                  .where("start_date < ? AND end_date > ?", end_date, start_date)
+    overlapping_bookings = room.bookings.where.not(id: self.id)
+                                        .where('start_date < ? AND end_date > ?', self.end_date, self.start_date)
 
     if overlapping_bookings.exists?
-      errors.add(:base, "Les dates sélectionnées chevauchent une réservation existante.")
+      errors.add(:base, 'Cette réservation chevauche une autre réservation existante.')
     end
   end
 
-  # S'assurer que les tarifs de la salle sont présents
+  # Vérifier que les tarifs de la salle sont bien définis
   def room_rates_present
     if room.hourly_rate.nil? && room.daily_rate.nil? && room.weekly_rate.nil? && room.monthly_rate.nil?
       errors.add(:room, "Les tarifs de location ne sont pas définis.")

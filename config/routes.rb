@@ -29,22 +29,24 @@ Rails.application.routes.draw do
   end
 
   # Routes pour les chambres et les réservations
-resources :rooms do
-  resources :bookings, only: [:create, :destroy]
+  resources :rooms do
+    resources :bookings, only: [:create]
+    collection do
+      get 'my_rooms'
+      get 'confirmation'
+      get 'search'
+    end
 
-  collection do
-    get 'my_rooms', to: 'rooms#my_rooms', as: :my_rooms
-    get 'confirmation'
-    get 'search'
+    member do
+      get 'availability'
+      delete 'delete_main_photo'
+      delete 'delete_additional_photo'
+    end
+
+    resources :bookings, only: [:edit, :update, :destroy]
   end
 
-  member do
-    get 'availability'
-    delete 'delete_main_photo'
-    delete 'delete_additional_photo'
-  end
-
-  # Routes imbriquées pour les réservations
+  # Routes pour les réservations
   resources :bookings, except: [:index, :show] do
     member do
       get 'create_devis', defaults: { format: 'pdf' }
@@ -59,15 +61,13 @@ resources :rooms do
     # Routes pour les paiements
     resources :payments, only: [:new, :create]
   end
-end
-
 
   # Route pour obtenir les créneaux horaires disponibles
   get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots
-  
+
   # Route pour afficher le formulaire en fonction du type de réservation
   get 'get_form', to: 'rooms#get_form', as: :get_form
-  
+
   # Route pour afficher la page de paiement pour une réservation spécifique
   get 'rooms/:room_id/bookings/:id/payment', to: 'payments#new', as: 'room_booking_payment'
 

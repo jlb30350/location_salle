@@ -1,6 +1,7 @@
 <h1>Choisissez vos dates</h1>
 
-<%= form_with url: select_dates_room_bookings_path(@room.id), method: :get do %>
+<%= link_to 'Supprimer', booking_path(@room.id), method: :delete, data: { confirm: 'Êtes-vous sûr de vouloir supprimer cette réservation ?' }, class: 'btn btn-danger' %>
+
   <div class="form-group">
     <%= label_tag :start_date, "Date de début" %>
     <%= date_field_tag :start_date %>
