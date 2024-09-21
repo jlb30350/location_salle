@@ -30,7 +30,6 @@ Rails.application.routes.draw do
 
   # Routes pour les chambres et les réservations
   resources :rooms do
-    resources :bookings, only: [:create]
     collection do
       get 'my_rooms'
       get 'confirmation'
@@ -43,24 +42,22 @@ Rails.application.routes.draw do
       delete 'delete_additional_photo'
     end
 
-    resources :bookings, only: [:edit, :update, :destroy]
-  end
-
-  # Routes pour les réservations
-  resources :bookings, except: [:index, :show] do
-    member do
-      get 'create_devis', defaults: { format: 'pdf' }
-      get 'finalize_booking'
-      post 'finalize_booking'
-      post 'cancel'
-      get 'view_quote', defaults: { format: 'pdf' }
-      delete 'destroy'
-      get 'payment'
+    # Routes imbriquées pour les réservations
+    resources :bookings, only: [:create, :edit, :update, :destroy] do
+      member do
+        get 'payment' # Page de paiement
+        get 'quote'   # Page de devis
+        get 'create_devis', defaults: { format: 'pdf' }
+        get 'finalize_booking'
+        post 'finalize_booking'
+        post 'cancel'
+        get 'view_quote', defaults: { format: 'pdf' }
+      end
     end
-
-    # Routes pour les paiements
-    resources :payments, only: [:new, :create]
   end
+
+  # Routes pour les paiements
+  resources :payments, only: [:new, :create]
 
   # Route pour obtenir les créneaux horaires disponibles
   get 'get_time_slots', to: 'rooms#get_time_slots', as: :get_time_slots

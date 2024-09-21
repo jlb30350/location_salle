@@ -1,75 +1,47 @@
 class BookingsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_room
-  before_action :set_booking, only: [:edit, :update, :destroy, :finalize_booking, :cancel]
-
+  before_action :set_booking, only: [:edit, :update, :destroy, :finalize_booking, :cancel, :payment, :quote]
 
   def new
-    @room = Room.find(params[:room_id])
     @booking = @room.bookings.build(user: current_user)
     @booking.start_date ||= Date.today
     @booking.end_date ||= Date.today
     @booking.start_time ||= Time.now.change(hour: 7)
     @booking.end_time ||= Time.now.change(hour: 17)
   end
-  
-
-
-  def index
-    @room = Room.find(params[:room_id])
-    @bookings = @room.bookings
-  end
-
-  def show
-    @booking = Booking.find(params[:id])
-  end
-
-
-
-  
 
   def create
     @booking = @room.bookings.new(booking_params.merge(user: current_user))
 
-
     if @booking.save
-      flash[:notice] = 'Réservation effectuée avec succès.'
-      redirect_to room_path(@booking.room)
+      if params[:commit] == 'Payer maintenant'
+        redirect_to payment_booking_path(@booking) # Redirige vers la page de paiement
+      elsif params[:commit] == 'Voir le devis'
+        redirect_to quote_booking_path(@booking) # Redirige vers la page de devis
+      else
+        flash[:notice] = 'Réservation effectuée avec succès.'
+        redirect_to room_path(@booking.room)
+      end
     else
-      flash.now[:alert] = @booking.errors.full_messages.to_sentence # Affiche les erreurs
+      flash.now[:alert] = "Erreur lors de la réservation. Veuillez vérifier les informations."
       render :new
     end
   end
 
-  
- 
-  
-  
-  
-  
-  
-  
   def destroy
-    @booking = Booking.find(params[:id])
     @booking.destroy
     flash[:notice] = "Réservation supprimée avec succès."
     redirect_to room_path(@booking.room)
   end
-  
-  
-
-
 
   def finalize_booking
-    @booking = @room.bookings.build(user: current_user)
+    # Cette méthode pourrait être appelée lors de la finalisation d'une réservation
     @booking.start_date ||= params[:start_date] || Time.zone.today
     @booking.end_date ||= params[:end_date] || Time.zone.today
-    @booking.start_time ||= Time.zone.now.change(hour: 7) # ou utilisez la valeur transmise
-    @booking.end_time ||= Time.zone.now.change(hour: 17) # ou utilisez la valeur transmise
+    @booking.start_time ||= Time.zone.now.change(hour: 7)
+    @booking.end_time ||= Time.zone.now.change(hour: 17)
   end
-  
-  
-
 
   # Annuler une réservation
   def cancel
@@ -78,15 +50,18 @@ class BookingsController < ApplicationController
     redirect_to dashboard_path
   end
 
+  # Page de paiement
   def payment
-    @booking = Booking.find(params[:id])
-    # Logique pour afficher la page de paiement
+    # Ajoute ici la logique pour afficher ou traiter la page de paiement
   end
-  
+
+  # Page de devis
+  def quote
+    # Ajoute ici la logique pour afficher ou générer le devis
+  end
 
   private
 
-  # Méthode pour trouver la salle
   def set_room
     @room = Room.find(params[:room_id])
   rescue ActiveRecord::RecordNotFound
@@ -94,7 +69,6 @@ class BookingsController < ApplicationController
     redirect_to rooms_path
   end
 
-  # Méthode pour trouver la réservation
   def set_booking
     @booking = Booking.find(params[:id])
   rescue ActiveRecord::RecordNotFound
@@ -102,7 +76,6 @@ class BookingsController < ApplicationController
     redirect_to room_path(@room)
   end
 
-  # Filtrage des paramètres pour les réservations
   def booking_params
     params.require(:booking).permit(:first_name, :last_name, :email, :phone, :start_date, :end_date, :start_time, :end_time, :room_id)
   end
